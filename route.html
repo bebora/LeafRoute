@@ -11,7 +11,7 @@
         <!-- BOOTSTRAP compiled and minified CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
-        <!-- BBOTSTRAP Optional theme -->
+        <!-- BOOTSTRAP Optional theme -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 
         <!-- BOOTSTRAP compiled and minified JavaScript -->
@@ -23,37 +23,19 @@
         <!-- LEAFLET JS-->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.4.0/leaflet.js" integrity="sha256-6BZRSENq3kxI4YYBDqJ23xg0r1GwTHEpvp3okdaIqBw=" crossorigin="anonymous"></script>
 
-        <link rel="stylesheet" type="text/css" href="route.css">
+        <link rel="stylesheet" type="text/css" href="style/route.css">
+
     </head>
     <body>
-        <div id="mainmap"></div>
+        <div class=mapbox>
+            <div id="map"></div>
+            <div class="overlay" id="input" style="display: block;">
+              <input type="text" class="text-search" id="lat" placeholder="Latitude"></input>
+              <input type="text" class="text-search" id="lng" placeholder="Longitude"></input>
+              <button type="button" class="button-search" id="button">Go!</button>
+            </div>  
+        </div>
+        <script src="scripts/route.js"></script>
     </body>
-    <script>
-        $(document).ready(function()
-        {
-            var mymap = L.map('mainmap').setView([45.465756, 9.187551], 14);
-            //TODO consider changing tile provider
-            L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-                maxZoom: 19,
-                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            }).addTo(mymap);
-
-            function onLocationFound(e) {
-                var radius = e.accuracy / 2;
-                L.marker(e.latlng).addTo(mymap)
-                    .bindPopup("You are within " + radius + " meters from this point").openPopup();
-                L.circle(e.latlng, radius).addTo(mymap);
-            }
-
-            mymap.on('locationfound', onLocationFound);
-
-            function onLocationError(e) {
-                alert(e.message);
-            }
-
-            mymap.on('locationerror', onLocationError);
-
-            mymap.locate({setView: true, maxZoom: 16});
-        })
-    </script>
+    
 </html>
