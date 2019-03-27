@@ -22,6 +22,8 @@
 
         <!-- LEAFLET JS-->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.4.0/leaflet.js" integrity="sha256-6BZRSENq3kxI4YYBDqJ23xg0r1GwTHEpvp3okdaIqBw=" crossorigin="anonymous"></script>
+        
+        <script type="text/javascript" src="scripts/MovingMarker.js"></script>
 
         <link rel="stylesheet" type="text/css" href="style/route.css">
 
@@ -32,7 +34,9 @@
             <div class="overlay" id="input" style="display: block;">
               <input type="text" class="text-search" id="lat" placeholder="Latitude"></input>
               <input type="text" class="text-search" id="lng" placeholder="Longitude"></input>
-              <button type="button" class="button-search" id="button">Go!</button>
+              <button type="button" class="button-search" id="button">Add!</button>
+              <input type="text" class="text-speed" id="speed" placeholder="Speed[Km/H]"></input>
+              <button type="button" class="button-go" id="button_speed">Go!</button>
             </div>  
         </div>
         <script src="scripts/route.js"></script>
