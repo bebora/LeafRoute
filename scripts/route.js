@@ -24,14 +24,18 @@ $(document).ready(function()
     map.locate({setView: true, maxZoom: 16});
 
     polyline = L.polyline([]).addTo(map);
+    var size = 0;
     function showpoly(){
         var lat = document.getElementById('lat').value;
         var lng = document.getElementById('lng').value;
         console.log(lat);
         console.log(lng);
         polyline.addLatLng(L.latLng(parseInt(lat,10),parseInt(lng,10)));
-        map.fitBounds(polyline.getBounds());
-      }
+        size = size + 1;
+        if (size > 1) {
+            map.fitBounds(polyline.getBounds());
+        }
+    }
     map.addLayer(polyline);
     document.getElementById("button").addEventListener("click", showpoly);
 })
