@@ -22,14 +22,32 @@
     height: 30px;
     font-size: 20px;
     pointer-events: initial;
+    position: relative;
     z-index: 1000;
 }
 .button-search {
-    width: 6%;
+    width: 10%;
     height: 30px;
     font-size: 16px;
     pointer-events: initial;
     z-index: 1000;
-    position: absolute;
+    position: relative;
+    top: 0;
+}
+.text-speed {
+    width: 10%;
+    height: 30px;
+    font-size: 20px;
+    pointer-events: initial;
+    position:relative;
+    z-index: 1000;
+}
+.button-go {
+    width: 8%;
+    height: 30px;
+    font-size: 16px;
+    pointer-events: initial;
+    z-index: 1000;
+    position:relative;
     top: 0;
 }
