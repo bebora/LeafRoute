@@ -46,7 +46,7 @@ $(document).ready(function()
           Math.sin(dLon/2) * Math.sin(dLon/2)
           ; 
         var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-        var d = R * c; // Distance in km
+        var d = R * c / 1000; // Distance in km
         return d;
       }
       
@@ -57,7 +57,8 @@ $(document).ready(function()
         var speed = parseFloat(document.getElementById('speed').value);
         console.log(speed);
         var dist = distance(points[0][0], points[0][1], points[1][0], points[1][1]);
-        var time = (dist / speed)*60*1000
+        console.log(dist);
+        var time = (dist / speed)*60*60*1000
         console.log(time);
         var marker = L.Marker.movingMarker(polyline.getLatLngs(),
             [time]).addTo(map);
