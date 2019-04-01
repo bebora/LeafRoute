@@ -2,7 +2,7 @@ $(document).ready(function()
 {
     const R = 6371000
     var map = L.map('map').setView([45.465756, 9.187551], 14);
-    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
         maxZoom: 19,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
@@ -65,6 +65,6 @@ $(document).ready(function()
         marker.start();
     }
     map.addLayer(polyline);
-    document.getElementById("button").addEventListener("click", showpoly);
-    document.getElementById("button_speed").addEventListener("click", start);
+    $("#button").click(showpoly);
+    $("#button_speed").click(start);
 })
