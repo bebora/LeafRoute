@@ -1,19 +1,20 @@
 $(document).ready(function()
 {
     const R = 6371000
-    var map = L.map('map').setView([45.465756, 9.187551], 14);
+    var map = L.map('map').setView([45.4626, 9.2013], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
         maxZoom: 19,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
+    map.zoomControl.setPosition('bottomleft');
 
+    /*
     function onLocationFound(e) {
         var radius = e.accuracy / 2;
         L.marker(e.latlng).addTo(map)
             .bindPopup("You are within " + radius + " meters from this point").openPopup();
         L.circle(e.latlng, radius).addTo(map);
     }
-    //TODO remove location if useless
     map.on('locationfound', onLocationFound);
 
     function onLocationError(e) {
@@ -23,6 +24,7 @@ $(document).ready(function()
     map.on('locationerror', onLocationError);
 
     map.locate({setView: true, maxZoom: 16});
+    */
 
     polyline = L.polyline([]).addTo(map);
     var points = [];
@@ -65,6 +67,17 @@ $(document).ready(function()
         marker.start();
     }
     map.addLayer(polyline);
+
+    var boundingBoxMilanCoords = [
+        [45.3743, 9.0519],
+        [45.3743, 9.3507],
+        [45.5509, 9.3507],
+        [45.5509, 9.0519],
+        [45.3743, 9.0519]
+    ];            
+
+    var boundingBoxMilan = L.polyline(boundingBoxMilanCoords).addTo(map);
+    
     $("#button").click(showpoly);
     $("#button_speed").click(start);
 })
