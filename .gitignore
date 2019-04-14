@@ -1,0 +1,5 @@
+routing/external/*
+.vscode/*
+routing/*.out
+
+
