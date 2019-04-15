@@ -93,8 +93,10 @@ Vertex get_vertex(long double lat1, long double long1,
         long double curr = distance(lat1, long1, g[*vit].lat, g[*vit].lon);
         if (curr == 0)
             return *vit;
-        else if (curr < min)
+        else if (curr < min) {
             min_vertex = *vit;
+            min = curr;
+        }
     }
     return min_vertex;
 }
@@ -171,7 +173,7 @@ void RoutesDealer::handle_get(http_request message)
 {
     value json = value::object();
     try {
-        double lat, lon;
+        long double lat, lon;
         auto url_message= uri::decode(message.relative_uri().to_string());
         url_message.erase(0,2);
         map<utility::string_t, utility::string_t> keyMap = uri::split_query(url_message);
