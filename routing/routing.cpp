@@ -13,9 +13,12 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graph_traits.hpp>
 
-#include <arlib/path.hpp>
+
+#include <arlib/esx.hpp>
 #include <arlib/graph_utils.hpp>
 #include <arlib/multi_predecessor_map.hpp>
+#include <arlib/onepass_plus.hpp>
+#include <arlib/path.hpp>
 #include <arlib/penalty.hpp>
 #include <arlib/routing_kernels/types.hpp>
 
@@ -24,6 +27,8 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+#include <cmath>
+#include <float.h>
 
 using namespace utility;
 using namespace web;
@@ -49,6 +54,51 @@ using Graph = boost::adjacency_list<boost::vecS, boost::vecS,
 using Vertex = typename boost::graph_traits<Graph>::vertex_descriptor;
 using Edge = typename boost::graph_traits<Graph>::edge_descriptor;
 
+
+long double toRadians(const long double degree){
+    long double one_deg = (M_PI) / 180;
+    return (one_deg * degree);
+}
+ //Distance in KMs between two points
+long double distance(long double lat1, long double long1,
+                     long double lat2, long double long2)
+{
+    lat1 = toRadians(lat1);
+    long1 = toRadians(long1);
+    lat2 = toRadians(lat2);
+    long2 = toRadians(long2);
+
+    long double dlong = long2 - long1;
+    long double dlat = lat2 - lat1;
+
+    long double ans = pow(sin(dlat / 2), 2) +
+                      cos(lat1) * cos(lat2) *
+                      pow(sin(dlong / 2), 2);
+
+    ans = 2 * asin(sqrt(ans));
+
+    long double R = 6371;
+
+    ans = ans * R;
+
+    return ans;
+}
+
+Vertex get_vertex(long double lat1, long double long1,
+                  Graph g) {
+    auto vs = boost::vertices(g);
+    double min = DBL_MAX;
+    Vertex min_vertex;
+    for (auto vit = vs.first; vit!= vs.second; vit++) {
+        long double curr = distance(lat1, long1, g[*vit].lat, g[*vit].lon);
+        if (curr == 0)
+            return *vit;
+        else if (curr < min)
+            min_vertex = *vit;
+    }
+    return min_vertex;
+}
+
 //Add path Location value to a std::vector path, excluding the target vertex
 vector<Location> get_location_path(arlib::Path<Graph> const &path,
                 Graph const g) {
@@ -73,11 +123,13 @@ vector<vector<Location>> get_alternative_routes(Graph const &g, Vertex s,
                                                   Vertex t, int k, double theta,
                                                   int max_nb_updates = 10, int max_nb_steps = 100000) {
     using namespace boost;
+    using arlib::routing_kernels;
+    auto weight = boost::get(boost::edge_weight, g);
     auto predecessors = arlib::multi_predecessor_map<Vertex>{};
-    auto weight = boost::get(boost::edge_weight, g); // Get Edge WeightMap
     vector<vector<Location>> location_paths;
 
-    penalty(g, predecessors, s, t, k, theta,  max_nb_updates, max_nb_steps, routing_kernels::bidirectional_dijkstra);
+    penalty(g, weight, predecessors, s, t, k, theta,  0.1, 0.1, max_nb_updates, max_nb_steps,
+            routing_kernels::bidirectional_dijkstra);
     auto paths = to_paths(g, predecessors, weight, s, t);
     for (auto const &path : paths) {
         auto location_path = get_location_path(path, g);
@@ -128,21 +180,15 @@ void RoutesDealer::handle_get(http_request message)
         if (keyMap.find("s_lon") != keyMap.end()) {
             lon = stod(keyMap["s_lon"]);
         } else message.reply(status_codes::BadRequest);
-        geojson["start"] = value::object();
-        geojson["start"]["s_lat"] = lat;
-        geojson["start"]["s_lon"] = lon;
+       Vertex start = get_vertex(lat,lon,g);
         if (keyMap.find("e_lat") != keyMap.end()) {
             lat = stod(keyMap["e_lat"]);
         } else message.reply(status_codes::BadRequest);
         if (keyMap.find("e_lon") != keyMap.end()) {
             lon = stod(keyMap["e_lon"]);
         } else message.reply(status_codes::BadRequest);
-        geojson["end"] = value::object();
-        geojson["end"]["s_lat"] = lat;
-        geojson["end"]["s_lon"] = lon;
-        http_response response(status_codes::OK);
-        response.set_body(geojson);
-        message.reply(response);
+        Vertex end = get_vertex(lat,lon, g);
+        vector<vector<Location>> paths = get_alternative_routes(g, start, end, 1, 0.9);
     } catch (...) {
         message.reply(status_codes::BadRequest);
     }
@@ -156,7 +202,6 @@ using Graph = boost::adjacency_list<boost::vecS, boost::vecS,
 using Vertex = typename boost::graph_traits<Graph>::vertex_descriptor;
 using Edge = typename boost::graph_traits<Graph>::edge_descriptor;
 
-std::unique_ptr<RoutesDealer> g_httpDealer;
 
 int main() {
     typedef pair<int,int> Edge;
