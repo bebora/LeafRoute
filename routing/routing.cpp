@@ -191,7 +191,7 @@ void RoutesDealer::handle_get(http_request message)
         Vertex end = get_vertex(lat,lon, g);
         int i = 0;
         int j = 0;
-        vector<vector<Location>> paths = get_alternative_routes(g, start, end, 1, 0.9);
+        vector<vector<Location>> paths = get_alternative_routes(g, start, end, 2, 0.9);
         for (auto const path : paths) {
             json[to_string(i)] = value::object();
             for (auto point: path) {
@@ -201,6 +201,7 @@ void RoutesDealer::handle_get(http_request message)
                 j++;
             }
             i++;
+            j = 0;
         }
         http_response response(status_codes::OK);
         response.set_body(json);
