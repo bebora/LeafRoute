@@ -169,8 +169,7 @@ RoutesDealer::RoutesDealer(utility::string_t url, Graph g) : m_listener(url)
 
 void RoutesDealer::handle_get(http_request message)
 {
-    message.reply(status_codes::OK);
-    value geojson = value::object();
+    value json = value::object();
     try {
         double lat, lon;
         auto url_message= uri::decode(message.relative_uri().to_string());
@@ -190,12 +189,27 @@ void RoutesDealer::handle_get(http_request message)
             lon = stod(keyMap["e_lon"]);
         } else message.reply(status_codes::BadRequest);
         Vertex end = get_vertex(lat,lon, g);
-        int a = 1;
+        int i = 0;
+        int j = 0;
         vector<vector<Location>> paths = get_alternative_routes(g, start, end, 1, 0.9);
+        for (auto const path : paths) {
+            json[to_string(i)] = value::object();
+            for (auto point: path) {
+                json[to_string(i)][to_string(j)] = value::object();
+                json[to_string(i)][to_string(j)]["lat"] = point.lat;
+                json[to_string(i)][to_string(j)]["lon"] = point.lon;
+                j++;
+            }
+            i++;
+        }
+        http_response response(status_codes::OK);
+        response.set_body(json);
+        message.reply(response);
         auto es = boost::edges(g);
         for (auto eit = es.first; eit != es.second; ++eit) {
             cout << get(boost::edge_weight_t(), g, *eit) << endl;
         }
+
         cout << endl;
     } catch (...) {
         message.reply(status_codes::BadRequest);
