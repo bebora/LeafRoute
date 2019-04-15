@@ -122,13 +122,14 @@ template<typename Graph>
 vector<vector<Location>> get_alternative_routes(Graph const &g, Vertex s,
                                                   Vertex t, int k, double theta,
                                                   int max_nb_updates = 10, int max_nb_steps = 100000) {
+
     using namespace boost;
     using arlib::routing_kernels;
     auto weight = boost::get(boost::edge_weight, g);
     auto predecessors = arlib::multi_predecessor_map<Vertex>{};
     vector<vector<Location>> location_paths;
 
-    penalty(g, weight, predecessors, s, t, k, theta,  0.1, 0.1, max_nb_updates, max_nb_steps,
+    penalty(g, weight, predecessors, s, t, k, theta,  100, 100, max_nb_updates, max_nb_steps,
             routing_kernels::bidirectional_dijkstra);
     auto paths = to_paths(g, predecessors, weight, s, t);
     for (auto const &path : paths) {
@@ -168,6 +169,7 @@ RoutesDealer::RoutesDealer(utility::string_t url, Graph g) : m_listener(url)
 
 void RoutesDealer::handle_get(http_request message)
 {
+    message.reply(status_codes::OK);
     value geojson = value::object();
     try {
         double lat, lon;
@@ -188,7 +190,13 @@ void RoutesDealer::handle_get(http_request message)
             lon = stod(keyMap["e_lon"]);
         } else message.reply(status_codes::BadRequest);
         Vertex end = get_vertex(lat,lon, g);
+        int a = 1;
         vector<vector<Location>> paths = get_alternative_routes(g, start, end, 1, 0.9);
+        auto es = boost::edges(g);
+        for (auto eit = es.first; eit != es.second; ++eit) {
+            cout << get(boost::edge_weight_t(), g, *eit) << endl;
+        }
+        cout << endl;
     } catch (...) {
         message.reply(status_codes::BadRequest);
     }
