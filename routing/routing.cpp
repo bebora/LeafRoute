@@ -87,6 +87,7 @@ vector<vector<Location>> get_alternative_routes(Graph const &g, Vertex s,
         location_path.push_back(l);
         location_paths.push_back(location_path);
     }
+    return location_paths;
 }
 
 class RoutesDealer
