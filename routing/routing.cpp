@@ -50,7 +50,7 @@ struct Location{
 
 using Graph = boost::adjacency_list<boost::vecS, boost::vecS,
         boost::bidirectionalS, Location,
-        boost::property<boost::edge_weight_t, int>>;
+        boost::property<boost::edge_weight_t, double>>;
 using Vertex = typename boost::graph_traits<Graph>::vertex_descriptor;
 using Edge = typename boost::graph_traits<Graph>::edge_descriptor;
 
@@ -222,7 +222,7 @@ void RoutesDealer::handle_get(http_request message)
 
 using Graph = boost::adjacency_list<boost::vecS, boost::vecS,
                                     boost::bidirectionalS, Location,
-                                    boost::property<boost::edge_weight_t, int>>;
+                                    boost::property<boost::edge_weight_t, double>>;
 using Vertex = typename boost::graph_traits<Graph>::vertex_descriptor;
 using Edge = typename boost::graph_traits<Graph>::edge_descriptor;
 
@@ -230,14 +230,15 @@ using Edge = typename boost::graph_traits<Graph>::edge_descriptor;
 int main() {
     typedef pair<int,int> Edge;
     vector<Edge> edges;
-    vector<int> weights;
+    vector<double> weights;
     vector<Location> locations;
     string line;
     ifstream rfile;
     rfile.open("weights");
     if (rfile.is_open()) {
         while (getline(rfile, line)) {
-            int a,b,weight;
+            int a,b;
+            double weight;
             istringstream stream (line);
             stream >> a >> b >> weight;
             edges.push_back(Edge(a,b));
