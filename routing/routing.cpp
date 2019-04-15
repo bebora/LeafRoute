@@ -204,6 +204,7 @@ void RoutesDealer::handle_get(http_request message)
             j = 0;
         }
         http_response response(status_codes::OK);
+        response.headers().add(U("Access-Control-Allow-Origin"), U("*"));
         response.set_body(json);
         message.reply(response);
         auto es = boost::edges(g);
