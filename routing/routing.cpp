@@ -67,7 +67,7 @@ vector<Location> get_location_path(arlib::Path<Graph> const &path,
 }
 
 
-
+// Get paths made by (lat,lon) point in vector using Penalty
 template<typename Graph>
 vector<vector<Location>> get_alternative_routes(Graph const &g, Vertex s,
                                                   Vertex t, int k, double theta,
@@ -101,7 +101,7 @@ public:
 
 private:
     void handle_get(http_request message);
-
+    Graph g;
     http_listener m_listener;
 };
 
@@ -110,21 +110,42 @@ RoutesDealer::RoutesDealer(utility::string_t url, Graph g) : m_listener(url)
 {
 
     m_listener.support(methods::GET, std::bind(&RoutesDealer::handle_get, this, std::placeholders::_1));
+    this->g = g;
 }
+
 
 void RoutesDealer::handle_get(http_request message)
 {
-
-    //TODO convert to a polygon using arlib routing algorithm
     value geojson = value::object();
-    geojson["type"] = value::string("Feature");
-    geojson["geometry"] = value::object();
-    geojson["geometry"]["prova"] = value::string(message.extract_string(true).get());
-    http_response response(status_codes::OK);
-    response.set_body(geojson);
-
-    message.reply(response);
-
+    try {
+        double lat, lon;
+        auto url_message= uri::decode(message.relative_uri().to_string());
+        url_message.erase(0,2);
+        map<utility::string_t, utility::string_t> keyMap = uri::split_query(url_message);
+        if (keyMap.find("s_lat") != keyMap.end()) {
+            lat = stod(keyMap["s_lat"]);
+        } else message.reply(status_codes::BadRequest);
+        if (keyMap.find("s_lon") != keyMap.end()) {
+            lon = stod(keyMap["s_lon"]);
+        } else message.reply(status_codes::BadRequest);
+        geojson["start"] = value::object();
+        geojson["start"]["s_lat"] = lat;
+        geojson["start"]["s_lon"] = lon;
+        if (keyMap.find("e_lat") != keyMap.end()) {
+            lat = stod(keyMap["e_lat"]);
+        } else message.reply(status_codes::BadRequest);
+        if (keyMap.find("e_lon") != keyMap.end()) {
+            lon = stod(keyMap["e_lon"]);
+        } else message.reply(status_codes::BadRequest);
+        geojson["end"] = value::object();
+        geojson["end"]["s_lat"] = lat;
+        geojson["end"]["s_lon"] = lon;
+        http_response response(status_codes::OK);
+        response.set_body(geojson);
+        message.reply(response);
+    } catch (...) {
+        message.reply(status_codes::BadRequest);
+    }
 }
 
 
@@ -181,7 +202,7 @@ int main() {
     }
 
 
-    utility::string_t address = U("http://localhost:1337");
+    utility::string_t address = U("http://localhost:1337/routes?");
 
     RoutesDealer listener(address, g);
     listener.open().wait();
