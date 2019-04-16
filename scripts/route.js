@@ -25,9 +25,49 @@ $(document).ready(function()
 
     map.locate({setView: true, maxZoom: 16});
     */
-
+    var start_lat;
+    var start_lng;
+    var end_lat;
+    var end_lng;
     polyline = L.polyline([]).addTo(map);
     var points = [];
+    var paths = [];
+    function showroute(){
+        start_lat = $('#lat').val();
+        start_lng = $('#lng').val();
+        end_lat = $('#late').val();
+        end_lng = $('#lnge').val();
+        console.log(start_lat);
+        console.log(start_lng);
+        console.log(end_lat);
+        console.log(end_lng);
+        endpoint = "http://localhost:1337/routes?";
+        $.getJSON( endpoint, { s_lat: start_lat, s_lon: start_lng, e_lat: end_lat, e_lon: end_lng } )
+        .done(function( json ) {
+            for (alternative_index in json) {
+                r = Math.floor(Math.random() * 255);
+                g = Math.floor(Math.random() * 255);
+                b = Math.floor(Math.random() * 255);
+                color= "rgb("+r+" ,"+g+","+ b+")"; 
+                polypath = L.polyline([], {color:color, weight:5});
+                alternative = json[alternative_index];
+                for (nodes_index in alternative) {
+                    console.log(alternative[nodes_index]);
+                    polypath.addLatLng(
+                        L.latLng(
+                            parseFloat(alternative[nodes_index]["lat"]),
+                            parseFloat(alternative[nodes_index]["lon"])));
+                }
+                polypath.addTo(map);
+                paths.push(polypath);
+            }
+        })
+        .fail(function( jqxhr, textStatus, error ) {
+            var err = textStatus + ", " + error;
+            console.log( "Request Failed: " + err );
+        });
+    }
+    //TODO remove showpoly if useless
     function showpoly(){
         var lat = document.getElementById('lat').value;
         var lng = document.getElementById('lng').value;
@@ -78,6 +118,33 @@ $(document).ready(function()
 
     var boundingBoxMilan = L.polyline(boundingBoxMilanCoords).addTo(map);
     
-    $("#button").click(showpoly);
+    $("#button").click(showroute);
     $("#button_speed").click(start);
+    var points_added = [];
+    map.on("click", function(e){
+        console.log(paths.length);
+        if (points_added.length == 0) {
+            start = new L.Marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+            points_added.push(start);
+            $("#lat").val(e.latlng.lat);
+            $("#lng").val(e.latlng.lng);
+        }
+        else if (points_added.length == 1) {
+            end = new L.Marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+            points_added.push(end);
+            $("#late").val(e.latlng.lat);
+            $("#lnge").val(e.latlng.lng);
+        }
+        else {
+            while(points_added.length != 0) {
+                to_rm = points_added.pop();
+                map.removeLayer(to_rm);
+            }
+            $("#lat").val("");
+            $("#lng").val("");
+            $("#late").val("");
+            $("#lnge").val("");
+        }
+ });
 })
+//TODO change id names and animate paths
