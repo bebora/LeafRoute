@@ -1,5 +1,4 @@
 
-#include <cpprest/http_client.h>
 #include <cpprest/filestream.h>
 #include <cpprest/http_listener.h>
 #include <cpprest/json.h>
@@ -244,6 +243,7 @@ int main() {
             istringstream stream (line);
             stream >> a >> b >> weight;
             edges.push_back(Edge(a,b));
+            edges.push_back(Edge(b,a));
             weights.push_back(weight);
         }
         rfile.close();
@@ -279,10 +279,10 @@ int main() {
     RoutesDealer listener(address, g);
     listener.open().wait();
 
-    cout << utility::string_t(U("Listening for requests at localhost "))  << std::endl;
+    cout << utility::string_t(U("Listening for requests at localhost "))  << endl;
 
     std::string cline;
-    std::wcout << U("Hit Enter to close the listener.") << std::endl;
+    std::wcout << U("Hit Enter to close the listener.") << endl;
     std::getline(std::cin, cline);
 
     listener.close().wait();
