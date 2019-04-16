@@ -282,7 +282,7 @@ int main() {
     cout << utility::string_t(U("Listening for requests at localhost "))  << std::endl;
 
     std::string cline;
-    std::wcout << U("Hit Enter to close the listener.");
+    std::wcout << U("Hit Enter to close the listener.") << std::endl;
     std::getline(std::cin, cline);
 
     listener.close().wait();

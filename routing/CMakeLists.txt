@@ -8,7 +8,8 @@ link_directories(${Boost_LIBRARY_DIRS})
 find_package(cpprestsdk REQUIRED)
 
 add_subdirectory(external/arlib)
-
+set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
 add_executable(main routing.cpp)
 target_link_libraries(main PRIVATE arlib cpprestsdk::cpprest ${Boost_LIBRARIES})
 
