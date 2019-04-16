@@ -53,7 +53,6 @@ using Graph = boost::adjacency_list<boost::vecS, boost::vecS,
 using Vertex = typename boost::graph_traits<Graph>::vertex_descriptor;
 using Edge = typename boost::graph_traits<Graph>::edge_descriptor;
 
-
 long double toRadians(const long double degree){
     long double one_deg = (M_PI) / 180;
     return (one_deg * degree);
@@ -101,19 +100,31 @@ Vertex get_vertex(long double lat1, long double long1,
 }
 
 //Add path Location value to a std::vector path, excluding the target vertex
-vector<Location> get_location_path(arlib::Path<Graph> const &path,
+vector<Location> get_location_path(arlib::Path<Graph> const &path, Vertex s, Vertex t,
                 Graph const g) {
     using namespace boost;
     vector<Location> location_path;
+    typename property_map<Graph, vertex_index_t>::type
+            index = get(vertex_index, g);
     Location l;
-    for (auto [v_it, v_end] = vertices(path); v_it != v_end; ++v_it) {
-        for (auto [e_it, e_end] = out_edges(*v_it, path); e_it != e_end; ++e_it) {
-            l = {};
-            l.lat = g[source(*e_it, path)].lat;
-            l.lon = g[source(*e_it, path)].lon;
-            location_path.push_back(l);
-        }
+    cout << endl << endl;
+    l = {};
+    l.lat = g[index[s]].lat;
+    l.lon = g[index[s]].lon;
+    location_path.push_back(l);
+    auto v_it = s;
+    auto v_end = t;
+    cout << v_it;
+    while (v_it != v_end) {
+        auto[curr_edge, final_edge]= out_edges(v_it, path);
+        v_it = target(*curr_edge, path);
+        l = {};
+        l.lat = g[index[v_it]].lat;
+        l.lon = g[index[v_it]].lon;
+        location_path.push_back(l);
+        cout << " to " << v_it;
     }
+    cout << "\n end!! \n";
     return location_path;
 }
 
@@ -134,11 +145,7 @@ vector<vector<Location>> get_alternative_routes(Graph const &g, Vertex s,
             routing_kernels::bidirectional_dijkstra);
     auto paths = to_paths(g, predecessors, weight, s, t);
     for (auto const &path : paths) {
-        auto location_path = get_location_path(path, g);
-        Location l = {};
-        l.lat = g[t].lat;
-        l.lon = g[t].lon;
-        location_path.push_back(l);
+        auto location_path = get_location_path(path,s,t, g);
         location_paths.push_back(location_path);
     }
     return location_paths;
@@ -244,6 +251,7 @@ int main() {
             stream >> a >> b >> weight;
             edges.push_back(Edge(a,b));
             edges.push_back(Edge(b,a));
+            weights.push_back(weight);
             weights.push_back(weight);
         }
         rfile.close();
