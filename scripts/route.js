@@ -8,23 +8,6 @@ $(document).ready(function()
     }).addTo(map);
     map.zoomControl.setPosition('bottomleft');
 
-    /*
-    function onLocationFound(e) {
-        var radius = e.accuracy / 2;
-        L.marker(e.latlng).addTo(map)
-            .bindPopup("You are within " + radius + " meters from this point").openPopup();
-        L.circle(e.latlng, radius).addTo(map);
-    }
-    map.on('locationfound', onLocationFound);
-
-    function onLocationError(e) {
-        console.log(e.message);
-    }
-
-    map.on('locationerror', onLocationError);
-
-    map.locate({setView: true, maxZoom: 16});
-    */
     var start_lat;
     var start_lng;
     var end_lat;
@@ -32,7 +15,17 @@ $(document).ready(function()
     polyline = L.polyline([]).addTo(map);
     var points = [];
     var paths = [];
+    var route_colors = [
+        "rgb(255,0,0)",
+        "rgb(127,93,93)",
+        "rgb(63,51,51)",
+        "rgb(31,25,25)"
+    ]
     function showroute(){
+        //delete previous route
+        while(paths.length != 0) {
+            map.removeLayer(paths.pop());
+        }
         start_lat = $('#lat').val();
         start_lng = $('#lng').val();
         end_lat = $('#late').val();
@@ -45,11 +38,8 @@ $(document).ready(function()
         $.getJSON( endpoint, { s_lat: start_lat, s_lon: start_lng, e_lat: end_lat, e_lon: end_lng } )
         .done(function( json ) {
             for (alternative_index in json) {
-                r = Math.floor(Math.random() * 255);
-                g = Math.floor(Math.random() * 255);
-                b = Math.floor(Math.random() * 255);
-                color= "rgb("+r+" ,"+g+","+ b+")"; 
-                polypath = L.polyline([], {color:color, weight:5});
+                color = route_colors[alternative_index]
+                polypath = L.polyline([], {color:color, weight:6-alternative_index*1.5});
                 alternative = json[alternative_index];
                 for (nodes_index in alternative) {
                     console.log(alternative[nodes_index]);
