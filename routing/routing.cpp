@@ -9,25 +9,7 @@
 #include <cpprest/rawptrstream.h>
 #include <cpprest/producerconsumerstream.h>
 
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/graph_traits.hpp>
-
-
-#include <arlib/esx.hpp>
-#include <arlib/graph_utils.hpp>
-#include <arlib/multi_predecessor_map.hpp>
-#include <arlib/onepass_plus.hpp>
-#include <arlib/path.hpp>
-#include <arlib/penalty.hpp>
-#include <arlib/routing_kernels/types.hpp>
-
-
-#include <string>
-#include <vector>
-#include <fstream>
-#include <iostream>
-#include <cmath>
-#include <float.h>
+#include "routesfetcher.h"
 
 using namespace utility;
 using namespace web;
@@ -38,118 +20,13 @@ using namespace web::http::experimental::listener;
 using namespace web::experimental::web_sockets::client;
 using namespace web::json;
 using namespace arlib;
-
-
 using namespace std;
-
-struct Location{
-    double lon;
-    double lat;
-};
 
 using Graph = boost::adjacency_list<boost::vecS, boost::vecS,
         boost::bidirectionalS, Location,
         boost::property<boost::edge_weight_t, double>>;
 using Vertex = typename boost::graph_traits<Graph>::vertex_descriptor;
 using Edge = typename boost::graph_traits<Graph>::edge_descriptor;
-
-long double toRadians(const long double degree){
-    long double one_deg = (M_PI) / 180;
-    return (one_deg * degree);
-}
- //Distance in KMs between two points
-long double distance(long double lat1, long double long1,
-                     long double lat2, long double long2)
-{
-    lat1 = toRadians(lat1);
-    long1 = toRadians(long1);
-    lat2 = toRadians(lat2);
-    long2 = toRadians(long2);
-
-    long double dlong = long2 - long1;
-    long double dlat = lat2 - lat1;
-
-    long double ans = pow(sin(dlat / 2), 2) +
-                      cos(lat1) * cos(lat2) *
-                      pow(sin(dlong / 2), 2);
-
-    ans = 2 * asin(sqrt(ans));
-
-    long double R = 6371;
-
-    ans = ans * R;
-
-    return ans;
-}
-
-Vertex get_vertex(long double lat1, long double long1,
-                  Graph g) {
-    auto vs = boost::vertices(g);
-    double min = DBL_MAX;
-    Vertex min_vertex;
-    for (auto vit = vs.first; vit!= vs.second; vit++) {
-        long double curr = distance(lat1, long1, g[*vit].lat, g[*vit].lon);
-        if (curr == 0)
-            return *vit;
-        else if (curr < min) {
-            min_vertex = *vit;
-            min = curr;
-        }
-    }
-    return min_vertex;
-}
-
-//Add path Location value to a std::vector path, excluding the target vertex
-vector<Location> get_location_path(arlib::Path<Graph> const &path, Vertex s, Vertex t,
-                Graph const g) {
-    using namespace boost;
-    vector<Location> location_path;
-    typename property_map<Graph, vertex_index_t>::type
-            index = get(vertex_index, g);
-    Location l;
-    cout << endl << endl;
-    l = {};
-    l.lat = g[index[s]].lat;
-    l.lon = g[index[s]].lon;
-    location_path.push_back(l);
-    auto v_it = s;
-    auto v_end = t;
-    cout << v_it;
-    while (v_it != v_end) {
-        auto[curr_edge, final_edge]= out_edges(v_it, path);
-        v_it = target(*curr_edge, path);
-        l = {};
-        l.lat = g[index[v_it]].lat;
-        l.lon = g[index[v_it]].lon;
-        location_path.push_back(l);
-        cout << " to " << v_it;
-    }
-    cout << "\n end!! \n";
-    return location_path;
-}
-
-
-// Get paths made by (lat,lon) point in vector using Penalty
-template<typename Graph>
-vector<vector<Location>> get_alternative_routes(Graph const &g, Vertex s,
-                                                  Vertex t, int k, double theta,
-                                                  int max_nb_updates = 10, int max_nb_steps = 100000) {
-
-    using namespace boost;
-    using arlib::routing_kernels;
-    auto weight = boost::get(boost::edge_weight, g);
-    auto predecessors = arlib::multi_predecessor_map<Vertex>{};
-    vector<vector<Location>> location_paths;
-
-    penalty(g, weight, predecessors, s, t, k, theta,  100, 100, max_nb_updates, max_nb_steps,
-            routing_kernels::bidirectional_dijkstra);
-    auto paths = to_paths(g, predecessors, weight, s, t);
-    for (auto const &path : paths) {
-        auto location_path = get_location_path(path,s,t, g);
-        location_paths.push_back(location_path);
-    }
-    return location_paths;
-}
 
 class RoutesDealer
 {
@@ -177,9 +54,8 @@ RoutesDealer::RoutesDealer(utility::string_t url, Graph g) : m_listener(url)
 
 void RoutesDealer::handle_get(http_request message)
 {
-    value json = value::object();
     try {
-        long double lat, lon;
+        double lat, lon;
         auto url_message= uri::decode(message.relative_uri().to_string());
         url_message.erase(0,2);
         map<utility::string_t, utility::string_t> keyMap = uri::split_query(url_message);
@@ -189,31 +65,22 @@ void RoutesDealer::handle_get(http_request message)
         if (keyMap.find("s_lon") != keyMap.end()) {
             lon = stod(keyMap["s_lon"]);
         } else message.reply(status_codes::BadRequest);
-       Vertex start = get_vertex(lat,lon,g);
+       Vertex start;
+       get_vertex(lat,lon,g, start);
         if (keyMap.find("e_lat") != keyMap.end()) {
             lat = stod(keyMap["e_lat"]);
         } else message.reply(status_codes::BadRequest);
         if (keyMap.find("e_lon") != keyMap.end()) {
             lon = stod(keyMap["e_lon"]);
         } else message.reply(status_codes::BadRequest);
-        Vertex end = get_vertex(lat,lon, g);
+        Vertex end;
+        get_vertex(lat,lon, g, end);
         int i = 0;
         int j = 0;
-        vector<vector<Location>> paths = get_alternative_routes(g, start, end, 2, 0.9);
-        for (auto const path : paths) {
-            json[to_string(i)] = value::object();
-            for (auto point: path) {
-                json[to_string(i)][to_string(j)] = value::object();
-                json[to_string(i)][to_string(j)]["lat"] = point.lat;
-                json[to_string(i)][to_string(j)]["lon"] = point.lon;
-                j++;
-            }
-            i++;
-            j = 0;
-        }
+        auto paths = get_alternative_routes(g, start, end, 2, 0.9);
         http_response response(status_codes::OK);
         response.headers().add(U("Access-Control-Allow-Origin"), U("*"));
-        response.set_body(json);
+        response.set_body(paths);
         message.reply(response);
         auto es = boost::edges(g);
         for (auto eit = es.first; eit != es.second; ++eit) {
@@ -227,61 +94,9 @@ void RoutesDealer::handle_get(http_request message)
 }
 
 
-
-using Graph = boost::adjacency_list<boost::vecS, boost::vecS,
-                                    boost::bidirectionalS, Location,
-                                    boost::property<boost::edge_weight_t, double>>;
-using Vertex = typename boost::graph_traits<Graph>::vertex_descriptor;
-using Edge = typename boost::graph_traits<Graph>::edge_descriptor;
-
-
 int main() {
-    typedef pair<int,int> Edge;
-    vector<Edge> edges;
-    vector<double> weights;
-    vector<Location> locations;
-    string line;
-    ifstream rfile;
-    rfile.open("weights");
-    if (rfile.is_open()) {
-        while (getline(rfile, line)) {
-            int a,b;
-            double weight;
-            istringstream stream (line);
-            stream >> a >> b >> weight;
-            edges.push_back(Edge(a,b));
-            edges.push_back(Edge(b,a));
-            weights.push_back(weight);
-            weights.push_back(weight);
-        }
-        rfile.close();
-    }
-
-    rfile.open("ids");
-    if (rfile.is_open()) {
-        while (getline(rfile, line)) {
-            Location l;
-            double lon,lat;
-            istringstream stream (line);
-            stream >> lon >> lat;
-            l = {}; // will zero all fields in C++
-            l.lat = lat;
-            l.lon = lon;
-            locations.push_back(l);
-        }
-        rfile.close();
-    }
-
-    Graph g(edges.begin(), edges.end(), weights.begin(), locations.size());
-    typedef boost::property_map<Graph, boost::vertex_index_t>::type IndexMap;
-    IndexMap index = get(boost::vertex_index, g);
-    Graph::vertex_iterator v_it, v_end;
-    for (boost::tie(v_it, v_end) = vertices(g); v_it != v_end; ++v_it) {
-        g[*v_it].lat = locations[index[*v_it]].lat;
-        g[*v_it].lon = locations[index[*v_it]].lon;
-    }
-
-
+    Graph g;
+    location_graph_from_string("weights", "ids", g);
     utility::string_t address = U("http://localhost:1337/routes?");
 
     RoutesDealer listener(address, g);
