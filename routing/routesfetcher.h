@@ -40,7 +40,7 @@ void location_graph_from_string(std::string weight_file, std::string location_fi
     vector<Location> locations;
     string line;
     ifstream rfile;
-    rfile.open("weights");
+    rfile.open(weight_file);
     if (rfile.is_open()) {
         while (getline(rfile, line)) {
             int a,b;
@@ -55,7 +55,7 @@ void location_graph_from_string(std::string weight_file, std::string location_fi
         rfile.close();
     }
 
-    rfile.open("ids");
+    rfile.open(location_file);
     if (rfile.is_open()) {
         while (getline(rfile, line)) {
             Location l;

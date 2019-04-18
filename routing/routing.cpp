@@ -7,7 +7,7 @@
 #include <cpprest/interopstream.h>
 #include <cpprest/rawptrstream.h>
 #include <cpprest/producerconsumerstream.h>
-
+#include <chrono>
 
 #include "routesfetcher.h"
 
@@ -77,13 +77,11 @@ void RoutesDealer::handle_get(http_request message)
         if (keyMap.find("e_lon") != keyMap.end()) {
             lon = stod(keyMap["e_lon"]);
         } else message.reply(status_codes::BadRequest);
+        Vertex end;
+        get_vertex(lat,lon, g, end);
         if (keyMap.find("reroute") != keyMap.end()) {
             reroute = parseBoolean(keyMap["reroute"]);
         }
-        Vertex end;
-        get_vertex(lat,lon, g, end);
-        int i = 0;
-        int j = 0;
         auto paths = get_alternative_routes(g, start, end, 2, 0.9, reroute);
         http_response response(status_codes::OK);
         response.headers().add(U("Access-Control-Allow-Origin"), U("*"));
