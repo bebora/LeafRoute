@@ -36,15 +36,8 @@ $(document).ready(function()
         $.getJSON( endpoint, { s_lat: start_lat, s_lon: start_lng, e_lat: end_lat, e_lon: end_lng, reroute: "false" } )
         .done(function( json ) {
             for (alternative_index in json) {
-                color = route_colors[alternative_index]
-                polypath = L.polyline([], {color:color, weight:6-alternative_index*1.5});
-                alternative = json[alternative_index];
-                for (nodes_index in alternative) {
-                    polypath.addLatLng(
-                        L.latLng(
-                            parseFloat(alternative[nodes_index][0]),
-                            parseFloat(alternative[nodes_index][1])));
-                }
+                color = route_colors[alternative_index];
+                polypath = L.polyline(json[alternative_index], {color:color, weight:6-alternative_index*1.5});
                 polypath.addTo(map);
                 paths.push(polypath);
             }
