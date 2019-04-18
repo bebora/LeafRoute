@@ -1,4 +1,3 @@
-
 #include <cpprest/filestream.h>
 #include <cpprest/http_listener.h>
 #include <cpprest/json.h>
@@ -8,6 +7,7 @@
 #include <cpprest/interopstream.h>
 #include <cpprest/rawptrstream.h>
 #include <cpprest/producerconsumerstream.h>
+
 
 #include "routesfetcher.h"
 
@@ -51,10 +51,14 @@ RoutesDealer::RoutesDealer(utility::string_t url, Graph g) : m_listener(url)
     this->g = g;
 }
 
+bool parseBoolean(const string &str) {
+    return str == "true" || str == "yes" || str == "on";
+}
 
 void RoutesDealer::handle_get(http_request message)
 {
     try {
+        bool reroute = false;
         double lat, lon;
         auto url_message= uri::decode(message.relative_uri().to_string());
         url_message.erase(0,2);
@@ -73,11 +77,14 @@ void RoutesDealer::handle_get(http_request message)
         if (keyMap.find("e_lon") != keyMap.end()) {
             lon = stod(keyMap["e_lon"]);
         } else message.reply(status_codes::BadRequest);
+        if (keyMap.find("reroute") != keyMap.end()) {
+            reroute = parseBoolean(keyMap["reroute"]);
+        }
         Vertex end;
         get_vertex(lat,lon, g, end);
         int i = 0;
         int j = 0;
-        auto paths = get_alternative_routes(g, start, end, 2, 0.9);
+        auto paths = get_alternative_routes(g, start, end, 2, 0.9, reroute);
         http_response response(status_codes::OK);
         response.headers().add(U("Access-Control-Allow-Origin"), U("*"));
         response.set_body(paths);
@@ -97,7 +104,7 @@ void RoutesDealer::handle_get(http_request message)
 int main() {
     Graph g;
     location_graph_from_string("weights", "ids", g);
-    utility::string_t address = U("http://localhost:1337/routes?");
+    utility::string_t address = U("http://localhost:1337/getroutes?");
 
     RoutesDealer listener(address, g);
     listener.open().wait();

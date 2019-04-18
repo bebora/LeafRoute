@@ -1,7 +1,3 @@
-//
-// Created by luca on 18/04/19.
-//
-
 #ifndef MAIN_ROUTESFETCHER_H
 #define MAIN_ROUTESFETCHER_H
 
@@ -16,12 +12,15 @@
 #include <arlib/path.hpp>
 #include <arlib/penalty.hpp>
 #include <arlib/routing_kernels/types.hpp>
+#include <arlib/terminators.hpp>
 #include <string>
 #include <vector>
 #include <fstream>
 #include <iostream>
 #include <cmath>
 #include <float.h>
+#include <chrono>
+
 
 struct Location{
     double lon;
@@ -123,7 +122,7 @@ web::json::value get_location_path(arlib::Path<Graph> const &path, Vertex s, Ver
 
 template<typename Graph, typename Vertex>
 web::json::value get_alternative_routes(Graph const &g, Vertex s,
-                                                Vertex t, int k, double theta,
+                                                Vertex t, int k, double theta, bool reroute,
                                                 int max_nb_updates = 10, int max_nb_steps = 100000) {
     using namespace std;
     using namespace boost;
@@ -132,8 +131,13 @@ web::json::value get_alternative_routes(Graph const &g, Vertex s,
     auto weight = boost::get(boost::edge_weight, g);
     auto predecessors = arlib::multi_predecessor_map<Vertex>{};
     vector<value> location_paths;
-    penalty(g, weight, predecessors, s, t, k, theta,  0.1, 0.1, max_nb_updates, max_nb_steps,
-            routing_kernels::bidirectional_dijkstra);
+    auto timeout = std::chrono::milliseconds{50};
+    if (reroute)
+        penalty(g, weight, predecessors, s, t, k, theta,  0.1, 0.1, max_nb_updates, max_nb_steps,
+            routing_kernels::bidirectional_dijkstra, arlib::timer{timeout});
+    else
+        penalty(g, weight, predecessors, s, t, k, theta,  0.1, 0.1, max_nb_updates, max_nb_steps,
+                routing_kernels::bidirectional_dijkstra);
     auto paths = to_paths(g, predecessors, weight, s, t);
     for (auto const &path : paths) {
         auto location_path = get_location_path(path,s,t, g);
