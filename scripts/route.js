@@ -1,6 +1,5 @@
 $(document).ready(function()
 {
-    const R = 6371000
     var map = L.map('map').setView([45.4626, 9.2013], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
         maxZoom: 19,
@@ -33,8 +32,8 @@ $(document).ready(function()
         start_lng = $('#lng-start').val();
         end_lat = $('#lat-end').val();
         end_lng = $('#lng-end').val();
-        endpoint = "http://localhost:1337/routes?";
-        $.getJSON( endpoint, { s_lat: start_lat, s_lon: start_lng, e_lat: end_lat, e_lon: end_lng } )
+        endpoint = "http://localhost:1337/getroutes?";
+        $.getJSON( endpoint, { s_lat: start_lat, s_lon: start_lng, e_lat: end_lat, e_lon: end_lng, reroute: "false" } )
         .done(function( json ) {
             for (alternative_index in json) {
                 color = route_colors[alternative_index]
@@ -43,8 +42,8 @@ $(document).ready(function()
                 for (nodes_index in alternative) {
                     polypath.addLatLng(
                         L.latLng(
-                            parseFloat(alternative[nodes_index]["lat"]),
-                            parseFloat(alternative[nodes_index]["lon"])));
+                            parseFloat(alternative[nodes_index][0]),
+                            parseFloat(alternative[nodes_index][1])));
                 }
                 polypath.addTo(map);
                 paths.push(polypath);
