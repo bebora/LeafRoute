@@ -13,8 +13,8 @@ $(document).ready(function()
     var end_lat;
     var end_lng;
     polyline = L.polyline([]).addTo(map);
-    var points = [];
     var paths = [];
+    var animations = []
     var route_colors = [
         "rgb(255,0,0)",
         "rgb(127,93,93)",
@@ -22,18 +22,17 @@ $(document).ready(function()
         "rgb(31,25,25)"
     ]
     function showroute(){
-        //delete previous route
+        //delete previous routes and markers
         while(paths.length != 0) {
             map.removeLayer(paths.pop());
         }
-        start_lat = $('#lat').val();
-        start_lng = $('#lng').val();
-        end_lat = $('#late').val();
-        end_lng = $('#lnge').val();
-        console.log(start_lat);
-        console.log(start_lng);
-        console.log(end_lat);
-        console.log(end_lng);
+        while(animations.length != 0) {
+            map.removeLayer(animations.pop());
+        }
+        start_lat = $('#lat-start').val();
+        start_lng = $('#lng-start').val();
+        end_lat = $('#lat-end').val();
+        end_lng = $('#lng-end').val();
         endpoint = "http://localhost:1337/routes?";
         $.getJSON( endpoint, { s_lat: start_lat, s_lon: start_lng, e_lat: end_lat, e_lon: end_lng } )
         .done(function( json ) {
@@ -42,7 +41,6 @@ $(document).ready(function()
                 polypath = L.polyline([], {color:color, weight:6-alternative_index*1.5});
                 alternative = json[alternative_index];
                 for (nodes_index in alternative) {
-                    console.log(alternative[nodes_index]);
                     polypath.addLatLng(
                         L.latLng(
                             parseFloat(alternative[nodes_index]["lat"]),
@@ -51,52 +49,45 @@ $(document).ready(function()
                 polypath.addTo(map);
                 paths.push(polypath);
             }
+            if (paths.length > 0) {
+                //Zoom to received paths
+                viewBox = L.latLngBounds();
+                for (i=0; i< paths.length; i++){
+                    viewBox.extend(paths[i].getBounds());
+                }
+                //Slightly extend box
+                map.fitBounds(viewBox.pad(0.10));
+            }
         })
         .fail(function( jqxhr, textStatus, error ) {
             var err = textStatus + ", " + error;
             console.log( "Request Failed: " + err );
         });
+        
     }
-    //TODO remove showpoly if useless
-    function showpoly(){
-        var lat = document.getElementById('lat').value;
-        var lng = document.getElementById('lng').value;
-        console.log(lat);
-        console.log(lng);
-        polyline.addLatLng(L.latLng(parseFloat(lat),parseFloat(lng)));
-        points.push([lat,lng]);
-        if (points.length > 1) {
-            map.fitBounds(polyline.getBounds());
+
+    function animate_routes(){
+        var speed = $("#speed").val();
+        if (speed == "") {
+            speed = 50;
+            $("#speed").val("50");
+        }
+        console.log("Speed is "+speed+" km/h");
+        for (i=0; i < paths.length; i++) {
+            polypath = paths[i];
+            total_lenght = 0;
+            components = polypath.getLatLngs();
+            if (components.length >= 2) {
+                for (j=0; j < components.length-1; j++) {
+                    total_lenght += components[j].distanceTo(components[j+1]);
+                }
+            }
+            time_seconds = (total_lenght / (speed / 3.6));
+            marker = L.Marker.movingMarker(components,time_seconds*1000).addTo(map);
+            marker.start();
+            animations.push(marker);
         }
     }
-    function distance(lat1,lon1,lat2,lon2) {
-        var dLat = deg2rad(lat2-lat1); 
-        var dLon = deg2rad(lon2-lon1); 
-        var a = 
-          Math.sin(dLat/2) * Math.sin(dLat/2) +
-          Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
-          Math.sin(dLon/2) * Math.sin(dLon/2)
-          ; 
-        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-        var d = R * c / 1000; // Distance in km
-        return d;
-      }
-      
-      function deg2rad(deg) {
-        return deg * (Math.PI/180)
-      }
-    function start(){
-        var speed = parseFloat(document.getElementById('speed').value);
-        console.log(speed);
-        var dist = distance(points[0][0], points[0][1], points[1][0], points[1][1]);
-        console.log(dist);
-        var time = (dist / speed)*60*60*1000
-        console.log(time);
-        var marker = L.Marker.movingMarker(polyline.getLatLngs(),
-            [time]).addTo(map);
-        marker.start();
-    }
-    map.addLayer(polyline);
 
     var boundingBoxMilanCoords = [
         [45.3743, 9.0519],
@@ -109,32 +100,31 @@ $(document).ready(function()
     var boundingBoxMilan = L.polyline(boundingBoxMilanCoords).addTo(map);
     
     $("#button").click(showroute);
-    $("#button_speed").click(start);
+    $("#button-speed").click(animate_routes);
     var points_added = [];
     map.on("click", function(e){
         console.log(paths.length);
         if (points_added.length == 0) {
             start = new L.Marker([e.latlng.lat, e.latlng.lng]).addTo(map);
             points_added.push(start);
-            $("#lat").val(e.latlng.lat);
-            $("#lng").val(e.latlng.lng);
+            $("#lat-start").val(e.latlng.lat);
+            $("#lng-start").val(e.latlng.lng);
         }
         else if (points_added.length == 1) {
             end = new L.Marker([e.latlng.lat, e.latlng.lng]).addTo(map);
             points_added.push(end);
-            $("#late").val(e.latlng.lat);
-            $("#lnge").val(e.latlng.lng);
+            $("#lat-end").val(e.latlng.lat);
+            $("#lng-end").val(e.latlng.lng);
         }
         else {
             while(points_added.length != 0) {
                 to_rm = points_added.pop();
                 map.removeLayer(to_rm);
             }
-            $("#lat").val("");
-            $("#lng").val("");
-            $("#late").val("");
-            $("#lnge").val("");
+            $("#lat-start").val("");
+            $("#lng-start").val("");
+            $("#lat-start").val("");
+            $("#lng-start").val("");
         }
  });
 })
-//TODO change id names and animate paths
