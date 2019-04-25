@@ -64,21 +64,24 @@ class ARLibMarker {
         
     }
     fetchroute() {
-        var that = this;
         var current_index = that.current_index;
-        if (that.rerouting) {
-            var startPoint = this.QueueLatlngs[this.current_index + 2];
-            $.getJSON( that.endpoint, {s_lat: startPoint[0],s_lon: startPoint[1],e_lat: this.destination[0],e_lon: this.destination[1],  reroute: this.reroute} )
-            .done(function( json ) {
-                //TODO: Check better async conditions
-                if (that.current_index = current_index)
-                    that.tempQueueLatlngs = json[0];
-        }).fail(function(textStatus, error) {
-                console.log("Request Failed: " + textStatus + ", " + error);
-            });
-        }
-        else {
-            console.log("No rerouting!");
+                if (that.reroute && that.rerouting && that.QueueLatlngs.length > 1 && that.currentLatlngs.length > current_index + 2) {
+                    var startPoint = that.currentLatlngs[that.current_index + 2];
+                    $.getJSON( that.endpoint, {s_lat: startPoint[0],s_lon: startPoint[1],e_lat: that.destination[0],e_lon: that.destination[1],  reroute: true} )
+                    .done(function( json ) {
+                        that.fetching = true;
+                        if (json != null && that.current_index == current_index) {
+                            that.tempQueueLatlngs = json[0].slice(1);
+                        } else {
+                            console.log("Late response -> no rerouting!");
+                        }
+                        that.fetching = false;
+                }).fail(function(textStatus, error) {
+                        console.log("Request Failed: " + textStatus + ", " + error);
+                    });
+                }
+                else {
+                    console.log("No rerouting!");
         }
     };
 
@@ -105,31 +108,10 @@ class ARLibMarker {
     }
 
     startroute() {
-        var that = this;
-        if (that.rerouting) {
-            that.interval = window.setInterval(function() {
-                var current_index = that.current_index;
-                if (that.reroute && that.rerouting && that.QueueLatlngs.length > 1 && that.currentLatlngs.length > current_index + 2) {
-                    var startPoint = that.currentLatlngs[that.current_index + 2];
-                    $.getJSON( that.endpoint, {s_lat: startPoint[0],s_lon: startPoint[1],e_lat: that.destination[0],e_lon: that.destination[1],  reroute: true} )
-                    .done(function( json ) {
-                        //CHECK BETTER ASYNC
-                        that.fetching = true;
-                        if (json != null && that.current_index == current_index) {
-                            that.tempQueueLatlngs = json[0];
-                            console.log("ciaooooo");
-                        } else {
-                            console.log("No rerouting!");
-                        }
-                        that.fetching = false;
-                }).fail(function(textStatus, error) {
-                        console.log("Request Failed: " + textStatus + ", " + error);
-                    });
-                }
-                else {
-                    console.log("No rerouting!");
-        }}, that.timer);
-        }
+    var that = this;
+    if (that.rerouting) {
+        that.interval = window.setInterval(that.update(), that.timer);
+    }
     that.marker.on('end', function() {
         that.map.removeLayer(that.marker);
         window.clearInterval(that.interval);
