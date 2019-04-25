@@ -90,6 +90,9 @@ $(document).ready(function()
     ];            
 
     var boundingBoxMilan = L.polyline(boundingBoxMilanCoords).addTo(map);
+    $.getJSON("https://www.leafroute.tk/zone.json", function(data) {
+        L.geoJson(data).addTo(map);
+    });
     
     $("#button").click(showroute);
     $("#button-speed").click(animate_routes);
