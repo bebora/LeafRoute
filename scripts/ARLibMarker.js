@@ -2,6 +2,7 @@ class ARLibMarker {
     constructor(startPoint, destination) {
         var temp = [startPoint]
         this.speed = 100;
+        this.timer = 100;
         this.rerouting = false;
         this.endpoint = 'http://localhost:1337/getroutes?';
         this.reroute = false;
@@ -11,21 +12,33 @@ class ARLibMarker {
         this.marker;
         $.getJSON( this.endpoint, {s_lat: startPoint[0],s_lon: startPoint[1],e_lat: destination[0],e_lon: destination[1],  reroute: this.reroute} )
         .done(function( json ) {
-            that.rerouting = false;
             var latlngs = json[0];
             that.marker = new L.Marker.MovingMarker([latlngs[0]], 0);
-            that.destination = latlngs[-1];
+            that.destination = latlngs[latlngs.length-1];
             if (latlngs.length >= 4) {
-                that.QueueLatlngs = latlngs.slice(4);
-                that.currentLatlngs = latlngs.slice(0,5);
+                that.QueueLatlngs = latlngs.slice(3);
+                that.currentLatlngs = latlngs.slice(0,4);
                 that.tempQueueLatlngs = that.QueueLatlngs;
                 that.current_index = 0;
                 that.reroute = true;
-                for (var j=0; j < 4; j++) {
+                for (var j=0; j < 3; j++) {
                     var length = L.latLng(that.currentLatlngs[j]).distanceTo(L.latLng(that.currentLatlngs[j+1]));
                     var time_seconds = (length / (that.speed / 3.6));
                     that.marker.addLatLng(that.currentLatlngs[j+1], time_seconds*1000);
                 }
+                that.marker.on('checkpoint', function() {
+                    console.log(that.current_index);
+                    if (that.QueueLatlngs.length > 1) {
+                        that.QueueLatlngs = that.tempQueueLatlngs.slice(1);
+                        that.tempQueueLatlngs = that.QueueLatlngs;
+                        that.currentLatlngs.push(that.QueueLatlngs[0]);
+                        var oldlast = L.latLng(that.currentLatlngs[that.currentLatlngs.length-2]);
+                        var newlast = L.latLng(that.currentLatlngs[that.currentLatlngs.length-1]);
+                        var duration = oldlast.distanceTo(newlast) / (that.speed / 3.6);
+                        that.marker.addLatLng(that.QueueLatlngs[0], duration * 1000);   
+                        that.current_index = that.current_index + 1;
+                    }
+                });
                 that.rerouting = true;
                 
             } else if (latlngs.length >= 2) {
@@ -33,7 +46,7 @@ class ARLibMarker {
                 for (var j=0; j < latlngs.length; j++) {
                     var length = L.latLng(latlngs[j]).distanceTo(L.latLng(latlngs[j+1]));
                     var time_seconds = (length / (that.speed / 3.6));
-                    that.marker.addLatLng(that.latlngs[j+1], time_seconds*1000);
+                    that.marker.addLatLng(latlngs[j+1], time_seconds*1000);
                 }
             }
             else {
@@ -50,16 +63,14 @@ class ARLibMarker {
         
         
     }
-
-    
-
     fetchroute() {
         var that = this;
         var current_index = that.current_index;
         if (that.rerouting) {
             var startPoint = this.QueueLatlngs[this.current_index + 2];
-            $.getJSON( endpoint, {s_lat: startPoint[0],s_lon: startPoint[1],e_lat: this.destination[0],e_lon: this.destination[1],  reroute: this.reroute} )
+            $.getJSON( that.endpoint, {s_lat: startPoint[0],s_lon: startPoint[1],e_lat: this.destination[0],e_lon: this.destination[1],  reroute: this.reroute} )
             .done(function( json ) {
+                //TODO: Check better async conditions
                 if (that.current_index = current_index)
                     that.tempQueueLatlngs = json[0];
         }).fail(function(textStatus, error) {
@@ -72,7 +83,6 @@ class ARLibMarker {
     };
 
     update() {
-        console.log("ciao");
         this.QueueLatlngs = this.tempQueueLatlngs.slice(1);
         this.tempQueueLatlngs = this.QueueLatlngs;
         this.currentLatlngs.push(this.QueueLatlngs[0]);
@@ -91,39 +101,41 @@ class ARLibMarker {
             that.startroute();
             that.marker.addTo(map);
         }
+        that.map = map;
     }
+
     startroute() {
         var that = this;
         if (that.rerouting) {
-            that.marker.on('checkpoint', function() {
-                if (that.QueueLatlngs.length > 1) {
-                    that.QueueLatlngs = that.tempQueueLatlngs.slice(1);
-                    that.tempQueueLatlngs = that.QueueLatlngs;
-                    that.currentLatlngs.push(that.QueueLatlngs[0]);
-                    var oldlast = L.latLng(that.currentLatlngs[that.currentLatlngs.length-2]);
-                    var newlast = L.latLng(that.currentLatlngs[that.currentLatlngs.length-1]);
-                    var duration = oldlast.distanceTo(newlast) / (that.speed / 3.6);
-                    that.marker.addLatLng(that.QueueLatlngs[0], duration * 1000);   
-                    that.current_index = that.current_index + 1;
-                }
-            });
-            window.setInterval(function() {
+            that.interval = window.setInterval(function() {
                 var current_index = that.current_index;
-                if (that.rerouting && that.QueueLatlngs.length > 3) {
-                    var startPoint = that.QueueLatlngs[that.current_index + 2];
-                    $.getJSON( endpoint, {s_lat: startPoint[0],s_lon: startPoint[1],e_lat: that.destination[0],e_lon: that.destination[1],  reroute: that.reroute} )
+                if (that.reroute && that.rerouting && that.QueueLatlngs.length > 1 && that.currentLatlngs.length > current_index + 2) {
+                    var startPoint = that.currentLatlngs[that.current_index + 2];
+                    $.getJSON( that.endpoint, {s_lat: startPoint[0],s_lon: startPoint[1],e_lat: that.destination[0],e_lon: that.destination[1],  reroute: true} )
                     .done(function( json ) {
-                        if (that.current_index = current_index)
+                        //CHECK BETTER ASYNC
+                        that.fetching = true;
+                        if (json != null && that.current_index == current_index) {
                             that.tempQueueLatlngs = json[0];
+                            console.log("ciaooooo");
+                        } else {
+                            console.log("No rerouting!");
+                        }
+                        that.fetching = false;
                 }).fail(function(textStatus, error) {
                         console.log("Request Failed: " + textStatus + ", " + error);
                     });
                 }
                 else {
                     console.log("No rerouting!");
-        }}, 1000);
+        }}, that.timer);
         }
-        that.marker.start();
+    that.marker.on('end', function() {
+        that.map.removeLayer(that.marker);
+        window.clearInterval(that.interval);
+        that.rerouting = false;
+    });
+    that.marker.start();
     }
 };
 
