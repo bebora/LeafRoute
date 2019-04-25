@@ -30,7 +30,10 @@ L.Marker.MovingMarker = L.Marker.extend({
 
         if (durations instanceof Array) {
             this._durations = durations;
-        } else {
+        } else if (durations == 0) {
+            this._durations = [];
+        }
+          else {
             this._durations = this._createDurations(this._latlngs, durations);
         }
 
