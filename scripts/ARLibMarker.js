@@ -1,10 +1,16 @@
 class ARLibMarker {
-    constructor(startPoint, destination) {
+    /**
+     * Construct an ARLibMarker, a wrapper of a MovingMarker, given the waypoints and set it ready when it's ready to be added to the LeafLet map
+     * @param {Array} startPoint array with latitude and longitude of the starting point
+     * @param {*} destination array with the latitude and longitude of destination point
+     * @param {*} option optional parameters defining the speed, the timing of rerouting and the endpoint used as a routing machine
+     */
+    constructor(startPoint, destination, {speed =100, timer = 1000, endpoint = 'http://localhost:1337/getroutes?'}) {
         var temp = [startPoint]
-        this.speed = 100;
-        this.timer = 100;
+        this.speed = speed;
+        this.timer = timer;
         this.rerouting = false;
-        this.endpoint = 'http://localhost:1337/getroutes?';
+        this.endpoint = endpoint;
         this.reroute = false;
         this.current_index = 1;
         this.ready = false;
@@ -59,43 +65,13 @@ class ARLibMarker {
             console.log("Request Failed: " + textStatus + ", " + error);
             that.ready = true;
 
-        });
-        
-        
+        });       
     }
-    fetchroute() {
-        var current_index = that.current_index;
-                if (that.reroute && that.rerouting && that.QueueLatlngs.length > 1 && that.currentLatlngs.length > current_index + 2) {
-                    var startPoint = that.currentLatlngs[that.current_index + 2];
-                    $.getJSON( that.endpoint, {s_lat: startPoint[0],s_lon: startPoint[1],e_lat: that.destination[0],e_lon: that.destination[1],  reroute: true} )
-                    .done(function( json ) {
-                        that.fetching = true;
-                        if (json != null && that.current_index == current_index) {
-                            that.tempQueueLatlngs = json[0].slice(1);
-                        } else {
-                            console.log("Late response -> no rerouting!");
-                        }
-                        that.fetching = false;
-                }).fail(function(textStatus, error) {
-                        console.log("Request Failed: " + textStatus + ", " + error);
-                    });
-                }
-                else {
-                    console.log("No rerouting!");
-        }
-    };
 
-    update() {
-        this.QueueLatlngs = this.tempQueueLatlngs.slice(1);
-        this.tempQueueLatlngs = this.QueueLatlngs;
-        this.currentLatlngs.push(this.QueueLatlngs[0]);
-        var oldlast = L.latLng(this.QueueLatlngs[this.QueueLatlngs.length-2]);
-        var newlast = L.latLng(this.QueueLatlngs[this.QueueLatlngs.length-1]);
-        var duration = oldlast.distanceTo(newlast) / (50 / 3.6);
-        this.marker.addLatLng(this.QueueLatlngs[0], duration * 1000);   
-        this.current_index = this.current_index + 1;
-
-    };
+    /**
+     * Add the marker in the map, autostarting the route
+     * @param {L.map} map map used to visualize the MovingMarker
+     */
     addTo(map) {
         var that = this;
         if (!this.ready) {
@@ -110,7 +86,27 @@ class ARLibMarker {
     startroute() {
     var that = this;
     if (that.rerouting) {
-        that.interval = window.setInterval(that.update(), that.timer);
+        that.interval = window.setInterval(function () { 
+            var current_index = that.current_index;
+                    if (that.reroute && that.rerouting && that.QueueLatlngs.length > 1 && that.currentLatlngs.length > current_index + 2) {
+                        var startPoint = that.currentLatlngs[that.current_index + 2];
+                        $.getJSON( that.endpoint, {s_lat: startPoint[0],s_lon: startPoint[1],e_lat: that.destination[0],e_lon: that.destination[1],  reroute: true} )
+                        .done(function( json ) {
+                            that.fetching = true;
+                            if (json != null && that.current_index == current_index) {
+                                that.tempQueueLatlngs = json[0].slice(1);
+                            } else {
+                                console.log("Late response -> no rerouting!");
+                            }
+                            that.fetching = false;
+                    }).fail(function(textStatus, error) {
+                            console.log("Request Failed: " + textStatus + ", " + error);
+                        });
+                    }
+                    else {
+                        console.log("No rerouting!");
+            }
+        }, that.timer);
     }
     that.marker.on('end', function() {
         that.map.removeLayer(that.marker);
