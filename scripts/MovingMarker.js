@@ -251,6 +251,7 @@ L.Marker.MovingMarker = L.Marker.extend({
             }
 
             lineIndex++;
+            this.fire('checkpoint');
 
             // test if we have reached the end of the polyline
             if (lineIndex >= this._latlngs.length - 1) {
