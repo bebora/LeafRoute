@@ -5,10 +5,11 @@ class ARLibMarker {
      * @param {*} destination array with the latitude and longitude of destination point
      * @param {*} option optional parameters defining the speed, the timing of rerouting and the endpoint used as a routing machine
      */
-    constructor(startPoint, destination, speed =100, timer = 1000, endpoint = 'http://localhost:1337/getroutes?') {
+    constructor(startPoint, destination, rerouting = true, speed =100, timer = 1000, endpoint = 'http://localhost:1337/getroutes?') {
         var temp = [startPoint]
         this.speed = speed;
         this.timer = timer;
+        this._rerouting = rerouting;
         this.rerouting = false;
         this.endpoint = endpoint;
         this.reroute = false;
@@ -43,10 +44,9 @@ class ARLibMarker {
                 var time_seconds = (length / (that.speed / 3.6));
                 that.marker.addLatLng(that.currentLatlngs[j+1], time_seconds*1000);
             }
-            that.rerouting = true;
+            that.rerouting = that._rerouting;
             
         } else if (latlngs.length >= 2) {
-            that.rerouting = false;
             for (var j=0; j < latlngs.length; j++) {
                 var length = L.latLng(latlngs[j]).distanceTo(L.latLng(latlngs[j+1]));
                 var time_seconds = (length / (that.speed / 3.6));
