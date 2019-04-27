@@ -63,7 +63,8 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
      * Util function for rerouting machine, fetching the endpoint for different paths from original
      * @param {} that original scope
      */
-    _fetchroute: function(that) { 
+    _fetchroute: function() { 
+        var that = this;
         var current_index = that.current_index;
         if (that.reroute && that.rerouting && that.QueueLatlngs.length > 1 && that.currentLatlngs.length > current_index + 2) {
             var startPoint = that.currentLatlngs[that.current_index + 2];
@@ -83,6 +84,24 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
         else {
             console.log("No rerouting!");
         }
+    },
+
+    /**
+     * Update at checkpoint the MovingMarker with new coordinates to assure a non-blocking movement
+     */
+    _update: function() {
+        var that = this;
+        console.log(that.current_index);
+        if (that.QueueLatlngs.length > 1) {
+            that.QueueLatlngs = that.tempQueueLatlngs.slice(1);
+            that.tempQueueLatlngs = that.QueueLatlngs;
+            that.currentLatlngs.push(that.QueueLatlngs[0]);
+            var oldlast = L.latLng(that.currentLatlngs[that.currentLatlngs.length-2]);
+            var newlast = L.latLng(that.currentLatlngs[that.currentLatlngs.length-1]);
+            var duration = oldlast.distanceTo(newlast) / (that.speed / 3.6);
+            L.Marker.MovingMarker.prototype.addLatLng.call(that,that.QueueLatlngs[0], duration * 1000);   
+            that.current_index = that.current_index + 1;
+        } 
     },
 
     /**
@@ -107,19 +126,11 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
     var that = this;
     if (that.rerouting) {
         that.on('checkpoint',function() {
-            console.log(that.current_index);
-            if (that.QueueLatlngs.length > 1) {
-                that.QueueLatlngs = that.tempQueueLatlngs.slice(1);
-                that.tempQueueLatlngs = that.QueueLatlngs;
-                that.currentLatlngs.push(that.QueueLatlngs[0]);
-                var oldlast = L.latLng(that.currentLatlngs[that.currentLatlngs.length-2]);
-                var newlast = L.latLng(that.currentLatlngs[that.currentLatlngs.length-1]);
-                var duration = oldlast.distanceTo(newlast) / (that.speed / 3.6);
-                L.Marker.MovingMarker.prototype.addLatLng.call(that,that.QueueLatlngs[0], duration * 1000);   
-                that.current_index = that.current_index + 1;
-            }   
+            that._update();
         });
-        that.interval = window.setInterval(that._fetchroute(that) , that.timer);
+        that.interval = window.setInterval(function() {
+            that._fetchroute();
+        }, that.timer);
     }
     that.on('end', function() {
         that.map.removeLayer(that);
