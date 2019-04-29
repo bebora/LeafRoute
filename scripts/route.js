@@ -82,12 +82,12 @@ $(document).ready(function()
     }
 
     var boundingBoxMilanCoords = [
-        [45.3743, 9.0519],
-        [45.3743, 9.3507],
-        [45.5509, 9.3507],
-        [45.5509, 9.0519],
-        [45.3743, 9.0519]
-    ];            
+        [45.535946, 9.040613],
+        [45.535946, 9.277997],
+        [45.386724, 9.277997],
+        [45.386724, 9.040613],
+        [45.535946, 9.040613]
+    ];
 
     var boundingBoxMilan = L.polyline(boundingBoxMilanCoords).addTo(map);
     $.getJSON("https://www.leafroute.tk/zone.json", function(data) {
