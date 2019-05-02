@@ -9,7 +9,9 @@ Plugins:
 Backend built with Boost.Graph library [arlib](https://github.com/leonardoarcari/arlib)  
 Demo [here](https://bebora.github.io/LeafRoute/route.html). Backend must be running at localhost.  
 Milan zones from [Comune di Milano](https://geoportale.comune.milano.it/ATOM/SIT/Municipi/Municipi_Dataset_1.xml)
+Sliders with constant sum inspired from [constant-sum-sliders](https://github.com/jacobsolomon15/constant-sum-sliders)  
 # TODO
 - Add bootstrap sidebar to setup and start the simulation
 - Add function for random generation of points inside a polygon (using turf.js)
 - Add documentation for RoutesDealer
+- Join some custom css files

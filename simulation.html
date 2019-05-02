@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LeafRoute simulation</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <script
+        src="https://code.jquery.com/jquery-3.4.0.min.js"
+        integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg="
+        crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+        integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"
+        crossorigin="anonymous">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
+        integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+        crossorigin=""/>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+        crossorigin="anonymous">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+    
+    <link rel="stylesheet" href="style/leaflet-sidebar.css" />
+    <link rel="stylesheet" href="style/autoslider.css"/>
+    <link rel="stylesheet" href="style/simulation.css"/>
+</head>
+<body>
+    <!-- optionally define the sidebar content via HTML markup -->
+    <div id="sidebar" class="leaflet-sidebar collapsed">
+
+        <!-- nav tabs -->
+        <div class="leaflet-sidebar-tabs">
+            <!-- top aligned tabs -->
+            <ul role="tablist">
+                <li><a href="#home" role="tab"><i class="fa fa-bars active"></i></a></li>
+            </ul>
+
+            <!-- bottom aligned tabs -->
+            <ul role="tablist">
+                <li><a href="https://github.com/bebora/LeafRoute"><i class="fab fa-github"></i></a></li>
+            </ul>
+        </div>
+
+        <!-- panel content -->
+        <div class="leaflet-sidebar-content">
+            <div class="leaflet-sidebar-pane" id="home">
+                <h1 class="leaflet-sidebar-header">
+                    LeafRoute single route
+                    <span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>
+                </h1>
+                <div class="container">
+                    <div class="row">
+                        <input class="pretty-slider option" id="totalmarkers" type="range" min="0" max="1000" value="400" oninput="totalmarkerstext.value = totalmarkers.value" style="background: linear-gradient(to right, rgb(35, 175, 0) 60%, white 60%); width: 85%;" >
+                        <output id="totalmarkerstext">400</output>
+                    </div>
+                    <!-- Example row of columns -->
+                    <div class="row">
+                        <ul id="sliders_auto_reallocate">
+                            <button type="button" id="reset" class="btn btn-primary" onclick="equalize(this)">Equalize</button>
+                            <li>
+                                <div style="float: right; width: 50%;">
+                                    <span style="float: right">100%|</span>
+                                </div>
+                                <div style="float: right; width: 50%;">
+                                    <span style="float: right">50%|</span>
+                                </div>
+                            </li>
+                            <li>
+                                <p>1</p>
+                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt1" type="range" min="0" max="900" style="background:  rgba(0, 0, 0, 0)">
+                            </li>
+                            <li>
+                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt2" type="range" min="0" max="900" style="background: rgba(0, 0, 0, 0)">
+                            </li>
+                            <li>
+                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt3" type="range" min="0" max="900" style="background: rgba(0, 0, 0, 0)">
+                            </li>
+                            <li>
+                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt4" type="range" min="0" max="900" style="background: rgba(0, 0, 0, 0)">
+                            </li>
+                            <li>
+                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt5" type="range" min="0" max="900" style="background: rgba(0, 0, 0, 0)">
+                            </li>
+                            <li>
+                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt6" type="range" min="0" max="900" style="background: rgba(0, 0, 0, 0)">
+                            </li>
+                            <li>
+                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt7" type="range" min="0" max="900" style="background: rgba(0, 0, 0, 0)">
+                            </li>
+                            <li>
+                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt8" type="range" min="0" max="900" style="background: rgba(0, 0, 0, 0)">
+                            </li>
+                            <li>
+                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt9" type="range" min="0" max="900" style="background: rgba(0, 0, 0, 0)">
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="leaflet-sidebar-pane" id="messages">
+                <h1 class="leaflet-sidebar-header">Messages<span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+            </div>
+        </div>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
+        integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+        crossorigin=""></script>
+    <script src="scripts/leaflet-sidebar.js"></script>
+    <script src="scripts/simulation.js"></script>ù
+    <script src="scripts/autosliders.js"></script>
+    
+    
+</body>
+</html>
