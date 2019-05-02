@@ -29,7 +29,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
-
+    <link rel="stylesheet" href="style/typeaheadjs.css">
     <link rel="stylesheet" href="style/leaflet-sidebar.css" />
     <link rel="stylesheet" href="style/singleroute.css"/>
 </head>
@@ -58,14 +58,8 @@
                     <span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>
                 </h1>
                 <!--TODO add some user interaction here-->
-                <div class="input-group input-group-lg mb-3 mt-3">
-                    <input type="text" id="text-search1" class="form-control" placeholder="Source address" aria-label="Source address" list="photon_list">
-                    <datalist id="photon_list"></datalist>
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-success" type="button" id="button-search1">
-                            <i class="fas fa-search-location"></i>
-                        </button>
-                    </div>
+                <div class="input-group input-group mb-3 mt-3">
+                    <input type="text" id="text-search1" class="form-control" placeholder="Source address" aria-label="Source address">
                 </div>
 
             </div>
@@ -81,6 +75,8 @@
     <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
         integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
         crossorigin=""></script>
+    <script src="scripts/typeahead.bundle.js"></script>
+    <script src="scripts/typeahead-address-photon.js"></script>
     <script src="scripts/leaflet-sidebar.js"></script>
 
     <script src="scripts/singleroute.js"></script>

@@ -169,52 +169,8 @@ map.on("click", function(e){
 });
 
 
-var typingTimer;                //timer identifier
-var doneTypingInterval = 1000;  //time in ms (1 second)
-
-//on keyup, start the countdown
-$('#text-search1').keyup(function(event){
-    clearTimeout(typingTimer);
-    if (event.target.value) {
-        typingTimer = setTimeout(hinter, doneTypingInterval, event);
-    }
+var engine = new PhotonAddressEngine();
+$("#text-search1").typeahead(null, {
+    source: engine.ttAdapter(),
+    displayKey: 'description'
 });
-
-window.hinterXHR = new XMLHttpRequest();
-// Autocomplete for form
-function hinter(event) {
-    // retrieve the input element
-    var input = event.target;
-    // retrieve the datalist element
-    var photon_list = document.getElementById("photon_list");
-    // minimum number of characters before we start to generate suggestions
-    var min_characters = 1;
-    if (input.value.length < min_characters ) { 
-        return;
-    } else { 
-        // abort any pending requests
-        window.hinterXHR.abort();
-
-        window.hinterXHR.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-
-                // We're expecting a json response so we convert it to an object
-                var response = JSON.parse( this.responseText ); 
-                // clear any previously loaded options in the datalist
-                photon_list.innerHTML = "";
-
-                response.features.forEach(function(item) {
-                    //TODO parse geojson
-                    console.log(item);
-                    // attach the option to the datalist element
-                });
-            }
-        };
-
-        window.hinterXHR.open("GET", "https://photon.komoot.de/api/?q=" + input.value +
-                                        "&lat=" + map.getCenter().lat +
-                                        "&lon=" + map.getCenter().lng +
-                                        "&limit=5", true);
-        window.hinterXHR.send()
-    }
-}
