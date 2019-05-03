@@ -59,11 +59,11 @@
                     <span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>
                 </h1>
                 <div class="container">
-                    <div class="row">
+                    <div class="row ttip">
+                            <span class="ttiptext">Total number of markers</span>
                         <input class="pretty-slider option" id="totalmarkers" type="range" min="0" max="1000" value="400" oninput="totalmarkerstext.value = totalmarkers.value" style="background: linear-gradient(to right, rgb(35, 175, 0) 60%, white 60%); width: 85%;" >
                         <output id="totalmarkerstext">400</output>
                     </div>
-                    <!-- Example row of columns -->
                     <div class="row">
                         <ul id="sliders_auto_reallocate">
                             <button type="button" id="reset" class="btn btn-primary" onclick="equalize(this)">Equalize</button>
@@ -76,35 +76,46 @@
                                 </div>
                             </li>
                             <li>
-                                <p>1</p>
-                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt1" type="range" min="0" max="900" style="background:  rgba(0, 0, 0, 0)">
+                                <p class="slider-description">Centro storico</p>
+                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt1" type="range" min="0" max="1000" style="background:  rgba(0, 0, 0, 0)">  
                             </li>
                             <li>
-                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt2" type="range" min="0" max="900" style="background: rgba(0, 0, 0, 0)">
+                                <p class="slider-description">Stazione Centrale, Gorla, Turro, Greco, Crescenzago</p>
+                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt2" type="range" min="0" max="1000" style="background: rgba(0, 0, 0, 0)">
                             </li>
                             <li>
-                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt3" type="range" min="0" max="900" style="background: rgba(0, 0, 0, 0)">
+                                <p class="slider-description">Città Studi, Lambrate, Venezia</p>
+                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt3" type="range" min="0" max="1000" style="background: rgba(0, 0, 0, 0)">
                             </li>
                             <li>
-                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt4" type="range" min="0" max="900" style="background: rgba(0, 0, 0, 0)">
+                                <p class="slider-description">Vittoria, Forlanini</p>
+                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt4" type="range" min="0" max="1000" style="background: rgba(0, 0, 0, 0)">
                             </li>
                             <li>
-                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt5" type="range" min="0" max="900" style="background: rgba(0, 0, 0, 0)">
+                                <p class="slider-description">Vigentino, Chiaravalle, Gratosoglio</p>
+                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt5" type="range" min="0" max="1000" style="background: rgba(0, 0, 0, 0)">
                             </li>
                             <li>
-                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt6" type="range" min="0" max="900" style="background: rgba(0, 0, 0, 0)">
+                                <p class="slider-description">Barona, Lorenteggio</p>
+                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt6" type="range" min="0" max="1000" style="background: rgba(0, 0, 0, 0)">
                             </li>
                             <li>
-                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt7" type="range" min="0" max="900" style="background: rgba(0, 0, 0, 0)">
+                                <p class="slider-description">Baggio, De Angeli, San Siro primaticcio </p>
+                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt7" type="range" min="0" max="1000" style="background: rgba(0, 0, 0, 0)">
                             </li>
                             <li>
-                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt8" type="range" min="0" max="900" style="background: rgba(0, 0, 0, 0)">
+                                <p class="slider-description">Fiera, Quartiere Gallaratese, Quarto Oggiaro</p>
+                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt8" type="range" min="0" max="1000" style="background: rgba(0, 0, 0, 0)">
                             </li>
                             <li>
-                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt9" type="range" min="0" max="900" style="background: rgba(0, 0, 0, 0)">
+                                <p class="slider-description">Stazione Garibaldi, Niguarda</p>
+                                <input class="slider-auto-reallocate-input pretty-slider option" id="opt9" type="range" min="0" max="1000" style="background: rgba(0, 0, 0, 0)">
                             </li>
                         </ul>
                     </div>
+                    <div class="row">
+                        <button type="button" id="start-sim" class="btn btn-primary">Start simulation</button>
+                    </div>  
                 </div>
             </div>
 

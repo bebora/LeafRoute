@@ -5,17 +5,12 @@ $('.slider-auto-reallocate-input').each(function() {
         
         var total_sliders = $('.slider-auto-reallocate-input').length;
         
-        if ($this.prop('disabled') == true) {
-            return true;
-        }
-        
         var val = $this.val();
         var val_pct = (val - $this.attr("min")) / ($this.attr('max') - $this.attr('min')) * 100;
         
         if (val_pct < 0) {
             val_pct = 0;
         }
-        val_pct++;
         // Adjust the css so the bar looks like it grows and shrinks
         var st = 'linear-gradient(to right, rgb(35, 175, 0) ' + val_pct + '%, white ' + val_pct + '%)';
         $this.css('background', st);
@@ -29,7 +24,7 @@ $('.slider-auto-reallocate-input').each(function() {
         
         total += parseInt($this.val());
         
-        var availableTotal = 900;
+        var availableTotal = 1000;
         
         var delta = availableTotal - total;
         
@@ -43,15 +38,14 @@ $('.slider-auto-reallocate-input').each(function() {
            if (val_pct < 0) {
             val_pct = 0;
            }
-           val_pct++;
            var st = 'linear-gradient(to right, rgb(35, 175, 0) ' + val_pct + '%, white ' + val_pct + '%)';
            $(this).css('background', st);
 
            if (new_val < 0 || $this.val() == 100) {
             new_val = 0;
            }
-           if (new_val > 100) {
-            new_val = 100;
+           if (new_val > availableTotal) {
+            new_val = availableTotal;
            }
            
            $(this).val(new_val);
@@ -61,16 +55,13 @@ $('.slider-auto-reallocate-input').each(function() {
 
 function equalize(group) {
     var options = $(group).parent().find('.option');
-    var availableTotal = 900;
+    var availableTotal = 1000;
     var portion = availableTotal / options.length;
     $(options).each(function () {
         $(this).val(portion);
         var val_pct = (portion / availableTotal)*100;
         if (val_pct < 0) {
-         val_pct = 0;
-        }
-        if (val_pct<60){
-            val_pct++;
+            val_pct = 0;
         }
         var st = 'linear-gradient(to right, rgb(35, 175, 0) ' + val_pct + '%, white ' + val_pct + '%)';
         $(this).css('background', st);
