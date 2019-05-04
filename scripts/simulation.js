@@ -134,8 +134,11 @@ var boundingBoxMilanCoords = [
 ];
 
 var boundingBoxMilan = L.polyline(boundingBoxMilanCoords).addTo(map);
-$.getJSON("https://www.leafroute.tk/zone.json", function(data) {
-    L.geoJson(data).addTo(map);
+var zones;
+var zonatest;
+$.getJSON("https://www.leafroute.tk/zone.min.json", function(data) {
+    zones = L.geoJson(data).addTo(map);
+    zonatest = zones.getLayers()[0];
 });
 
 $("#button").click(showroute);
@@ -167,3 +170,18 @@ map.on("click", function(e){
     }
 });
 
+
+var generatePointInsidePolygon = function(bboxArray, polygonGeoJSON){
+    while (true) {
+        var pointCoords = turf.randomPoint(1, {bbox: bboxArray}).features[0].geometry.coordinates;
+        if (turf.booleanPointInPolygon(pointCoords, polygonGeoJSON)) {
+            return pointCoords;
+            //return a coordinate in [lon, lat] format
+        }
+    }
+}
+
+var randomPointInLeafletPolygon = function(layer) {
+    var bounds = layer.getBounds().toBBoxString().split(',').map(Number);
+    return generatePointInsidePolygon(bounds, layer.toGeoJSON());
+}
