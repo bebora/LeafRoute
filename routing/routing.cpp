@@ -1,4 +1,5 @@
 #include <cpprest/filestream.h>
+#include <boost/program_options.hpp>
 #include <cpprest/http_listener.h>
 #include <cpprest/json.h>
 #include <cpprest/uri.h>
@@ -8,7 +9,6 @@
 #include <cpprest/rawptrstream.h>
 #include <cpprest/producerconsumerstream.h>
 #include <chrono>
-
 #include "routesfetcher.h"
 
 using namespace utility;
@@ -21,6 +21,7 @@ using namespace web::experimental::web_sockets::client;
 using namespace web::json;
 using namespace arlib;
 using namespace std;
+
 
 using Graph = boost::adjacency_list<boost::vecS, boost::vecS,
         boost::bidirectionalS, Location,
@@ -99,10 +100,27 @@ void RoutesDealer::handle_get(http_request message)
 }
 
 
-int main() {
+int main(int argc, char* argv[]) {
+    namespace po = boost::program_options;
+    po::options_description desc("Allowed options");
+    std::string endpoint;
+    desc.add_options()
+            ("endpoint", po::value<string>()->default_value("http://localhost:1337/getroutes?"), "Insert the server endpoint")
+            ;
+    po::variables_map opts;
+    po::positional_options_description p;
+    p.add("endpoint", -1);
+    po::store(po::command_line_parser(argc,argv).options(desc).positional(p).run(), opts);
+    try {
+        po::notify(opts);
+    } catch (std::exception& e) {
+        std::cerr << "Error: " << e.what() << "\n";
+        return 1;
+    }
+    endpoint = opts["endpoint"].as<std::string>();
     Graph g;
     location_graph_from_string("weights", "ids", g);
-    utility::string_t address = U("http://localhost:1337/getroutes?");
+    utility::string_t address = U(endpoint);
 
     RoutesDealer listener(address, g);
     listener.open().wait();

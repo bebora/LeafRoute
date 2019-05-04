@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.7)
 project(main)
 set(cpprestsdk_DIR /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}/cmake/)
-find_package(Boost 1.55.0 REQUIRED COMPONENTS system filesystem)
+find_package(Boost 1.55.0 REQUIRED COMPONENTS system filesystem program_options)
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 add_subdirectory(external/arlib)
