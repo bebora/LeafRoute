@@ -14,3 +14,4 @@ Sliders with constant sum inspired from [constant-sum-sliders](https://github.co
 - Add bootstrap sidebar to setup and start the simulation
 - Add documentation for RoutesDealer
 - Join some custom css files
+- Dynamically create sliders with any GeoJSON containing zones

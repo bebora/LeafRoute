@@ -59,24 +59,29 @@
         <div class="leaflet-sidebar-content">
             <div class="leaflet-sidebar-pane" id="home">
                 <h1 class="leaflet-sidebar-header">
-                    LeafRoute single route
+                    LeafRoute simulation
                     <span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>
                 </h1>
-                <div class="container">
+                <div class="container" style="padding-left: 5px; padding-right: 10px;">
                     <div class="row ttip">
                             <span class="ttiptext">Total number of markers</span>
-                        <input class="pretty-slider option" id="totalmarkers" type="range" min="0" max="1000" value="400" oninput="totalmarkerstext.value = totalmarkers.value" style="background: linear-gradient(to right, rgb(35, 175, 0) 60%, white 60%); width: 85%;" >
+                        <input class="pretty-slider option" id="totalmarkers" type="range" min="0" max="1000" value="400" oninput="totalmarkerstext.value = totalmarkers.value" style="background: linear-gradient(to right, rgb(35, 175, 0) 60%, white 60%);" >
                         <output id="totalmarkerstext">400</output>
+                    </div>
+                    <div class="row" style="margin-bottom: 10px">
+                        <input type="text" class="form-control" id="speed" placeholder="Speed" style="width: 30%">
+                        <input type="text" class="form-control" id="timer" placeholder="Timer" style="width: 30%">
+                        <button type="button" id="start-sim" class="btn btn-primary" style="width: 40%">Start simulation</button>
                     </div>
                     <div class="row">
                         <ul id="sliders_auto_reallocate">
                             <button type="button" id="reset" class="btn btn-primary" onclick="equalize(this)">Equalize</button>
                             <li>
                                 <div style="float: right; width: 50%;">
-                                    <span style="float: right">100%|</span>
+                                    <span style="float: right; font-size: 16px;">100%|</span>
                                 </div>
                                 <div style="float: right; width: 50%;">
-                                    <span style="float: right">50%|</span>
+                                    <span style="float: right;  font-size: 16px;">50%|</span>
                                 </div>
                             </li>
                             <li>
@@ -117,9 +122,6 @@
                             </li>
                         </ul>
                     </div>
-                    <div class="row">
-                        <button type="button" id="start-sim" class="btn btn-primary">Start simulation</button>
-                    </div>  
                 </div>
             </div>
 
