@@ -1,15 +1,3 @@
-var userid = 0
-var addUser = function () {
-        sidebar.addPanel({
-            id:   'user' + userid++,
-            tab:  '<i class="fa fa-user"></i>',
-            title: 'User Profile ' + userid,
-            pane: '<p>Nothing interesting here</p>',
-        });
-    }
-
-
-
 var map = L.map('map').setView([45.4626, 9.2013], 12);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
     maxZoom: 19,
@@ -20,23 +8,6 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
 var sidebar = L.control.sidebar({ container: 'sidebar' })
 .addTo(map)
 .open('home');
-
-// add panels dynamically to the sidebar
-sidebar
-.addPanel({
-    id:   'js-api',
-    tab:  '<i class="fa fa-cog"></i>',
-    title: 'JS API',
-    pane: '<p>The Javascript API allows to dynamically create or modify the panel state.<p/><p><button onclick="sidebar.enablePanel(\'mail\')">enable mails panel</button><button onclick="sidebar.disablePanel(\'mail\')">disable mails panel</button></p><p><button onclick="addUser()">add user</button></b>',
-})
-// add a tab with a click callback, initially disabled
-.addPanel({
-    id:   'mail',
-    tab:  '<i class="fa fa-envelope"></i>',
-    title: 'Messages',
-    button: function() { alert('opened via JS callback') },
-    disabled: true,
-})
 
 // be notified when a panel is opened
 sidebar.on('content', function (ev) {
@@ -49,82 +20,6 @@ sidebar.on('content', function (ev) {
     }
 });
 
-
-
-var start_lat;
-var start_lng;
-var end_lat;
-var end_lng;
-polyline = L.polyline([]).addTo(map);
-var paths = [];
-var animations = []
-var route_colors = [
-    "rgb(255,0,0)",
-    "rgb(127,93,93)",
-    "rgb(63,51,51)",
-    "rgb(31,25,25)"
-]
-function showroute(){
-    //delete previous routes and markers
-    while(paths.length != 0) {
-        map.removeLayer(paths.pop());
-    }
-    while(animations.length != 0) {
-        map.removeLayer(animations.pop());
-    }
-    start_lat = $('#lat-start').val();
-    start_lng = $('#lng-start').val();
-    end_lat = $('#lat-end').val();
-    end_lng = $('#lng-end').val();
-    endpoint = "http://localhost:1337/getroutes?";
-    $.getJSON( endpoint, { s_lat: start_lat, s_lon: start_lng, e_lat: end_lat, e_lon: end_lng, reroute: "false" } )
-    .done(function( json ) {
-        for (alternative_index in json) {
-            color = route_colors[alternative_index];
-            polypath = L.polyline(json[alternative_index], {color:color, weight:6-alternative_index*1.5});
-            polypath.addTo(map);
-            paths.push(polypath);
-        }
-        if (paths.length > 0) {
-            //Zoom to received paths
-            viewBox = L.latLngBounds();
-            for (i=0; i< paths.length; i++){
-                viewBox.extend(paths[i].getBounds());
-            }
-            //Slightly extend box
-            map.fitBounds(viewBox.pad(0.10));
-        }
-    })
-    .fail(function( jqxhr, textStatus, error ) {
-        var err = textStatus + ", " + error;
-        console.log( "Request Failed: " + err );
-    });
-    
-}
-
-function animate_routes(){
-    var speed = $("#speed").val();
-    if (speed == "") {
-        speed = 50;
-        $("#speed").val("50");
-    }
-    console.log("Speed is "+speed+" km/h");
-    for (i=0; i < paths.length; i++) {
-        polypath = paths[i];
-        total_lenght = 0;
-        components = polypath.getLatLngs();
-        if (components.length >= 2) {
-            for (j=0; j < components.length-1; j++) {
-                total_lenght += components[j].distanceTo(components[j+1]);
-            }
-        }
-        time_seconds = (total_lenght / (speed / 3.6));
-        marker = L.Marker.movingMarker(components,time_seconds*1000).addTo(map);
-        marker.start();
-        animations.push(marker);
-    }
-}
-
 var boundingBoxMilanCoords = [
     [45.535946, 9.040613],
     [45.535946, 9.277997],
@@ -135,41 +30,73 @@ var boundingBoxMilanCoords = [
 
 var boundingBoxMilan = L.polyline(boundingBoxMilanCoords).addTo(map);
 var zones;
-var zonatest;
+var features;
 $.getJSON("https://www.leafroute.tk/zone.min.json", function(data) {
     zones = L.geoJson(data).addTo(map);
-    zonatest = zones.getLayers()[0];
+    features = data['features'];
 });
+var markers = []
 
-$("#button").click(showroute);
-$("#button-speed").click(animate_routes);
-var points_added = [];
-map.on("click", function(e){
-    console.log(paths.length);
-    if (points_added.length == 0) {
-        start = new L.Marker([e.latlng.lat, e.latlng.lng]).addTo(map);
-        points_added.push(start);
-        $("#lat-start").val(e.latlng.lat);
-        $("#lng-start").val(e.latlng.lng);
-    }
-    else if (points_added.length == 1) {
-        end = new L.Marker([e.latlng.lat, e.latlng.lng]).addTo(map);
-        points_added.push(end);
-        $("#lat-end").val(e.latlng.lat);
-        $("#lng-end").val(e.latlng.lng);
-    }
-    else {
-        while(points_added.length != 0) {
-            to_rm = points_added.pop();
-            map.removeLayer(to_rm);
+
+var generateRoutePoints = function() {
+    var totalMarkers = $("#totalmarkers").val();
+    var routePoints = [];
+    
+    for (var i = 1; i <= zones.getLayers().length; i++) {
+        let relatedPercentage = $("#opt"+i).val() / 1000.0;
+        let relatedMarkers = Math.floor(relatedPercentage * totalMarkers);
+        let startPoints = generateNPointsinLeafletLayer(relatedMarkers, zones.getLayers()[i-1]);
+        let endPoints = []
+        for (let j = 1; j <= zones.getLayers().length; j++) {
+            let subRelatedPercentage = 1 / zones.getLayers().length;
+            let subRelatedMarkers = Math.floor(subRelatedPercentage * relatedMarkers);
+            let tempEndPoints = generateNPointsinLeafletLayer(subRelatedMarkers, zones.getLayers()[j-1]);
+            endPoints.push.apply(endPoints, tempEndPoints);
         }
-        $("#lat-start").val("");
-        $("#lng-start").val("");
-        $("#lat-start").val("");
-        $("#lng-start").val("");
-    }
-});
+        
+        let tempRoutePoints = []
+        for (var j = 0; j < endPoints.length; j++) {
+            tempRoutePoints.push([startPoints[j],endPoints[j]]);
+        }
 
+        routePoints.push.apply(routePoints, tempRoutePoints);
+    }
+    return routePoints;
+}
+
+function waitForReady(marker) {
+  return new Promise(resolve => {
+    function checkReady() {
+      if (marker.ready == true) {
+        resolve();
+      } else {
+        window.setTimeout(checkReady, 100); 
+      }
+    }
+    checkReady();
+  });
+}
+
+
+var startSimulation = async function() {
+    console.log("starting simulation");
+    var speed = $("#speed").val();
+    var timer = $("#timer").val();
+    var routePoints = generateRoutePoints();
+    
+    for (i = 0; i < 20; i++) {
+        let marker = new L.Marker.MovingMarker.ARLibMarker(routePoints[i][0], routePoints[i][1], false, speed, timer);
+        markers.push(marker);
+    }
+    for (i = 0; i < markers.length; i++) {
+        await waitForReady(markers[i]);
+    }
+    markers.forEach(function(marker) {
+        marker.addTo(map);
+    });
+}
+
+$("#start-sim").click(startSimulation);
 
 var generatePointInsidePolygon = function(bboxArray, polygonGeoJSON){
     while (true) {
@@ -177,11 +104,30 @@ var generatePointInsidePolygon = function(bboxArray, polygonGeoJSON){
         if (turf.booleanPointInPolygon(pointCoords, polygonGeoJSON)) {
             return pointCoords;
             //return a coordinate in [lon, lat] format
+        } else {
+            return null;
         }
     }
 }
 
 var randomPointInLeafletPolygon = function(layer) {
     var bounds = layer.getBounds().toBBoxString().split(',').map(Number);
-    return generatePointInsidePolygon(bounds, layer.toGeoJSON());
+    var point = generatePointInsidePolygon(bounds, layer.toGeoJSON());
+    if (point != null)
+        return point.reverse();
+    else
+        return null;
+}
+
+var generateNPointsinLeafletLayer = function(number, layer) {
+    var points = [];
+    var i = number;
+    while (i > 0) {
+        var point = randomPointInLeafletPolygon(layer);
+        if (point != null) {
+            i--;
+            points.push(point);
+        }
+    }
+    return points;
 }

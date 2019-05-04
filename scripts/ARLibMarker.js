@@ -23,6 +23,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
             that.ready = true;
     }).fail(function(textStatus, error) {
             console.log("Request Failed: " + textStatus + ", " + error);
+            that.ready = true;
         });       
     },
     /**
@@ -105,6 +106,34 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
     },
 
     /**
+     * Stop the Marker, sending 'end' signal
+     */
+    stop: function() {
+        var that = this;
+        that.map.removeLayer(that);
+        window.clearInterval(that.interval);
+    },
+
+    /**
+     * Pause the marker and the route fetching
+     */
+    pause: function() {
+        L.Marker.MovingMarker.prototype.pause.call();
+        window.clearInterval(this.interval);
+    },
+
+    /**
+     * Restart the marker after resume
+     */
+    resume: function() {
+        var that = this;
+        L.Marker.MovingMarker.prototype.resume.call();
+        if (!interval)
+            that.interval = that.interval = window.setInterval(function() {
+                that._fetchroute();
+            }, that.timer);
+    },
+    /**
      * Add the marker in the map, autostarting the route
      * @param {L.map} map map used to visualize the MovingMarker
      */
@@ -124,10 +153,10 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
      */
     _startRoute: function() {
     var that = this;
+    that.on('checkpoint',function() {
+        that._update();
+    });
     if (that.rerouting) {
-        that.on('checkpoint',function() {
-            that._update();
-        });
         that.interval = window.setInterval(function() {
             that._fetchroute();
         }, that.timer);
