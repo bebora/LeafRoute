@@ -1,0 +1,3 @@
+[submodule "routing/external/arlib"]
+	path = routing/external/arlib
+	url = https://github.com/leonardoarcari/arlib
