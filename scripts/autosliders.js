@@ -1,12 +1,106 @@
+function slidersSum(sliders) {
+    var sum = 0;
+    $(sliders).each(function() {
+        sum += parseInt($(this).val());
+    })
+    return sum;
+}
+
+function logSum(sliders, pretext='') {
+    var sum = slidersSum(sliders);
+    console.log(pretext+sum);
+    return sum;
+}
+
+//from https://stackoverflow.com/questions/19269545/how-to-get-n-no-elements-randomly-from-an-array
+function getRandom(arr, n) {
+    var result = new Array(n),
+        len = arr.length,
+        taken = new Array(len);
+    if (n > len)
+        throw new RangeError("getRandom: more elements taken than available");
+    while (n--) {
+        var x = Math.floor(Math.random() * len);
+        result[n] = arr[x in taken ? taken[x] : x];
+        taken[x] = --len in taken ? taken[len] : len;
+    }
+    return result;
+}
+
+/**
+ * 
+ * @param {jQuery} sliders sliders which need to be balanced 
+ * @param {Number} availableTotal must be an integer
+ */
+function validate(sliders, availableTotal) {
+    var sum = logSum(sliders, "Previous sum is ");
+    var smallFix = sum - availableTotal;
+    console.log('smallfix is '+smallFix);
+    while (Math.abs(smallFix) > sliders.length) {
+        var slidersAbleToDecrease = $(sliders).filter(function () {
+            return $(this).val() > parseInt($(this).attr('min'));
+        })
+        console.log("Was too big");
+        if (smallFix < 0) {
+            smallFix += slidersAbleToDecrease.length;
+        }
+        else {
+            smallFix -= slidersAbleToDecrease.length;
+        }
+        $(slidersAbleToDecrease).each(function() {
+            var value = parseInt($(this).val());
+            if (smallFix<0) {
+                value++;
+            }
+            else {
+                value--;
+            }
+            $(this).val(value);
+        }) 
+    }
+    console.log('Difference is '+smallFix); //SMALLFIX: How much to subtract
+    var slidersToFix = getRandom(sliders, Math.abs(smallFix));
+    if (smallFix > 0) {
+        var slidersAbleToDecrease = $(sliders).filter(function () {
+            return $(this).val() > parseInt($(this).attr('min'));
+        })
+        while (smallFix > slidersAbleToDecrease.length) {
+            smallFix -= slidersAbleToDecrease.length;
+            $(slidersAbleToDecrease).each(function() {
+                var value = parseInt($(this).val());
+                value--;
+                $(this).val(value);
+            }) 
+            slidersAbleToDecrease = $(slidersAbleToDecrease).filter(function () {
+                return $(this).val() > parseInt($(this).attr('min'));
+            })
+        }
+        slidersToFix = slidersAbleToDecrease;
+
+    }
+    var slidersToSmallfix = getRandom(slidersToFix, Math.abs(smallFix));
+    $(slidersToSmallfix).each(function() {
+        var value = parseInt($(this).val());
+        if (smallFix<0) {
+            value++;
+        }
+        else {
+            value--;
+        }
+        $(this).val(value);
+    }) 
+    logSum(sliders, "New sum is ")
+}
+
 $('.slider-auto-reallocate-input').each(function() {
     $(this).on('input', function () {
+        $(this).trigger('change'); // A workaround to make the slider update with each move, before the cursor is released
+    })
+
+    $(this).on('change', function () {
         var $this = $(this);
-        $this.trigger('change'); // A workaround to make the slider update with each move, before the cursor is released
-        
-        var total_sliders = $('.slider-auto-reallocate-input').length;
-        
         var val = $this.val();
-        var val_pct = (val - $this.attr("min")) / ($this.attr('max') - $this.attr('min')) * 100;
+        var val_pct = (val - $this.attr('min')) / ($this.attr('max') - $this.attr('min')) * 100;
         
         if (val_pct < 0) {
             val_pct = 0;
@@ -15,40 +109,43 @@ $('.slider-auto-reallocate-input').each(function() {
         var st = 'linear-gradient(to right, rgb(35, 175, 0) ' + val_pct + '%, white ' + val_pct + '%)';
         $this.css('background', st);
 
-        var total = 0;
-        
-        $('.slider-auto-reallocate-input').not($this).not('.locked').each(function () {
-        
-           total += parseInt($(this).val());
-        });
-        
-        total += parseInt($this.val());
+        var total = slidersSum('.slider-auto-reallocate-input');
         
         var availableTotal = 1000;
         
         var delta = availableTotal - total;
-        
-        
-        $('.slider-auto-reallocate-input').not($this).each(function () {
-           var value = parseInt($(this).val());
-           var new_val = value + (delta/(total_sliders -1));
-           
-           var val_pct = (new_val - $this.attr("min")) / ($this.attr('max') - $this.attr('min')) * 100;
-           
-           if (val_pct < 0) {
-            val_pct = 0;
-           }
-           var st = 'linear-gradient(to right, rgb(35, 175, 0) ' + val_pct + '%, white ' + val_pct + '%)';
-           $(this).css('background', st);
+        var slidersToFix = $('.slider-auto-reallocate-input').not($this);
+        if (delta < 0) {
+            slidersToFix = slidersToFix.
+            filter(function () {
+                return $(this).val() > parseInt($(this).attr('min'));
+            })
+        }
 
-           if (new_val < 0 || $this.val() == 100) {
-            new_val = 0;
-           }
-           if (new_val > availableTotal) {
-            new_val = availableTotal;
-           }
+        var total_sliders = slidersToFix.length;
+        var effectiveUnitChange = parseInt(delta/total_sliders);
+        var effectiveChange = effectiveUnitChange*total_sliders;
+        //How much should be distrubuted again to fix total sum issues
+        var smallFix = delta - effectiveChange;
+        slidersToFix.each(function () {
+            var value = parseInt($(this).val());
+            var new_val = value + effectiveUnitChange;
+        
+            var val_pct = (new_val - $this.attr('min')) / ($this.attr('max') - $this.attr('min')) * 100;
            
-           $(this).val(new_val);
+            if (val_pct < 0) {
+                val_pct = 0;
+            }
+            var st = 'linear-gradient(to right, rgb(35, 175, 0) ' + val_pct + '%, white ' + val_pct + '%)';
+            $(this).css('background', st);
+
+            if (new_val < 0 || $this.val() == availableTotal) {
+                new_val = 0;
+            }
+            else if (new_val > availableTotal) {
+                new_val = availableTotal;
+            }
+            $(this).val(new_val);
         });
     });
 });
@@ -66,21 +163,20 @@ function equalize(group) {
         var st = 'linear-gradient(to right, rgb(35, 175, 0) ' + val_pct + '%, white ' + val_pct + '%)';
         $(this).css('background', st);
     });
+    validate($('.slider-auto-reallocate-input'), availableTotal);
 }
 //equalize on start to prevent visual issues on refresh
-equalize($("#reset"));
-$("#totalmarkers").val(400);
-$("#totalmarkers").css('background', 'linear-gradient(to right, rgb(35, 175, 0) 40%, white 40%)');
+equalize($('#reset'));
+$('#totalmarkers').val(400);
+$('#totalmarkers').css('background', 'linear-gradient(to right, rgb(35, 175, 0) 40%, white 40%)');
 
 //fill background of sliders
 $('.pretty-slider').on('input', function() {
-    var fill_percent = ($(this).val() - $(this).attr("min"))/($(this).attr("max") - $(this).attr("min"));
+    var fill_percent = ($(this).val() - $(this).attr('min'))/($(this).attr('max') - $(this).attr('min'));
     var discrete_percent = fill_percent.toFixed(2)*100;
     var st = 'linear-gradient(to right, rgb(35, 175, 0) ' + discrete_percent + '%, white ' + discrete_percent + '%)';
-    console.log(st);
     $(this).css('background', st);
 });
-
 
 
 
