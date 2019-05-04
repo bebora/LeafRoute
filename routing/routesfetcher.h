@@ -48,8 +48,6 @@ void location_graph_from_string(std::string weight_file, std::string location_fi
             istringstream stream (line);
             stream >> a >> b >> weight;
             edges.push_back(Edge(a,b));
-            edges.push_back(Edge(b,a));
-            weights.push_back(weight);
             weights.push_back(weight);
         }
         rfile.close();
@@ -62,7 +60,7 @@ void location_graph_from_string(std::string weight_file, std::string location_fi
             double lon,lat;
             istringstream stream (line);
             stream >> lon >> lat;
-            l = {}; // will zero all fields in C++
+            l = {}; // will zero all fields
             l.lat = lat;
             l.lon = lon;
             locations.push_back(l);
