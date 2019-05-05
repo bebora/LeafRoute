@@ -15,3 +15,7 @@ html, body, #map {
     bottom: 0px;
     left: 0px;
 }
+
+.photon-search {
+    margin-bottom: 10px;
+}
