@@ -7,6 +7,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
      */
     initialize: function (startPoint, destination, rerouting = true, speed =100, timer = 1000, endpoint = 'http://localhost:1337/getroutes?') {
         var temp = [startPoint]
+        this.icon = icon; //TODO create right icon @bebora
         this.speed = speed;
         this.timer = timer;
         this._rerouting = rerouting;
@@ -15,14 +16,17 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
         this.reroute = false;
         this.current_index = 1;
         this.ready = false;
+        this.failed = true;
         var that = this;
         this.marker;
         $.getJSON( this.endpoint, {s_lat: startPoint[0],s_lon: startPoint[1],e_lat: destination[0],e_lon: destination[1],  reroute: this.reroute} )
         .done(function( json ) {
             that._buildPath(that,json[0]);
             that.ready = true;
+            that.failed = false;
     }).fail(function(textStatus, error) {
             console.log("Request Failed: " + textStatus + ", " + error);
+            that.failed = true;
             that.ready = true;
         });       
     },
@@ -32,7 +36,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
      * @param {Array} latlngs list of coordinates used for the route
      */
     _buildPath: function(that, latlngs) {
-        L.Marker.MovingMarker.prototype.initialize.call(that,[latlngs[0]], 0);
+        L.Marker.MovingMarker.prototype.initialize.call(that,[latlngs[0]], 0, {icon: icon});
         that.destination = latlngs[latlngs.length-1];
         if (latlngs.length >= 4) {
             that.QueueLatlngs = latlngs.slice(3);
@@ -110,8 +114,10 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
      */
     stop: function() {
         var that = this;
-        that.map.removeLayer(that);
-        window.clearInterval(that.interval);
+        if (that.map != null) 
+            that.map.removeLayer(that);
+        if (that.interval != null) 
+            window.clearInterval(that.interval);
     },
 
     /**
@@ -142,8 +148,10 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
         if (!this.ready) {
             setTimeout(function(){that.addTo(map)},100);
         } else {
-            that._startRoute();
-            L.Marker.MovingMarker.prototype.addTo.call(that, map);
+            if (!this.failed) {
+                that._startRoute();
+                L.Marker.MovingMarker.prototype.addTo.call(that, map);
+            }
         }
         that.map = map;
     },

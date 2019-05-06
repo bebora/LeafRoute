@@ -83,15 +83,12 @@ void RoutesDealer::handle_get(http_request message)
         if (keyMap.find("reroute") != keyMap.end()) {
             reroute = parseBoolean(keyMap["reroute"]);
         }
-        auto paths = get_alternative_routes(g, start, end, 2, 0.9, reroute);
+        auto paths = get_alternative_routes(g, start, end, 1, 0.9, reroute);
         http_response response(status_codes::OK);
         response.headers().add(U("Access-Control-Allow-Origin"), U("*"));
         response.set_body(paths);
         message.reply(response);
         auto es = boost::edges(g);
-        for (auto eit = es.first; eit != es.second; ++eit) {
-            cout << get(boost::edge_weight_t(), g, *eit) << endl;
-        }
 
         cout << endl;
     } catch (...) {

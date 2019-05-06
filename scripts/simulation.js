@@ -41,13 +41,12 @@ var markers = []
 var generateRoutePoints = function() {
     var totalMarkers = $("#totalmarkers").val();
     var routePoints = [];
-    
     for (var i = 1; i <= zones.getLayers().length; i++) {
         let relatedPercentage = $("#opt"+i).val() / 1000.0;
         let relatedMarkers = Math.floor(relatedPercentage * totalMarkers);
         let startPoints = generateNPointsinLeafletLayer(relatedMarkers, zones.getLayers()[i-1]);
         let endPoints = []
-        for (let j = 1; j <= zones.getLayers().length; j++) {
+        for (var j = 1; j <= zones.getLayers().length; j++) {
             let subRelatedPercentage = 1 / zones.getLayers().length;
             let subRelatedMarkers = Math.floor(subRelatedPercentage * relatedMarkers);
             let tempEndPoints = generateNPointsinLeafletLayer(subRelatedMarkers, zones.getLayers()[j-1]);
@@ -79,12 +78,15 @@ function waitForReady(marker) {
 
 
 var startSimulation = async function() {
+    markers.forEach(function(marker) {
+        marker.stop();
+    });
+    markers = [];
     console.log("starting simulation");
     var speed = $("#speed").val();
     var timer = $("#timer").val();
     var routePoints = generateRoutePoints();
-    
-    for (i = 0; i < 20; i++) {
+    for (i = 0; i < routePoints.length; i++) {
         let marker = new L.Marker.MovingMarker.ARLibMarker(routePoints[i][0], routePoints[i][1], false, speed, timer);
         markers.push(marker);
     }
