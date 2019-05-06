@@ -7,7 +7,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
      */
     initialize: function (startPoint, destination, rerouting = true, speed =100, timer = 1000, endpoint = 'http://localhost:1337/getroutes?') {
         var temp = [startPoint]
-        this.icon = icon; //TODO create right icon @bebora
+        this.icon = L.icon({iconUrl: 'icons/circlemarker.svg', iconSize: [20, 20]});
         this.speed = speed;
         this.timer = timer;
         this._rerouting = rerouting;
@@ -36,7 +36,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
      * @param {Array} latlngs list of coordinates used for the route
      */
     _buildPath: function(that, latlngs) {
-        L.Marker.MovingMarker.prototype.initialize.call(that,[latlngs[0]], 0, {icon: icon});
+        L.Marker.MovingMarker.prototype.initialize.call(that,[latlngs[0]], 0, {icon: this.icon});
         that.destination = latlngs[latlngs.length-1];
         if (latlngs.length >= 4) {
             that.QueueLatlngs = latlngs.slice(3);
