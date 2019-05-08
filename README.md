@@ -15,6 +15,5 @@ Sliders with constant sum inspired from [constant-sum-sliders](https://github.co
 - Add documentation for RoutesDealer
 - Join some custom css files
 - Dynamically create sliders with any GeoJSON containing zones
-- Refactor autosliders.js validate()
 - Add function to redraw slider background after any value change
 

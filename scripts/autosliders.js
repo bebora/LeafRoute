@@ -33,65 +33,32 @@ function getRandom(arr, n) {
  * @param {Number} availableTotal must be an integer
  */
 function validate(sliders, availableTotal) {
-    var sum = logSum(sliders, "Previous sum is ");
-    var smallFix = sum - availableTotal;
-    console.log('smallfix is '+smallFix);
-    while (Math.abs(smallFix) > sliders.length) {
-        var slidersAbleToDecrease = $(sliders).filter(function () {
+    var sum = logSum(sliders, 'Starting sum is ');
+    var delta = sum - availableTotal;
+    if (delta == 0) return;
+    console.log(delta + ' needs to go away');
+    var filter;
+    if (delta > 0) {
+        filter = function () {
             return $(this).val() > parseInt($(this).attr('min'));
-        })
-        console.log("Was too big");
-        if (smallFix < 0) {
-            smallFix += slidersAbleToDecrease.length;
-        }
-        else {
-            smallFix -= slidersAbleToDecrease.length;
-        }
-        $(slidersAbleToDecrease).each(function() {
-            var value = parseInt($(this).val());
-            if (smallFix<0) {
-                value++;
-            }
-            else {
-                value--;
-            }
-            $(this).val(value);
-        }) 
+        };
     }
-    console.log('Difference is '+smallFix); //SMALLFIX: How much to subtract
-    var slidersToFix = getRandom(sliders, Math.abs(smallFix));
-    if (smallFix > 0) {
-        var slidersAbleToDecrease = $(sliders).filter(function () {
-            return $(this).val() > parseInt($(this).attr('min'));
-        })
-        while (smallFix > slidersAbleToDecrease.length) {
-            smallFix -= slidersAbleToDecrease.length;
-            $(slidersAbleToDecrease).each(function() {
-                var value = parseInt($(this).val());
-                value--;
-                $(this).val(value);
-            }) 
-            slidersAbleToDecrease = $(slidersAbleToDecrease).filter(function () {
-                return $(this).val() > parseInt($(this).attr('min'));
-            })
-        }
-        slidersToFix = slidersAbleToDecrease;
-
+    else {
+        filter = function () {return true;};
     }
-    var slidersToSmallfix = getRandom(slidersToFix, Math.abs(smallFix));
-    $(slidersToSmallfix).each(function() {
-        var value = parseInt($(this).val());
-        if (smallFix<0) {
-            value++;
-        }
-        else {
-            value--;
-        }
-        $(this).val(value);
-    }) 
-    logSum(sliders, "New sum is ")
+    var targetSliders = $(sliders).filter(filter);
+    while (Math.abs(delta) > targetSliders.length) {
+        delta -= Math.sign(delta) * targetSliders.length;
+        $(targetSliders).each(function() {
+            $(this).val(parseInt($(this).val()) - Math.sign(delta));
+        })
+        targetSliders = $(targetSliders).filter(filter);
+    }
+    $(getRandom(targetSliders, Math.abs(delta))).each(function() {
+        $(this).val(parseInt($(this).val()) - Math.sign(delta));
+    })
+    logSum(sliders, 'New sum is ')
 }
-
 $('.slider-auto-reallocate-input').each(function() {
     $(this).on('input', function () {
         $(this).trigger('change'); // A workaround to make the slider update with each move, before the cursor is released
