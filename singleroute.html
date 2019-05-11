@@ -60,7 +60,9 @@
                 <!--TODO add some user interaction here-->
                 <div class="input-group input-group mb-3 mt-3">
                     <input type="text" id="address-src" class="form-control photon-search" placeholder="Source address" aria-label="Source address">
-                    <input type="text" id="address-dest" class="form-control photon-search" placeholder="Source address" aria-label="Source address">
+                    <input type="text" id="address-dest" class="form-control photon-search" placeholder="Destination address" aria-label="Destination address">
+                    <button type="button" class="btn btn-primary button-search mr-2" id="search" >Search route</button>
+                    <button type="button" class="btn btn-primary button-search" id="start" style="display: none">Start</button>
                 </div>
 
             </div>
@@ -79,6 +81,8 @@
     <script src="scripts/typeahead.bundle.js"></script>
     <script src="scripts/typeahead-address-photon.js"></script>
     <script src="scripts/leaflet-sidebar.js"></script>
+    <script src="scripts/MovingMarker.js"></script>
+    <script src="scripts/ARLibMarker.js"></script>
 
     <script src="scripts/singleroute.js"></script>
 </body>

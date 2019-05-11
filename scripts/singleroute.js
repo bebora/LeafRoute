@@ -138,10 +138,60 @@ map.on("click", function(e){
         $("#lng-start").val("");
     }
 });
+var markers = [];
+//TODO find a way to remove this code duplication, passing a input form reference when selecting the place from suggested ones
+var sourceMarker;
+var destinationMarker;
+var sourcePlace;
+var destinationPlace;
+function setSource(event, selected) {
+    $('#start').css('display', 'none');
+    if (sourceMarker != null)
+        map.removeLayer(sourceMarker);
+    sourceMarker = null;
+    sourceMarker = L.marker([
+        selected.geometry.coordinates[1],
+        selected.geometry.coordinates[0]
+    ]).addTo(map);
+    sourcePlace = selected;
+}
+function setDestination(event, selected) {
+    $('#start').css('display', 'none');
+    if (destinationMarker != null)
+        map.removeLayer(destinationMarker);
+    destinationMarker = null;
+    destinationMarker = L.marker([
+        selected.geometry.coordinates[1],
+        selected.geometry.coordinates[0]
+    ]).addTo(map);
+    destinationPlace = selected;
+}
 
 
 var engine = new PhotonAddressEngine({'lang': 'it'});
-$(".photon-search").typeahead(null, {
+engine.bindDefaultTypeaheadEvent($('#address-src'));
+$(engine).bind('addresspicker:selected', setSource);
+$('#address-src').typeahead(null, {
     source: engine.ttAdapter(),
     displayKey: 'description'
 });
+
+var engine1 = new PhotonAddressEngine({'lang': 'it'});
+engine1.bindDefaultTypeaheadEvent($('#address-dest'));
+$(engine1).bind('addresspicker:selected', setDestination);
+$('#address-dest').typeahead(null, {
+    source: engine1.ttAdapter(),
+    displayKey: 'description'
+});
+
+$('#search').click(function(e){
+    if (sourcePlace == null || destinationPlace == null){
+        console.log('Select both source and destination');
+        return;
+    }
+    $('#start').css('display', 'inline-block');
+    //TODO wait for start button press
+    marker = new L.Marker.MovingMarker.ARLibMarker(sourcePlace.geometry.coordinates.reverse(), destinationPlace.geometry.coordinates.reverse(), false, 50, 30000);
+    markers.push(marker);
+    marker.addTo(map);
+})
