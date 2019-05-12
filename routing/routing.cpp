@@ -56,6 +56,12 @@ bool parseBoolean(const string &str) {
     return str == "true" || str == "yes" || str == "on";
 }
 
+void send_error(http_request message) {
+    http_response response(status_codes::BadRequest);
+    response.headers().add(U("Access-Control-Allow-Origin"), U("*"));
+    message.reply(response);
+}
+
 void RoutesDealer::handle_get(http_request message)
 {
     try {
@@ -64,35 +70,38 @@ void RoutesDealer::handle_get(http_request message)
         auto url_message= uri::decode(message.relative_uri().to_string());
         url_message.erase(0,2);
         map<utility::string_t, utility::string_t> keyMap = uri::split_query(url_message);
+        int num_routes;
         if (keyMap.find("s_lat") != keyMap.end()) {
             lat = stod(keyMap["s_lat"]);
-        } else message.reply(status_codes::BadRequest);
+        } else send_error(message);
         if (keyMap.find("s_lon") != keyMap.end()) {
             lon = stod(keyMap["s_lon"]);
-        } else message.reply(status_codes::BadRequest);
+        } else send_error(message);
        Vertex start;
        get_vertex(lat,lon,g, start);
         if (keyMap.find("e_lat") != keyMap.end()) {
             lat = stod(keyMap["e_lat"]);
-        } else message.reply(status_codes::BadRequest);
+        } else send_error(message);
         if (keyMap.find("e_lon") != keyMap.end()) {
             lon = stod(keyMap["e_lon"]);
-        } else message.reply(status_codes::BadRequest);
+        } else send_error(message);
+        if (keyMap.find("n_routes") != keyMap.end()) {
+            num_routes = std::stoi(keyMap["n_routes"]);
+        }
+        else num_routes = 2;
         Vertex end;
         get_vertex(lat,lon, g, end);
         if (keyMap.find("reroute") != keyMap.end()) {
             reroute = parseBoolean(keyMap["reroute"]);
         }
-        auto paths = get_alternative_routes(g, start, end, 1, 0.9, reroute);
+        auto paths = get_alternative_routes(g, start, end, num_routes, 0.9, reroute);
         http_response response(status_codes::OK);
         response.headers().add(U("Access-Control-Allow-Origin"), U("*"));
         response.set_body(paths);
         message.reply(response);
-        auto es = boost::edges(g);
-
         cout << endl;
     } catch (...) {
-        message.reply(status_codes::BadRequest);
+        send_error(message);
     }
 }
 

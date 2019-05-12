@@ -70,6 +70,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
      * @param {} that original scope
      */
     _fetchroute: function() { 
+        console.log("fetching");
         var that = this;
         var current_index = that.current_index;
         if (that.reroute && that.rerouting && that.QueueLatlngs.length > 1 && that.currentLatlngs.length > current_index + 2) {
@@ -77,7 +78,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
             $.getJSON( that.endpoint, {s_lat: startPoint[0],s_lon: startPoint[1],e_lat: that.destination[0],e_lon: that.destination[1],  reroute: true} )
             .done(function( json ) {
                 that.fetching = true;
-                if (json != null && that.current_index == current_index) {
+                if (json != null && Array.isArray(json) && json.length && that.current_index == current_index) {
                     that.tempQueueLatlngs = json[0].slice(1);
                 } else {
                     console.log("Late response -> no rerouting!");
