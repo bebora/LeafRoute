@@ -79,7 +79,7 @@ function waitForReady(marker) {
 
 var startSimulation = async function() {
     markers.forEach(function(marker) {
-        marker.stop();
+        marker._stop();
     });
     markers = [];
     console.log("starting simulation");
@@ -87,7 +87,7 @@ var startSimulation = async function() {
     var timer = $("#timer").val();
     var routePoints = generateRoutePoints();
     for (i = 0; i < routePoints.length; i++) {
-        let marker = new L.Marker.MovingMarker.ARLibMarker(routePoints[i][0], routePoints[i][1], false, speed, timer);
+        let marker = new L.Marker.MovingMarker.ARLibMarker(routePoints[i][0], routePoints[i][1], markers, false, speed, timer);
         markers.push(marker);
     }
     for (i = 0; i < markers.length; i++) {

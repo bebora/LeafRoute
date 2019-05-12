@@ -5,8 +5,9 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
      * @param {*} destination array with the latitude and longitude of destination point
      * @param {*} option optional parameters defining the speed, the timing of rerouting and the endpoint used as a routing machine
      */
-    initialize: function (startPoint, destination, rerouting = true, speed =100, timer = 1000, endpoint = 'http://localhost:1337/getroutes?') {
-        var temp = [startPoint]
+    initialize: function (startPoint, destination, markers, rerouting = true, speed =100, timer = 1000, endpoint = 'http://localhost:1337/getroutes?') {
+        var temp = [startPoint];
+        this.markers = markers;
         this.icon = L.icon({iconUrl: 'icons/circlemarker.svg', iconSize: [20, 20]});
         this.speed = speed;
         this.timer = timer;
@@ -95,6 +96,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
      * Update at checkpoint the MovingMarker with new coordinates to assure a non-blocking movement
      */
     _update: function() {
+        console.log("updating...");
         var that = this;
         console.log(that.current_index);
         if (that.QueueLatlngs.length > 1) {
@@ -112,18 +114,20 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
     /**
      * Stop the Marker, sending 'end' signal
      */
-    stop: function() {
+    _stop: function() {
+        console.log("stopping...");
         var that = this;
         if (that.map != null) 
             that.map.removeLayer(that);
         if (that.interval != null) 
             window.clearInterval(that.interval);
+        that.rerouting = false;
     },
 
     /**
      * Pause the marker and the route fetching
      */
-    pause: function() {
+    _pause: function() {
         L.Marker.MovingMarker.prototype.pause.call();
         window.clearInterval(this.interval);
     },
@@ -131,7 +135,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
     /**
      * Restart the marker after resume
      */
-    resume: function() {
+    _resume: function() {
         var that = this;
         L.Marker.MovingMarker.prototype.resume.call();
         if (!interval)
@@ -163,17 +167,17 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
     var that = this;
     that.on('checkpoint',function() {
         that._update();
-    });
+    }, that);
     if (that.rerouting) {
         that.interval = window.setInterval(function() {
             that._fetchroute();
         }, that.timer);
     }
     that.on('end', function() {
-        that.map.removeLayer(that);
-        window.clearInterval(that.interval);
-        that.rerouting = false;
-    });
+        that.off('checkpoint',that);
+        that.off('end',that);
+        that._stop();
+    },that);
     L.Marker.MovingMarker.prototype.start.call(that);    
 }
 });
