@@ -6,7 +6,6 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
      * @param {*} option optional parameters defining the speed, the timing of rerouting and the endpoint used as a routing machine
      */
     initialize: function (startPoint, destination, markers, rerouting = true, speed =100, timer = 1000, endpoint = 'http://localhost:1337/getroutes?') {
-        var temp = [startPoint];
         this.markers = markers;
         this.icon = L.icon({iconUrl: 'icons/circlemarker.svg', iconSize: [20, 20]});
         this.speed = speed;
@@ -20,16 +19,23 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
         this.failed = true;
         var that = this;
         this.marker;
-        $.getJSON( this.endpoint, {s_lat: startPoint[0],s_lon: startPoint[1],e_lat: destination[0],e_lon: destination[1],  reroute: this.reroute} )
-        .done(function( json ) {
-            that._buildPath(that,json[0]);
+        if (!Array.isArray(startPoint[0])){
+            $.getJSON( this.endpoint, {s_lat: startPoint[0],s_lon: startPoint[1],e_lat: destination[0],e_lon: destination[1],  reroute: this.reroute} )
+            .done(function( json ) {
+                that._buildPath(that,json[0]);
+                that.ready = true;
+                that.failed = false;
+        }).fail(function(textStatus, error) {
+                console.log("Request Failed: " + textStatus + ", " + error);
+                that.failed = true;
+                that.ready = true;
+            });
+        }
+        else {
+            that._buildPath(that, startPoint);
             that.ready = true;
             that.failed = false;
-    }).fail(function(textStatus, error) {
-            console.log("Request Failed: " + textStatus + ", " + error);
-            that.failed = true;
-            that.ready = true;
-        });       
+        }       
     },
     /**
      * Util function to construct the full route and the related Queues
