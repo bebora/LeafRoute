@@ -31,7 +31,7 @@ var boundingBoxMilanCoords = [
 var boundingBoxMilan = L.polyline(boundingBoxMilanCoords).addTo(map);
 var zones;
 var features;
-$.getJSON("https://www.leafroute.tk/zone.min.json", function(data) {
+$.getJSON('https://www.leafroute.tk/zone.min.json', function(data) {
     zones = L.geoJson(data).addTo(map);
     features = data['features'];
 });
@@ -39,10 +39,10 @@ var markers = []
 
 
 var generateRoutePoints = function() {
-    var totalMarkers = $("#totalmarkers").val();
+    var totalMarkers = $('#totalmarkers').val();
     var routePoints = [];
     for (var i = 1; i <= zones.getLayers().length; i++) {
-        let relatedPercentage = $("#opt"+i).val() / 1000.0;
+        let relatedPercentage = $('#opt'+i).val() / 1000.0;
         let relatedMarkers = Math.floor(relatedPercentage * totalMarkers);
         let startPoints = generateNPointsinLeafletLayer(relatedMarkers, zones.getLayers()[i-1]);
         let endPoints = []
@@ -82,9 +82,9 @@ var startSimulation = async function() {
         marker._stop();
     });
     markers = [];
-    console.log("starting simulation");
-    var speed = $("#speed").val();
-    var timer = $("#timer").val();
+    console.log('starting simulation');
+    var speed = $('#speed').val();
+    var timer = $('#timer').val();
     var routePoints = generateRoutePoints();
     for (i = 0; i < routePoints.length; i++) {
         let marker = new L.Marker.MovingMarker.ARLibMarker(routePoints[i][0], routePoints[i][1], markers, false, speed, timer);
@@ -98,7 +98,7 @@ var startSimulation = async function() {
     });
 }
 
-$("#start-sim").click(startSimulation);
+$('#start-sim').click(startSimulation);
 
 var generatePointInsidePolygon = function(bboxArray, polygonGeoJSON){
     while (true) {
