@@ -7,7 +7,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
      */
     initialize: function (startPoint, destination, markers, rerouting = true, speed =100, timer = 1000, endpoint = 'http://localhost:1337/getroutes?') {
         this.markers = markers;
-        this.icon = L.icon({iconUrl: 'icons/circlemarker.svg', iconSize: [20, 20]});
+        this.icon = L.icon({iconUrl: 'icons/circlemarker.svg', iconSize: [21, 21]});
         this.speed = speed;
         this.timer = timer;
         this._rerouting = rerouting;

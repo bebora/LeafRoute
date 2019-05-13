@@ -73,6 +73,35 @@ $('#address-dest').typeahead(null, {
 var endpoint = 'http://localhost:1337/getroutes?';
 var possibleRoutes = [];
 var possibleRoutesPolyline = [];
+var selectedRoute = null;
+var selectedRoutePolyline = null;
+
+var onSelectRoute = function(e){
+    selectedId = this.options.groupId;
+    //Remove options polylines and redraw selected
+    for (i in possibleRoutesPolyline) {
+        map.removeLayer(possibleRoutesPolyline[i]);
+    }
+    selectedRoute = possibleRoutes[selectedId];
+    selectedRoutePolyline = strokePolyline(selectedRoute, routeColors[0]);
+    //Remove onClick event from stroke polyline
+    for (j in selectedRoutePolyline.getLayers()){
+        selectedRoutePolyline.getLayers()[j].off('click');
+    }
+    selectedRoutePolyline.addTo(map);
+    possibleRoutes = [];
+    possibleRoutesPolyline = [];
+    let marker = new L.Marker.MovingMarker.ARLibMarker(
+        selectedRoute,
+        selectedRoute[selectedRoute-1],
+        markers,
+        false,
+        50,
+        15000);
+    markers.push(marker);
+    marker.addTo(map);
+}
+
 $('#search').click(function(e){
     //Reset previous routes
     possibleRoutes = [];
@@ -95,9 +124,15 @@ $('#search').click(function(e){
         reroute: false} )
         .done(function( json ) {
             possibleRoutes = json;
-            console.log('Response lenght: '+json.length);
-            for (let i=json.length-1; i>=0; i--){
-                fancyPolyline = strokePolyline(json[i], routeColors[i==0 ? 0 : 1]);
+            console.log('Response lenght: ' + json.length);
+            for (let i = json.length-1; i >= 0; i--){
+                fancyPolyline = strokePolyline(
+                    json[i],
+                    {
+                        ...routeColors[i==0 ? 0 : 1],
+                        groupId: i,
+                        onClick: onSelectRoute
+                    });
                 possibleRoutesPolyline.push(fancyPolyline);
                 fancyPolyline.addTo(map);
             }
