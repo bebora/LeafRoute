@@ -89,6 +89,10 @@ var onSelectRoute = function(e){
         selectedRoutePolyline.getLayers()[j].off('click');
     }
     selectedRoutePolyline.addTo(map);
+    polyline = [];
+    for (j in selectedRoutePolyline.getLayers()){
+        polyline.push(selectedRoutePolyline.getLayers()[j]);
+    }
     possibleRoutes = [];
     possibleRoutesPolyline = [];
     let marker = new L.Marker.MovingMarker.ARLibMarker(
@@ -97,7 +101,8 @@ var onSelectRoute = function(e){
         markers,
         false,
         50,
-        15000);
+        15000,
+        polyline);
     markers.push(marker);
     marker.addTo(map);
 }

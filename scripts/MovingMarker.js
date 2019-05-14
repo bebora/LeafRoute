@@ -132,6 +132,9 @@ L.Marker.MovingMarker = L.Marker.extend({
         this.options.loop = false;
     },
 
+    getPosition: function() {
+        return L.Marker.prototype.getLatLng.call(this);
+    },
     addStation: function(pointIndex, duration) {
         if (pointIndex > this._latlngs.length - 2 || pointIndex < 1) {
             return;
@@ -275,6 +278,7 @@ L.Marker.MovingMarker = L.Marker.extend({
         this._startTime = Date.now() - elapsedTime;
         return elapsedTime;
     },
+    
 
     _animate: function(timestamp, noRequestAnim) {
         this._animRequested = false;

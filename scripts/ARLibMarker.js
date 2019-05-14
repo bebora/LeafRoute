@@ -5,7 +5,8 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
      * @param {*} destination array with the latitude and longitude of destination point
      * @param {*} option optional parameters defining the speed, the timing of rerouting and the endpoint used as a routing machine
      */
-    initialize: function (startPoint, destination, markers, rerouting = true, speed =100, timer = 1000, endpoint = 'http://localhost:1337/getroutes?') {
+    initialize: function (startPoint, destination, markers, rerouting = true, speed =100, timer = 1000, polyline = null, endpoint = 'http://localhost:1337/getroutes?') {
+        this.polyline = polyline;
         this.markers = markers;
         this.icon = L.icon({iconUrl: 'icons/circlemarker.svg', iconSize: [21, 21]});
         this.speed = speed;
@@ -167,26 +168,46 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
         that.map = map;
     },
 
+
+    _update_polyline: function() {
+        let newpolyline = [];
+        let full_line = (this.currentLatlngs.concat(this.QueueLatlngs));
+        full_line = full_line.slice(this.current_index+1);
+        full_line.unshift(L.Marker.prototype.getLatLng.call(this));
+        if (Array.isArray(this.polyline)){
+            for (i = 0; i < polyline.length; i++) {
+                this.polyline[i].setLatLngs(full_line);
+            }
+        }
+        else {
+            this.polyline.setLatLngs(full_line);
+        }
+    },
     /**
      * Set up events triggered function and start the marker
      */
     _startRoute: function() {
-    var that = this;
-    that.on('checkpoint',function() {
-        that._update();
-    }, that);
-    if (that.rerouting) {
-        that.interval = window.setInterval(function() {
-            that._fetchroute();
-        }, that.timer);
+        var that = this;
+        if (this.polyline != null) {
+            that.on('move', function() {
+                that._update_polyline();
+            });
+        }
+        that.on('checkpoint',function() {
+            that._update();
+        }, that);
+        if (that.rerouting) {
+            that.interval = window.setInterval(function() {
+                that._fetchroute();
+            }, that.timer);
+        }
+        that.on('end', function() {
+            that.off('checkpoint',that);
+            that.off('end',that);
+            that._stop();
+        },that);
+        L.Marker.MovingMarker.prototype.start.call(that);    
     }
-    that.on('end', function() {
-        that.off('checkpoint',that);
-        that.off('end',that);
-        that._stop();
-    },that);
-    L.Marker.MovingMarker.prototype.start.call(that);    
-}
 });
 
 
