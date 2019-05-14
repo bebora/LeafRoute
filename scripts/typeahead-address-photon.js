@@ -11,7 +11,7 @@
    * @return formatted string representation of OSM place type
    */
   var _formatType = function (feature) {
-    return feature.properties.osm_value;
+    return feature.properties.osm_value.replace(/_/g," ");
   };
 
   /**
@@ -23,10 +23,20 @@
    */
   var _formatResultSupplier = function (formatType) {
     return function (feature) {
-      var formatted = feature.properties.name,
-          type = formatType(feature);
-
-      if (type) {
+      let type = formatType(feature);
+      let name = feature.properties.name;
+      let street = feature.properties.street;
+      let formatted;
+      if (name != "unclassified" && name)
+        formatted = name;
+      if (street != "unclassified" && street) {
+        formatted = street;
+        let street_number = feature.properties.housenumber;
+        if (street_number != "unclassified" && street_number)
+          formatted += ", " + street_number;
+        
+      }            
+      if (type != "unclassified" && type) {
         formatted += ', ' + type;
       }
 
@@ -38,7 +48,6 @@
       if (feature.properties.country) {
         formatted += ', ' + feature.properties.country;
       }
-
       return formatted;
     };
   };
