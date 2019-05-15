@@ -1,16 +1,15 @@
-FROM alpine:3.9
+FROM alpine:3.9 AS build-stage
 
 COPY routing /leafrouting
 
 RUN apk update && \
     apk add --no-cache \
         boost-dev \
-        build-base\ 
-        git \
+        build-base \
         cmake \
         curl \
+        git \
         ninja \
-        openssl \
         openssl-dev \
         zlib-dev && \
     git clone --recurse-submodules https://github.com/Microsoft/cpprestsdk.git && \
@@ -24,7 +23,10 @@ RUN apk update && \
     rm -rf cpprestsdk && \
     mkdir build && \
     cd /leafrouting/external && \
-    if [ "$(ls -A arlib)" ]; then echo "Arlib found"; else echo "Arlib missing, cloning" && git clone https://github.com/leonardoarcari/arlib ; fi && \
+    if [ "$(ls -A arlib)" ]; \
+        then echo "Arlib found"; \
+        else echo "Arlib missing, cloning" && git clone https://github.com/leonardoarcari/arlib ; \
+    fi && \
     cd .. && \
     mkdir cmake-build && \
     cd cmake-build && \
@@ -36,8 +38,19 @@ RUN apk update && \
     curl https://leafroute.tk/ids -o ids && \
     curl https://leafroute.tk/weights -o weights
 
+FROM alpine:3.9 AS deploy-stage
+
+# Copy main and map files from previous image
+COPY --from=build-stage /build /leafroute-built
+
+# Copy cpprestsdk.so from previous image
+COPY --from=build-stage /usr/local/lib64/ /usr/local/lib64/
+
+RUN apk update && \
+    apk add --no-cache boost-system boost-program_options libstdc++
+
 EXPOSE 1337
 
-WORKDIR /build
+WORKDIR /leafroute-built
 
 CMD ["./main"]
