@@ -111,7 +111,7 @@ int main(int argc, char* argv[]) {
     po::options_description desc("Allowed options");
     std::string endpoint;
     desc.add_options()
-            ("endpoint", po::value<string>()->default_value("http://localhost:1337/getroutes?"), "Insert the server endpoint")
+            ("endpoint", po::value<string>()->default_value("http://0.0.0.0:1337/getroutes?"), "Insert the server endpoint")
             ;
     po::variables_map opts;
     po::positional_options_description p;
@@ -131,7 +131,7 @@ int main(int argc, char* argv[]) {
     RoutesDealer listener(address, g);
     listener.open().wait();
 
-    cout << utility::string_t(U("Listening for requests at localhost "))  << endl;
+    cout << utility::string_t(U("Listening for requests at 0.0.0.0:1337"))  << endl;
 
     std::string cline;
     std::wcout << U("Hit Enter to close the listener.") << endl;
