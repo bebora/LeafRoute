@@ -11,12 +11,16 @@ RUN apk update && \
         git \
         ninja \
         openssl-dev \
+        websocket++ \
         zlib-dev && \
-    git clone --recurse-submodules https://github.com/Microsoft/cpprestsdk.git && \
+    git clone https://github.com/Microsoft/cpprestsdk.git && \
     cd cpprestsdk && \
     mkdir build-cpprestsdk && \
     cd build-cpprestsdk && \
-    cmake -G Ninja .. -DCMAKE_BUILD_TYPE=Debug && \
+    cmake -G Ninja .. \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DBUILD_TESTS=OFF \
+        -DBUILD_SAMPLES=OFF && \ 
     ninja && \
     ninja install && \
     cd ../.. && \
