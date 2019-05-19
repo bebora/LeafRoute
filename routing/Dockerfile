@@ -1,6 +1,6 @@
 FROM alpine:3.9 AS build-stage
 
-COPY routing /leafrouting
+COPY . /leafrouting
 
 RUN apk update && \
     apk add --no-cache \
@@ -31,14 +31,12 @@ RUN apk update && \
         then echo "Arlib found"; \
         else echo "Arlib missing, cloning" && git clone https://github.com/leonardoarcari/arlib ; \
     fi && \
-    cd .. && \
-    mkdir cmake-build && \
-    cd cmake-build && \
-    cmake .. && \
+    cd ../cmake-build-debug && \
+    cmake . && \
     make main && \
-    cd /build && \
-    mv /leafrouting/cmake-build/main main && \
+    mv /leafrouting/cmake-build-debug/main /build/main && \
     rm -rf /leafrouting && \
+    cd /build && \
     curl https://leafroute.tk/ids -o ids && \
     curl https://leafroute.tk/weights -o weights
 

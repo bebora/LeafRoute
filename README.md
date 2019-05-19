@@ -11,17 +11,8 @@ Demo [here](https://bebora.github.io/LeafRoute/route.html). Backend must be runn
 Milan zones from [Comune di Milano](https://geoportale.comune.milano.it/ATOM/SIT/Municipi/Municipi_Dataset_1.xml)
 Sliders with constant sum inspired from [constant-sum-sliders](https://github.com/jacobsolomon15/constant-sum-sliders)  
 
-## Deploy with Docker
-```
-docker build --tag=leafroute .
-docker run -p 1337:1337 -td leafroute
-```
-Simple test with curl:
-```
-curl http://localhost:1337/getroutes?&s_lat=45.4667971&s_lon=9.1904984&e_lat=45.4783918&e_lon=9.224554764332705&reroute=false
- ```
+
 # TODO
-- Add bootstrap sidebar to setup and start the simulation
 - Add documentation for RoutesDealer
 - Join some custom css files
 - Dynamically create sliders with any GeoJSON containing zones
