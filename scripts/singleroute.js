@@ -107,6 +107,18 @@ var onSelectRoute = function(e){
     marker.addTo(map);
 }
 
+$('#swap').click(function(e){
+    let temp = sourceMarker;
+    sourceMarker = destinationMarker;
+    destinationMarker = temp;
+    temp = sourcePlace;
+    sourcePlace = destinationPlace;
+    destinationPlace = temp;
+    temp = $('#address-src').val();
+    $('#address-src').val($('#address-dest').val());
+    $('#address-dest').val(temp);
+});
+
 $('#search').click(function(e){
     //Reset previous routes
     possibleRoutes = [];

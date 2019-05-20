@@ -19,3 +19,8 @@ html, body, #map {
 .photon-search {
     margin-bottom: 10px;
 }
+
+#swap {
+    margin-left: 5px;
+    margin-top: 20px;
+}

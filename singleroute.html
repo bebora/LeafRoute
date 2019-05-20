@@ -10,10 +10,11 @@
         integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg="
         crossorigin="anonymous"></script>
 
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
-        integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"
-        crossorigin="anonymous">
-    
+    <script
+        defer src="https://use.fontawesome.com/releases/v5.8.2/js/all.js"
+        integrity="sha384-DJ25uNYET2XCl5ZF++U8eNxPWqcKohUUBUpKGlNLMchM7q4Wjg2CUpjHLaL8yYPH"
+        crossorigin="anonymous"></script>
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
         integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
         crossorigin=""/>
@@ -57,10 +58,16 @@
                     LeafRoute single route
                     <span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>
                 </h1>
-                <!--TODO add some user interaction here-->
                 <div class="input-group input-group mb-3 mt-3">
-                    <input type="text" id="address-src" class="form-control photon-search" placeholder="Source address" aria-label="Source address">
-                    <input type="text" id="address-dest" class="form-control photon-search" placeholder="Destination address" aria-label="Destination address">
+                    <div style="width: 90%">
+                        <input type="text" id="address-src" class="form-control photon-search" placeholder="Source address" aria-label="Source address">
+                        <input type="text" id="address-dest" class="form-control photon-search" placeholder="Destination address" aria-label="Destination address">
+                    </div>
+                    <div style="height: 100%; width: 10%">
+                        <button type="button" class="btn btn-outline-primary" id="swap">
+                            <i class="fas fa-exchange-alt" style="font-size:26px;" data-fa-transform="rotate-90"></i>
+                        </button>
+                    </div>
                     <button type="button" class="btn btn-primary button-search mr-2" id="search" >Search route</button>
                     <button type="button" class="btn btn-primary button-search" id="start" style="display: none">Start</button>
                 </div>
