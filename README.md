@@ -8,7 +8,7 @@ Plugins:
 - [typeahead-address-photon](https://github.com/komoot/typeahead-address-photon)  
 
 Backend built with Boost.Graph library [arlib](https://github.com/leonardoarcari/arlib).  
-Demo [here](https://bebora.github.io/LeafRoute/route.html). Backend must be running at localhost.  
+Demo [here](https://bebora.github.io/LeafRoute/singleroute.html). Backend must be running at localhost.  
 Milan zones from [Comune di Milano](https://geoportale.comune.milano.it/ATOM/SIT/Municipi/Municipi_Dataset_1.xml).
 Sliders with constant sum inspired from [constant-sum-sliders](https://github.com/jacobsolomon15/constant-sum-sliders).  
 
