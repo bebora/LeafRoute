@@ -23,4 +23,6 @@ html, body, #map {
 #swap {
     margin-left: 5px;
     margin-top: 20px;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
 }
