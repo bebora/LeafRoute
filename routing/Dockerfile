@@ -31,10 +31,16 @@ RUN apk update && \
         then echo "Arlib found"; \
         else echo "Arlib missing, cloning" && git clone https://github.com/leonardoarcari/arlib ; \
     fi && \
-    cd ../cmake-build-debug && \
-    cmake . && \
+    if [ "$(ls -A json11)" ]; \
+            then echo "json11 found"; \
+            else echo "json11 missing, cloning" && git clone https://github.com/dropbox/json11 ; \
+    fi && \
+    cd .. && \
+    mkdir build-main && \
+    cd build-main && \
+    cmake .. && \
     make main && \
-    mv /leafrouting/cmake-build-debug/main /build/main && \
+    mv /leafrouting/build-main/main /build/main && \
     rm -rf /leafrouting && \
     cd /build && \
     curl https://leafroute.tk/ids -o ids && \
