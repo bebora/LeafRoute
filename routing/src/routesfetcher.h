@@ -4,7 +4,7 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graph_traits.hpp>
 
-#include <cpprest/json.h>
+#include "../external/json11/json11.hpp"
 #include <arlib/esx.hpp>
 #include <arlib/graph_utils.hpp>
 #include <arlib/multi_predecessor_map.hpp>
@@ -21,6 +21,13 @@
 #include <float.h>
 #include <chrono>
 
+class Coordinate {
+    public:
+        double lat;
+        double lon;
+        Coordinate (double lat, double lon) : lat(lat), lon(lon) {}
+        json11::Json to_json() const { return json11::Json::array { lat, lon }; }
+};
 
 struct Location{
     double lon;
@@ -94,41 +101,41 @@ void get_vertex(double lat1, double long1,
 }
 
 template<typename Graph, typename Vertex>
-web::json::value get_location_path(arlib::Path<Graph> const &path, Vertex s, Vertex t,
+json11::Json get_location_path(arlib::Path<Graph> const &path, Vertex s, Vertex t,
                                    Graph const g) {
-    using namespace web::json;
+    using namespace json11;
     using namespace boost;
     using namespace std;
     typename property_map<Graph, vertex_index_t>::type
             index = get(vertex_index, g);
     auto v_it = s;
     auto v_end = t;
-    vector<value> location_path;
-    vector<value> l = {g[index[v_it]].lat, g[index[v_it]].lon};
-    location_path.push_back(web::json::value::array(l));
+    vector<Coordinate> location_path;
+    auto l = Coordinate( g[index[v_it]].lat, g[index[v_it]].lon );
+    location_path.push_back(l);
     cout << v_it;
     while (v_it != v_end) {
         auto[curr_edge, final_edge]= out_edges(v_it, path);
         v_it = target(*curr_edge, path);
         cout << " to " << v_it;
-        l = {g[index[v_it]].lat, g[index[v_it]].lon};
-        location_path.push_back(web::json::value::array(l));
+        l = Coordinate(g[index[v_it]].lat, g[index[v_it]].lon);
+        location_path.push_back(l);
     }
     cout << endl << endl;
-    return value::array(location_path);
+    return location_path;
 }
 
 template<typename Graph, typename Vertex>
-web::json::value get_alternative_routes(Graph const &g, Vertex s,
+json11::Json get_alternative_routes(Graph const &g, Vertex s,
                                                 Vertex t, int k, double theta, bool reroute,
                                                 int max_nb_updates = 10, int max_nb_steps = 100000) {
     using namespace std;
     using namespace boost;
-    using namespace web::json;
+    using namespace json11;
     using arlib::routing_kernels;
     auto weight = boost::get(boost::edge_weight, g);
     auto predecessors = arlib::multi_predecessor_map<Vertex>{};
-    vector<value> location_paths;
+    vector<Json> location_paths;
     auto timeout = std::chrono::milliseconds{50};
     if (reroute)
         penalty(g, weight, predecessors, s, t, k, theta,  0.1, 0.1, max_nb_updates, max_nb_steps,
@@ -138,10 +145,10 @@ web::json::value get_alternative_routes(Graph const &g, Vertex s,
                 routing_kernels::bidirectional_dijkstra);
     auto paths = to_paths(g, predecessors, weight, s, t);
     for (auto const &path : paths) {
-        auto location_path = get_location_path(path,s,t, g);
+        auto location_path = get_location_path(path, s, t, g);
         location_paths.push_back(location_path);
     }
-    return value::array(location_paths);
+    return location_paths;
 }
 
 

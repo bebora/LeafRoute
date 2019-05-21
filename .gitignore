@@ -1,8 +1,4 @@
-routing/external/
 .vscode/
 .idea/
 routing/*.out
 routing/cmake-build-debug/
-!routing/cmake-build-debug/CMakeLists.txt
-
-

@@ -10,6 +10,7 @@
 #include <cpprest/producerconsumerstream.h>
 #include <chrono>
 #include "routesfetcher.h"
+#include "../external/json11/json11.hpp"
 
 using namespace utility;
 using namespace web;
@@ -97,7 +98,7 @@ void RoutesDealer::handle_get(http_request message)
         auto paths = get_alternative_routes(g, start, end, num_routes, 0.9, reroute);
         http_response response(status_codes::OK);
         response.headers().add(U("Access-Control-Allow-Origin"), U("*"));
-        response.set_body(paths);
+        response.set_body(paths.dump());
         message.reply(response);
         cout << endl;
     } catch (...) {
@@ -139,3 +140,4 @@ int main(int argc, char* argv[]) {
 
     listener.close().wait();
 }
+
