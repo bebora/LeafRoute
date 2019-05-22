@@ -76,8 +76,8 @@ void RoutesDealer::handle_get(http_request message)
         if (keyMap.find("s_lon") != keyMap.end()) {
             lon = stod(keyMap["s_lon"]);
         } else send_error(message);
-       Vertex start;
-       get_vertex(lat, lon, g, start);
+        Vertex start;
+        get_vertex(lat, lon, g, start);
         if (keyMap.find("e_lat") != keyMap.end()) {
             lat = stod(keyMap["e_lat"]);
         } else send_error(message);
