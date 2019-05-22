@@ -20,7 +20,6 @@ using namespace web::http::client;
 using namespace concurrency::streams;
 using namespace web::http::experimental::listener;
 using namespace web::experimental::web_sockets::client;
-using namespace web::json;
 using namespace arlib;
 using namespace std;
 
@@ -41,7 +40,7 @@ public:
     pplx::task<void> close() { return m_listener.close(); }
 
 private:
-    void handle_get(http_request message);
+    void handle_get(http_request request);
     Graph g;
     http_listener m_listener;
 };
@@ -61,35 +60,38 @@ void send_error(http_request message) {
     message.reply(response);
 }
 
-void RoutesDealer::handle_get(http_request message)
+void RoutesDealer::handle_get(http_request request)
 {
     try {
         bool reroute = false;
         double lat, lon;
-        auto url_message= uri::decode(message.relative_uri().to_string());
+        auto url_message= uri::decode(request.relative_uri().to_string());
         url_message.erase(0,2);
         map<utility::string_t, utility::string_t> keyMap = uri::split_query(url_message);
         int num_routes;
         if (keyMap.find("s_lat") != keyMap.end()) {
             lat = stod(keyMap["s_lat"]);
-        } else send_error(message);
+        } else send_error(request);
         if (keyMap.find("s_lon") != keyMap.end()) {
             lon = stod(keyMap["s_lon"]);
-        } else send_error(message);
+        } else send_error(request);
         Vertex start;
+        auto start_get_vertices = chrono::steady_clock::now();
         get_vertex(lat, lon, g, start);
         if (keyMap.find("e_lat") != keyMap.end()) {
             lat = stod(keyMap["e_lat"]);
-        } else send_error(message);
+        } else send_error(request);
         if (keyMap.find("e_lon") != keyMap.end()) {
             lon = stod(keyMap["e_lon"]);
-        } else send_error(message);
+        } else send_error(request);
         if (keyMap.find("n_routes") != keyMap.end()) {
             num_routes = std::stoi(keyMap["n_routes"]);
         }
         else num_routes = 2;
         Vertex end;
         get_vertex(lat, lon, g, end);
+        auto end_get_vertices = chrono::steady_clock::now();
+        logElapsedMillis("Found vertices in graph", start_get_vertices, end_get_vertices);
         if (keyMap.find("reroute") != keyMap.end()) {
             reroute = parseBoolean(keyMap["reroute"]);
         }
@@ -97,10 +99,10 @@ void RoutesDealer::handle_get(http_request message)
         http_response response(status_codes::OK);
         response.headers().add(U("Access-Control-Allow-Origin"), U("*"));
         response.set_body(paths.dump());
-        message.reply(response);
+        request.reply(response);
         cout << endl;
     } catch (...) {
-        send_error(message);
+        send_error(request);
     }
 }
 
@@ -124,7 +126,10 @@ int main(int argc, char* argv[]) {
     }
     endpoint = opts["endpoint"].as<std::string>();
     Graph g;
+    auto start = chrono::steady_clock::now();
     location_graph_from_string("weights", "ids", g);
+    auto end = chrono::steady_clock::now();
+    logElapsedMillis("Loaded coordinates and weights", start, end);
     utility::string_t address = U(endpoint);
 
     RoutesDealer listener(address, g);

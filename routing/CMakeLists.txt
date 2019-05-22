@@ -15,7 +15,8 @@ add_executable(main
         src/routesfetcher.cpp
         src/routesfetcher.h
         external/json11/json11.cpp
-        src/utils.hpp)
+        src/utils.hpp
+        src/utils.cpp)
 target_link_libraries(main PRIVATE arlib cpprestsdk::cpprest ${Boost_LIBRARIES})
 # Add lambda executable
 add_executable(lambda
@@ -23,6 +24,7 @@ add_executable(lambda
         src/routesfetcher.cpp
         src/routesfetcher.h
         external/json11/json11.cpp
-        src/utils.hpp)
+        src/utils.hpp
+        src/utils.cpp)
 target_link_libraries(lambda PRIVATE arlib  ${Boost_LIBRARIES})
 

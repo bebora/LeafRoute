@@ -5,6 +5,7 @@
 #include "routesfetcher.h"
 #include "../external/json11/json11.hpp"
 #include "utils.hpp"
+#include <chrono>
 using namespace json11;
 using namespace std;
 using namespace arlib;
@@ -47,7 +48,10 @@ Graph g;
   * }
   */
 int main() {
+    auto start_read_files = chrono::steady_clock::now();
     location_graph_from_string("weights", "ids", g);
+    auto end_read_files = chrono::steady_clock::now();
+    logElapsedMillis("Loaded coordinates and weights", start_read_files, end_read_files);
     //Dummy request received from AWS API Gateway
     string request = "{\n"
                      "\t\"resource\": \"/getroutes\",\n"
@@ -72,23 +76,26 @@ int main() {
     string err;
     auto js_obj = Json::parse(request, err);
     auto parameters = js_obj["queryStringParameters"];
-    auto s_lat = stof(parameters["s_lat"].string_value());
-    auto s_lon = stof(parameters["s_lon"].string_value());
-    auto e_lat = stof(parameters["e_lat"].string_value());
-    auto e_lon = stof(parameters["e_lon"].string_value());
+    auto s_lat = stod(parameters["s_lat"].string_value());
+    auto s_lon = stod(parameters["s_lon"].string_value());
+    auto e_lat = stod(parameters["e_lat"].string_value());
+    auto e_lon = stod(parameters["e_lon"].string_value());
     bool reroute = parseBoolean(parameters["reroute"].string_value());
     auto num_routes_str = parameters["n_routes"].string_value();
     int num_routes;
     try {
-        num_routes = stof(num_routes_str);
+        num_routes = stoi(num_routes_str);
     }
     catch (invalid_argument &) {
         num_routes = 2;
     }
     Vertex start;
+    auto start_get_vertices = chrono::steady_clock::now();
     get_vertex(s_lat, s_lon, g, start);
     Vertex end;
     get_vertex(e_lat, e_lon, g, end);
+    auto end_get_vertices = chrono::steady_clock::now();
+    logElapsedMillis("Found vertices", start_get_vertices, end_get_vertices);
     auto paths = get_alternative_routes(g, start, end, num_routes, 0.9, reroute);
     auto headers = Json::object {{"Access-Control-Allow-Origin", "*"}};
     Json response = Json::object{

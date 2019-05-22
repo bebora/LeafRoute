@@ -20,6 +20,7 @@
 #include <cmath>
 #include <float.h>
 #include <chrono>
+#include "utils.hpp"
 
 class Coordinate {
     public:
@@ -113,15 +114,15 @@ json11::Json get_location_path(arlib::Path<Graph> const &path, Vertex s, Vertex 
     vector<Coordinate> location_path;
     auto l = Coordinate( g[index[v_it]].lat, g[index[v_it]].lon );
     location_path.push_back(l);
-    cout << v_it;
+    //cout << v_it;
     while (v_it != v_end) {
-        auto[curr_edge, final_edge]= out_edges(v_it, path);
+        auto[curr_edge, final_edge] = out_edges(v_it, path);
         v_it = target(*curr_edge, path);
-        cout << " to " << v_it;
+        //cout << " to " << v_it;
         l = Coordinate(g[index[v_it]].lat, g[index[v_it]].lon);
         location_path.push_back(l);
     }
-    cout << endl << endl;
+    //cout << endl << endl;
     return location_path;
 }
 
@@ -137,17 +138,23 @@ json11::Json get_alternative_routes(Graph const &g, Vertex s,
     auto predecessors = arlib::multi_predecessor_map<Vertex>{};
     vector<Json> location_paths;
     auto timeout = std::chrono::milliseconds{50};
+    auto start = chrono::steady_clock::now();
     if (reroute)
         penalty(g, weight, predecessors, s, t, k, theta,  0.1, 0.1, max_nb_updates, max_nb_steps,
             routing_kernels::bidirectional_dijkstra, arlib::timer{timeout});
     else
         penalty(g, weight, predecessors, s, t, k, theta,  0.1, 0.1, max_nb_updates, max_nb_steps,
                 routing_kernels::bidirectional_dijkstra);
+    auto end = chrono::steady_clock::now();
+    logElapsedMillis("Applied penalty", start, end);
+    start = chrono::steady_clock::now();
     auto paths = to_paths(g, predecessors, weight, s, t);
     for (auto const &path : paths) {
         auto location_path = get_location_path(path, s, t, g);
         location_paths.push_back(location_path);
     }
+    end = chrono::steady_clock::now();
+    logElapsedMillis("Generated paths", start, end);
     return location_paths;
 }
 
