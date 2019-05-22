@@ -11,6 +11,7 @@
 #include <chrono>
 #include "routesfetcher.h"
 #include "../external/json11/json11.hpp"
+#include "utils.hpp"
 
 using namespace utility;
 using namespace web;
@@ -53,9 +54,6 @@ RoutesDealer::RoutesDealer(utility::string_t url, Graph g) : m_listener(url)
     this->g = g;
 }
 
-bool parseBoolean(const string &str) {
-    return str == "true" || str == "yes" || str == "on";
-}
 
 void send_error(http_request message) {
     http_response response(status_codes::BadRequest);
@@ -79,7 +77,7 @@ void RoutesDealer::handle_get(http_request message)
             lon = stod(keyMap["s_lon"]);
         } else send_error(message);
        Vertex start;
-       get_vertex(lat,lon,g, start);
+       get_vertex(lat, lon, g, start);
         if (keyMap.find("e_lat") != keyMap.end()) {
             lat = stod(keyMap["e_lat"]);
         } else send_error(message);
@@ -91,7 +89,7 @@ void RoutesDealer::handle_get(http_request message)
         }
         else num_routes = 2;
         Vertex end;
-        get_vertex(lat,lon, g, end);
+        get_vertex(lat, lon, g, end);
         if (keyMap.find("reroute") != keyMap.end()) {
             reroute = parseBoolean(keyMap["reroute"]);
         }

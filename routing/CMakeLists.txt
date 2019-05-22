@@ -1,4 +1,3 @@
-
 cmake_minimum_required(VERSION 3.7)
 project(main)
 set(cpprestsdk_DIR /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}/cmake/)
@@ -11,9 +10,19 @@ find_package(cpprestsdk REQUIRED)
 set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 # Add main executable
-add_executable(main src/routing.cpp src/routesfetcher.cpp src/routesfetcher.h external/json11/json11.cpp)
+add_executable(main
+        src/routing.cpp
+        src/routesfetcher.cpp
+        src/routesfetcher.h
+        external/json11/json11.cpp
+        src/utils.hpp)
 target_link_libraries(main PRIVATE arlib cpprestsdk::cpprest ${Boost_LIBRARIES})
 # Add lambda executable
-add_executable(lambda src/lambda.cpp external/json11/json11.cpp)
-target_link_libraries(lambda PRIVATE json11)
+add_executable(lambda
+        src/lambda.cpp
+        src/routesfetcher.cpp
+        src/routesfetcher.h
+        external/json11/json11.cpp
+        src/utils.hpp)
+target_link_libraries(lambda PRIVATE arlib  ${Boost_LIBRARIES})
 
