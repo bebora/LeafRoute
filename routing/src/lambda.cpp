@@ -96,9 +96,6 @@ invocation_response my_handler(invocation_request const& request) {
     return invocation_response::success(response.dump(), "application/json");
 }
 
-/*invocation_response my_handler(invocation_request const& request) {
-    return invocation_response::success("Hello, World!", "application/json");
-}*/
 
 int main() {
     run_handler(my_handler);
