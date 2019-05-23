@@ -25,7 +25,8 @@ cmake .. \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR=lib
-make && make install
+make
+sudo make install
 ```
 # Building
 `cmake-build-debug` directory is for building and debugging the project as a standard executable. `weights` and `ids` **must be manually added**.  

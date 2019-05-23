@@ -1,7 +1,8 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.8)
 project(main)
 set(cpprestsdk_DIR /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}/cmake/)
 find_package(Boost 1.55.0 REQUIRED COMPONENTS system filesystem program_options)
+find_package(aws-lambda-runtime)
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 add_subdirectory(external/arlib external/arlib)
@@ -26,5 +27,8 @@ add_executable(lambda
         external/json11/json11.cpp
         src/utils.hpp
         src/utils.cpp)
-target_link_libraries(lambda PRIVATE arlib  ${Boost_LIBRARIES})
+target_link_libraries(lambda PRIVATE arlib AWS::aws-lambda-runtime ${Boost_LIBRARIES})
+target_compile_features(lambda PRIVATE "cxx_std_17")
+
+aws_lambda_package_target(${PROJECT_NAME})
 

@@ -8,7 +8,9 @@ RUN apk update && \
         build-base \
         cmake \
         curl \
+        curl-dev \
         git \
+        libexecinfo-dev \
         ninja \
         openssl-dev \
         websocket++ \
@@ -26,6 +28,15 @@ RUN apk update && \
     cd ../.. && \
     rm -rf cpprestsdk && \
     mkdir build && \
+    git clone https://github.com/awslabs/aws-lambda-cpp /tmp/aws-lambda-cpp && \
+    cd /tmp/aws-lambda-cpp && \
+    mkdir build && \
+    cd build && \
+    cmake .. \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_INSTALL_LIBDIR=lib && \
+    make && make install && \
     cd /leafrouting/external && \
     if [ "$(ls -A arlib)" ]; \
         then echo "Arlib found"; \
