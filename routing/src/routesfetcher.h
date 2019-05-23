@@ -21,6 +21,7 @@
 #include <float.h>
 #include <chrono>
 #include "utils.hpp"
+#include <filesystem>
 
 class Coordinate {
     public:
@@ -41,6 +42,10 @@ double distance(double lat1, double long1,
 
 template <typename Graph>
 void location_graph_from_string(std::string weight_file, std::string location_file, Graph &g) {
+    auto fsize = filesystem::file_size(weight_file);
+    std::cout << "Weights size: " << float(fsize) / 1000000 << " MB"<< std::endl;
+    fsize = filesystem::file_size(location_file);
+    std::cout << "Ids size: " << float(fsize) / 1000000 << " MB"<< std::endl;
     using namespace std;
     typedef pair<int,int> Edge;
     vector<Edge> edges;

@@ -30,5 +30,5 @@ add_executable(lambda
 target_link_libraries(lambda PRIVATE arlib AWS::aws-lambda-runtime ${Boost_LIBRARIES})
 target_compile_features(lambda PRIVATE "cxx_std_17")
 
-aws_lambda_package_target(${PROJECT_NAME})
+aws_lambda_package_target(lambda)
 
