@@ -26,7 +26,7 @@ using namespace std;
 
 using Graph = boost::adjacency_list<boost::vecS, boost::vecS,
         boost::bidirectionalS, Location,
-        boost::property<boost::edge_weight_t, double>>;
+        boost::property<boost::edge_weight_t, float>>;
 using Vertex = typename boost::graph_traits<Graph>::vertex_descriptor;
 using Edge = typename boost::graph_traits<Graph>::edge_descriptor;
 
@@ -64,25 +64,25 @@ void RoutesDealer::handle_get(http_request request)
 {
     try {
         bool reroute = false;
-        double lat, lon;
+        float lat, lon;
         auto url_message= uri::decode(request.relative_uri().to_string());
         url_message.erase(0,2);
         map<utility::string_t, utility::string_t> keyMap = uri::split_query(url_message);
         int num_routes;
         if (keyMap.find("s_lat") != keyMap.end()) {
-            lat = stod(keyMap["s_lat"]);
+            lat = stof(keyMap["s_lat"]);
         } else send_error(request);
         if (keyMap.find("s_lon") != keyMap.end()) {
-            lon = stod(keyMap["s_lon"]);
+            lon = stof(keyMap["s_lon"]);
         } else send_error(request);
         Vertex start;
         auto start_get_vertices = chrono::steady_clock::now();
         get_vertex(lat, lon, g, start);
         if (keyMap.find("e_lat") != keyMap.end()) {
-            lat = stod(keyMap["e_lat"]);
+            lat = stof(keyMap["e_lat"]);
         } else send_error(request);
         if (keyMap.find("e_lon") != keyMap.end()) {
-            lon = stod(keyMap["e_lon"]);
+            lon = stof(keyMap["e_lon"]);
         } else send_error(request);
         if (keyMap.find("n_routes") != keyMap.end()) {
             num_routes = std::stoi(keyMap["n_routes"]);

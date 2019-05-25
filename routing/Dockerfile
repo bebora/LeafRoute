@@ -35,7 +35,6 @@ RUN apk update && \
     cmake .. \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX=/usr \
-        -DCMAKE_INSTALL_LIBDIR=lib && \
     make && make install && \
     cd /leafrouting/external && \
     if [ "$(ls -A arlib)" ]; \

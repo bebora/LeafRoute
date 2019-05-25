@@ -16,7 +16,7 @@ using namespace std;
 
 using Graph = boost::adjacency_list<boost::vecS, boost::vecS,
         boost::bidirectionalS, Location,
-        boost::property<boost::edge_weight_t, double>>;
+        boost::property<boost::edge_weight_t, float>>;
 using Vertex = typename boost::graph_traits<Graph>::vertex_descriptor;
 using Edge = typename boost::graph_traits<Graph>::edge_descriptor;
 
@@ -57,14 +57,14 @@ invocation_response my_handler(invocation_request const& request) {
     string err;
     auto js_obj = json11::Json::parse(request.payload, err);
     auto parameters = js_obj["queryStringParameters"];
-    double s_lat, s_lon, e_lat, e_lon;
+    float s_lat, s_lon, e_lat, e_lon;
     bool reroute;
     int num_routes;
     try {
-        s_lat = stod(parameters["s_lat"].string_value());
-        s_lon = stod(parameters["s_lon"].string_value());
-        e_lat = stod(parameters["e_lat"].string_value());
-        e_lon = stod(parameters["e_lon"].string_value());
+        s_lat = stof(parameters["s_lat"].string_value());
+        s_lon = stof(parameters["s_lon"].string_value());
+        e_lat = stof(parameters["e_lat"].string_value());
+        e_lon = stof(parameters["e_lon"].string_value());
     }
     catch (invalid_argument &) {
         return invocation_response::failure("Start and end coordinates must be provided", "InvalidRequest");

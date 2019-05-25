@@ -23,14 +23,15 @@ mkdir build
 cd build
 cmake .. \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_INSTALL_LIBDIR=lib
+    -DCMAKE_INSTALL_PREFIX=/usr
 make
 sudo make install
 ```
 # Building
 ## Standard compiling
 ```
+git submodule init
+git submodule update
 mkdir -p build
 cd build
 cmake ..
@@ -48,6 +49,8 @@ docker run -p 1337:1337 -td leafroute
 Generate a zip file to upload to AWS Lambda, which should be called from a dedicated AWS API Gateway service. The API Gateway must be configured to pass received arguments to the Lambda function by checking the **Use Lambda Proxy integration** box.  
 Depending on the size it may be necessary to upload the zip first on S3 and then load the Lambda code from S3.
 ```
+git submodule init
+git submodule update
 mkdir -p build
 cd build
 cmake ..

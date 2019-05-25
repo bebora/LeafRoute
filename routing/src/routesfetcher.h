@@ -25,20 +25,20 @@
 
 class Coordinate {
     public:
-        double lat;
-        double lon;
-        Coordinate (double lat, double lon) : lat(lat), lon(lon) {}
+        float lat;
+        float lon;
+        Coordinate (float lat, float lon) : lat(lat), lon(lon) {}
         json11::Json to_json() const { return json11::Json::array { lat, lon }; }
 };
 
 struct Location{
-    double lon;
-    double lat;
+    float lon;
+    float lat;
 };
 
-double toRadians(const double degree);
-double distance(double lat1, double long1,
-                     double lat2, double long2);
+float toRadians(const float degree);
+float distance(float lat1, float long1,
+                     float lat2, float long2);
 
 template <typename Graph>
 void location_graph_from_string(std::string weight_file, std::string location_file, Graph &g) {
@@ -49,7 +49,7 @@ void location_graph_from_string(std::string weight_file, std::string location_fi
     using namespace std;
     typedef pair<int,int> Edge;
     vector<Edge> edges;
-    vector<double> weights;
+    vector<float> weights;
     vector<Location> locations;
     string line;
     ifstream rfile;
@@ -57,7 +57,7 @@ void location_graph_from_string(std::string weight_file, std::string location_fi
     if (rfile.is_open()) {
         while (getline(rfile, line)) {
             int a,b;
-            double weight;
+            float weight;
             istringstream stream (line);
             stream >> a >> b >> weight;
             edges.push_back(Edge(a,b));
@@ -70,7 +70,7 @@ void location_graph_from_string(std::string weight_file, std::string location_fi
     if (rfile.is_open()) {
         while (getline(rfile, line)) {
             Location l;
-            double lon,lat;
+            float lon,lat;
             istringstream stream (line);
             stream >> lon >> lat;
             l = {}; // will zero all fields
@@ -89,12 +89,12 @@ void location_graph_from_string(std::string weight_file, std::string location_fi
 }
 
 template<typename Graph, typename Vertex>
-void get_vertex(double lat1, double long1,
+void get_vertex(float lat1, float long1,
                   Graph g, Vertex &v) {
     auto vs = boost::vertices(g);
-    double min = DBL_MAX;
+    float min = FLT_MAX;
     for (auto vit = vs.first; vit != vs.second; vit++) {
-        double curr = distance(lat1, long1, g[*vit].lat, g[*vit].lon);
+        float curr = distance(lat1, long1, g[*vit].lat, g[*vit].lon);
         if (curr == 0) {
             v = *vit;
             break;
@@ -133,7 +133,7 @@ json11::Json get_location_path(arlib::Path<Graph> const &path, Vertex s, Vertex 
 
 template<typename Graph, typename Vertex>
 json11::Json get_alternative_routes(Graph const &g, Vertex s,
-                                                Vertex t, int k, double theta, bool reroute,
+                                                Vertex t, int k, float theta, bool reroute,
                                                 int max_nb_updates = 10, int max_nb_steps = 100000) {
     using namespace std;
     using namespace boost;
