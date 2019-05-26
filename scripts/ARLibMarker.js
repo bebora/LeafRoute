@@ -120,7 +120,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
     },
 
     /**
-     * Stop the Marker, sending 'end' signal
+     * Remove the marker from the map and stop fetching routes.
      */
     _stop: function() {
         console.log("stopping...");
@@ -135,18 +135,18 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
     /**
      * Pause the marker and the route fetching
      */
-    _pause: function() {
-        L.Marker.MovingMarker.prototype.pause.call();
+    pause: function() {
+        L.Marker.MovingMarker.prototype.pause.call(this);
         window.clearInterval(this.interval);
     },
 
     /**
      * Restart the marker after resume
      */
-    _resume: function() {
+    resume: function() {
         var that = this;
-        L.Marker.MovingMarker.prototype.resume.call();
-        if (!interval)
+        L.Marker.MovingMarker.prototype.resume.call(this);
+        if (!that.interval)
             that.interval = that.interval = window.setInterval(function() {
                 that._fetchroute();
             }, that.timer);

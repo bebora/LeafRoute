@@ -15,9 +15,10 @@ Sliders with constant sum inspired from [constant-sum-sliders](https://github.co
 
 
 # TODO
-- Add documentation for RoutesDealer
+- Speed up creation of geocoordinate path from Arlib::path
 - Join some custom css files
 - Dynamically create sliders with any GeoJSON containing zones
 - Add function to redraw slider background after any value change
 - Add AWS Lambda integration
-- Improve memory footprint. After every request the total memory used by the executable grows. This affects both Docker Alpine builds and regular builds (tested on Manjaro) 
+- Improve memory footprint. After every request the total memory used by the executable grows. This affects both Docker Alpine builds and regular builds (tested on Manjaro)
+ 
