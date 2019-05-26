@@ -71,7 +71,7 @@ $('#address-dest').typeahead(null, {
     displayKey: 'description'
 });
 
-var endpoint = 'http://localhost:1337/getroutes?';
+var endpoint = 'http://localhost:1337/getroutes';
 $('#endpoint').val(endpoint);
 var updateEndpoint = function() {
     endpoint = $('#endpoint').val();

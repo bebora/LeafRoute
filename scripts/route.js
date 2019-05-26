@@ -32,7 +32,7 @@ $(document).ready(function()
         start_lng = $('#lng-start').val();
         end_lat = $('#lat-end').val();
         end_lng = $('#lng-end').val();
-        endpoint = 'http://localhost:1337/getroutes?';
+        endpoint = 'http://localhost:1337/getroutes';
         $.getJSON( endpoint, { s_lat: start_lat, s_lon: start_lng, e_lat: end_lat, e_lon: end_lng, reroute: 'false' } )
         .done(function( json ) {
             for (alternative_index in json) {

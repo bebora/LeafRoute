@@ -9,16 +9,6 @@ var sidebar = L.control.sidebar({ container: 'sidebar' })
 .addTo(map)
 .open('home');
 
-// be notified when a panel is opened
-sidebar.on('content', function (ev) {
-    switch (ev.id) {
-        case 'autopan':
-        sidebar.options.autopan = true;
-        break;
-        default:
-        sidebar.options.autopan = false;
-    }
-});
 
 var boundingBoxMilanCoords = [
     [45.535946, 9.040613],
@@ -37,6 +27,12 @@ $.getJSON('https://www.leafroute.tk/zone.min.json', function(data) {
 });
 var markers = []
 
+var endpoint = 'http://localhost:1337/getroutes';
+$('#endpoint').val(endpoint);
+var updateEndpoint = function() {
+    endpoint = $('#endpoint').val();
+    console.log('Endpoint set to '+endpoint);
+}
 
 var generateRoutePoints = function() {
     var totalMarkers = $('#totalmarkers').val();
@@ -76,8 +72,11 @@ var startSimulation = async function() {
     });
     markers = [];
     console.log('starting simulation');
-    var speed = $('#speed').val();
-    var timer = $('#timer').val();
+    var speed = parseFloat($('#speed').val());
+    var timer = parseFloat($('#timer').val());
+    //speed or timer may be ""
+    if (isNaN(speed)) speed = 50;
+    if (isNaN(timer)) timer = 10000;
     var routePoints = generateRoutePoints();
     for (i = 0; i < routePoints.length; i++) {
         let marker = new L.Marker.MovingMarker.ARLibMarker(routePoints[i][0], routePoints[i][1], markers, false, speed, timer);

@@ -5,7 +5,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
      * @param {*} destination array with the latitude and longitude of destination point
      * @param {*} option optional parameters defining the speed, the timing of rerouting and the endpoint used as a routing machine
      */
-    initialize: function (startPoint, destination, markers, rerouting = true, speed =100, timer = 1000, polyline = null, endpoint = 'http://localhost:1337/getroutes?') {
+    initialize: function (startPoint, destination, markers, rerouting = true, speed =100, timer = 1000, polyline = null, endpoint = 'http://localhost:1337/getroutes') {
         this.polyline = polyline;
         this.markers = markers;
         this.icon = L.icon({iconUrl: 'icons/circlemarker.svg', iconSize: [21, 21]});
@@ -20,7 +20,15 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
         var that = this;
         this.marker;
         if (!Array.isArray(startPoint[0])){
-            $.getJSON( this.endpoint, {s_lat: startPoint[0],s_lon: startPoint[1],e_lat: destination[0],e_lon: destination[1],  reroute: this.reroute} )
+            $.getJSON( this.endpoint,
+                {
+                    s_lat: startPoint[0],
+                    s_lon: startPoint[1],
+                    e_lat: destination[0],
+                    e_lon: destination[1],
+                    reroute: this.reroute,
+                    n_routes: 1
+                })
             .done(function( json ) {
                 that._buildPath(that,json[0]);
                 that.ready = true;
@@ -80,7 +88,15 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
         var current_index = that.current_index;
         if (that.reroute && that.rerouting && that.QueueLatlngs.length > 1 && that.currentLatlngs.length > current_index + 2) {
             var startPoint = that.currentLatlngs[that.current_index + 2];
-            $.getJSON( that.endpoint, {s_lat: startPoint[0],s_lon: startPoint[1],e_lat: that.destination[0],e_lon: that.destination[1],  reroute: true} )
+            $.getJSON( that.endpoint,
+                {
+                    s_lat: startPoint[0],
+                    s_lon: startPoint[1],
+                    e_lat: that.destination[0],
+                    e_lon: that.destination[1],
+                    reroute: true,
+                    n_routes: 1
+                } )
             .done(function( json ) {
                 that.fetching = true;
                 if (json != null && Array.isArray(json) && json.length && that.current_index == current_index) {
