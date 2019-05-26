@@ -41,24 +41,17 @@ var markers = []
 var generateRoutePoints = function() {
     var totalMarkers = $('#totalmarkers').val();
     var routePoints = [];
+    var relatedPercentage = [];
+    var uniformPercentage = [];
+    //Create percentage using sliders for startpoints and uniform percentage for endpoints
     for (var i = 1; i <= zones.getLayers().length; i++) {
-        let relatedPercentage = $('#opt'+i).val() / 1000.0;
-        let relatedMarkers = Math.floor(relatedPercentage * totalMarkers);
-        let startPoints = generateNPointsinLeafletLayer(relatedMarkers, zones.getLayers()[i-1]);
-        let endPoints = []
-        for (var j = 1; j <= zones.getLayers().length; j++) {
-            let subRelatedPercentage = 1 / zones.getLayers().length;
-            let subRelatedMarkers = Math.floor(subRelatedPercentage * relatedMarkers);
-            let tempEndPoints = generateNPointsinLeafletLayer(subRelatedMarkers, zones.getLayers()[j-1]);
-            endPoints.push.apply(endPoints, tempEndPoints);
-        }
-        
-        let tempRoutePoints = []
-        for (var j = 0; j < endPoints.length; j++) {
-            tempRoutePoints.push([startPoints[j],endPoints[j]]);
-        }
-
-        routePoints.push.apply(routePoints, tempRoutePoints);
+        relatedPercentage.push($('#opt'+i).val() / 10.0);
+        uniformPercentage.push(100.0/zones.getLayers().length);
+    }    
+    let startPoints = generateNPointsinLeafletLayer(totalMarkers, relatedPercentage);
+    let endPoints = generateNPointsinLeafletLayer(totalMarkers, uniformPercentage);
+    for (var j = 0; j < endPoints.length; j++) {
+        routePoints.push([startPoints[j],endPoints[j]]);
     }
     return routePoints;
 }
@@ -121,15 +114,33 @@ var randomPointInLeafletPolygon = function(layer) {
         return null;
 }
 
-var generateNPointsinLeafletLayer = function(number, layer) {
+var randomLayer = function(distribution) {
+    let point = Math.random()*(distribution[distribution.length-1]);
+    for (x in distribution) {
+        if (point <= distribution[x]) 
+            return zones.getLayers()[x];
+    }
+}
+
+var generateNPointsinLeafletLayer = function(number, percentage) {
     var points = [];
-    var i = number;
-    while (i > 0) {
+    var i = 0;
+    //Create distribution using given percentages
+    var distribution = [];
+    for (let x = 1; x <= percentage.length; x++) {
+        let sum = percentage
+        .slice(0,x) 
+        .reduce((a,b) => a + b);
+        distribution.push(sum);
+    }
+    while (i < number) {
+        layer = randomLayer(distribution);
         var point = randomPointInLeafletPolygon(layer);
-        if (point != null) {
-            i--;
-            points.push(point);
+        while (point == null) {
+            point = randomPointInLeafletPolygon(layer);
         }
+        points.push(point);
+        i++;
     }
     return points;
 }
