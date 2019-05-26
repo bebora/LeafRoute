@@ -42,7 +42,12 @@
         <div class="leaflet-sidebar-tabs">
             <!-- top aligned tabs -->
             <ul role="tablist">
-                <li><a href="#home" role="tab"><i class="fa fa-bars active"></i></a></li>
+                <li>
+                    <a href="#home" role="tab"><i class="fa fa-bars active"></i></a>
+                </li>
+                <li>
+                    <a href="#settings" role="tab"><i class="fas fa-cog"></i></a>
+                </li>
             </ul>
 
             <!-- bottom aligned tabs -->
@@ -79,6 +84,23 @@
                     </div>
                     <button type="button" class="btn btn-primary button-search mr-2" id="search" >Search route</button>
                     <button type="button" class="btn btn-primary button-search" id="start" style="display: none">Start</button>
+                </div>
+            </div>
+            <div class="leaflet-sidebar-pane" id="settings">
+                <h1 class="leaflet-sidebar-header">
+                    LeafRoute settings
+                    <span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>
+                </h1>
+                <h4 style="margin-top:5px; margin-left:-10px;">Endpoint</h4>
+                <div class="row">
+                    <div style="width:90%;">
+                        <input type="text" id="endpoint" class="form-control" placeholder="Endpoint" aria-label="Endpoint">
+                    </div>
+                    <div style="width:10%;">
+                        <button type="button" class="btn btn-outline-primary" id="setEndpoint" onclick="updateEndpoint()">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
