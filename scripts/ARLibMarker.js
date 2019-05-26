@@ -11,8 +11,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
         this.icon = L.icon({iconUrl: 'icons/circlemarker.svg', iconSize: [21, 21]});
         this.speed = speed;
         this.timer = timer;
-        this._rerouting = rerouting;
-        this.rerouting = false;
+        this.rerouting = rerouting;
         this.endpoint = endpoint;
         this.reroute = false;
         this.current_index = 1;
@@ -56,15 +55,14 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
                 var length = L.latLng(that.currentLatlngs[j]).distanceTo(L.latLng(that.currentLatlngs[j+1]));
                 var time_seconds = (length / (that.speed / 3.6));
                 L.Marker.MovingMarker.prototype.addLatLng.call(that, that.currentLatlngs[j+1], time_seconds*1000);
-            }
-            that.rerouting = that._rerouting;
-            
+            }            
         } else if (latlngs.length >= 2) {
             for (var j=0; j < latlngs.length; j++) {
                 var length = L.latLng(latlngs[j]).distanceTo(L.latLng(latlngs[j+1]));
                 var time_seconds = (length / (that.speed / 3.6));
                 L.Marker.MovingMarker.prototype.addLatLng.call(that, latlngs[j+1], time_seconds*1000);
             }
+            that.rerouting = false;
         }
         else {
             that.rerouting = false;
@@ -87,6 +85,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
                 that.fetching = true;
                 if (json != null && Array.isArray(json) && json.length && that.current_index == current_index) {
                     that.tempQueueLatlngs = json[0].slice(1);
+                    console.log("rerouting!");
                 } else {
                     console.log("Late response -> no rerouting!");
                 }

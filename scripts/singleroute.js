@@ -99,9 +99,9 @@ var onSelectRoute = function(e){
         selectedRoute,
         selectedRoute[selectedRoute-1],
         markers,
-        false,
+        true,
         50,
-        15000,
+        300,
         polyline);
     markers.push(marker);
     marker.addTo(map);
@@ -162,7 +162,8 @@ $('#search').click(function(e){
                 //Slightly extend box
                 map.fitBounds(viewBox.pad(0.10));
             }
-        }).fail(function(textStatus, error) {
-            console.log("Request Failed: " + textStatus + ", " + error);
+        }).fail(function(response) {
+            alert(response.responseText);
+            console.log("Request Failed: " + response.textStatus + ", " + response.status);
         });
 })
