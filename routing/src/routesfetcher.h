@@ -142,18 +142,23 @@ json11::Json get_alternative_routes(Graph const &g, Vertex s,
     auto weight = boost::get(boost::edge_weight, g);
     auto predecessors = arlib::multi_predecessor_map<Vertex>{};
     vector<Json> location_paths;
-    auto timeout = std::chrono::milliseconds{50};
+    auto timeout = std::chrono::milliseconds{900};
     auto start = chrono::steady_clock::now();
-    if (reroute)
-        penalty(g, weight, predecessors, s, t, k, theta,  0.1, 0.1, max_nb_updates, max_nb_steps,
-            routing_kernels::bidirectional_dijkstra, arlib::timer{timeout});
-    else
-        penalty(g, weight, predecessors, s, t, k, theta,  0.1, 0.1, max_nb_updates, max_nb_steps,
-                routing_kernels::bidirectional_dijkstra);
+    try {
+        if (reroute)
+            penalty(g, weight, predecessors, s, t, k, theta, 0.1, 0.1, max_nb_updates, max_nb_steps,
+                    routing_kernels::bidirectional_dijkstra, arlib::timer{timeout});
+        else
+            penalty(g, weight, predecessors, s, t, k, theta, 0.1, 0.1, max_nb_updates, max_nb_steps,
+                    routing_kernels::bidirectional_dijkstra);
+    } catch (const arlib::details::target_not_found&) {
+        throw std::invalid_argument("Path not found");
+    }
     auto end = chrono::steady_clock::now();
     logElapsedMillis("Applied penalty", start, end);
     start = chrono::steady_clock::now();
     auto paths = to_paths(g, predecessors, weight, s, t);
+    logElapsedMillis("Generated paths arlib", start, end);
     for (auto const &path : paths) {
         auto location_path = get_location_path(path, s, t, g);
         location_paths.push_back(location_path);

@@ -54,9 +54,10 @@ RoutesDealer::RoutesDealer(utility::string_t url, Graph g) : m_listener(url)
 }
 
 
-void send_error(http_request message) {
+void send_error(http_request message, std::string body) {
     http_response response(status_codes::BadRequest);
     response.headers().add(U("Access-Control-Allow-Origin"), U("*"));
+    response.set_body(body);
     message.reply(response);
 }
 
@@ -71,19 +72,19 @@ void RoutesDealer::handle_get(http_request request)
         int num_routes;
         if (keyMap.find("s_lat") != keyMap.end()) {
             lat = stof(keyMap["s_lat"]);
-        } else send_error(request);
+        } else send_error(request, "Starting latitude missing");
         if (keyMap.find("s_lon") != keyMap.end()) {
             lon = stof(keyMap["s_lon"]);
-        } else send_error(request);
+        } else send_error(request, "Starting longitude missing");
         Vertex start;
         auto start_get_vertices = chrono::steady_clock::now();
         get_vertex(lat, lon, g, start);
         if (keyMap.find("e_lat") != keyMap.end()) {
             lat = stof(keyMap["e_lat"]);
-        } else send_error(request);
+        } else send_error(request, "Destination latitude missing");
         if (keyMap.find("e_lon") != keyMap.end()) {
             lon = stof(keyMap["e_lon"]);
-        } else send_error(request);
+        } else send_error(request, "Destination longitude missing");
         if (keyMap.find("n_routes") != keyMap.end()) {
             num_routes = std::stoi(keyMap["n_routes"]);
         }
@@ -101,8 +102,12 @@ void RoutesDealer::handle_get(http_request request)
         response.set_body(paths.dump());
         request.reply(response);
         cout << endl;
-    } catch (...) {
-        send_error(request);
+    }
+    catch (const std::invalid_argument& e) {
+        send_error(request, e.what());
+    }
+    catch (...) {
+        send_error(request, "ERROR!");
     }
 }
 
