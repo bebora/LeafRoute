@@ -115,8 +115,8 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
             var newlast = L.latLng(that.currentLatlngs[that.currentLatlngs.length-1]);
             var duration = oldlast.distanceTo(newlast) / (that.speed / 3.6);
             L.Marker.MovingMarker.prototype.addLatLng.call(that,that.QueueLatlngs[0], duration * 1000);   
-            that.current_index = that.current_index + 1;
-        } 
+        }
+        that.current_index = that.current_index + 1; 
     },
 
     /**
@@ -170,8 +170,8 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
 
 
     _update_polyline: function() {
-        let newpolyline = [];
-        let full_line = (this.currentLatlngs.concat(this.QueueLatlngs));
+        let tempQueue = this.QueueLatlngs.slice(1);
+        var full_line = (this.currentLatlngs.concat(tempQueue));
         full_line = full_line.slice(this.current_index+1);
         full_line.unshift(L.Marker.prototype.getLatLng.call(this));
         if (Array.isArray(this.polyline)){
