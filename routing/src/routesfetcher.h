@@ -23,13 +23,6 @@
 #include "utils.hpp"
 #include <filesystem>
 
-class Coordinate {
-    public:
-        float lat;
-        float lon;
-        Coordinate (float lat, float lon) : lat(lat), lon(lon) {}
-        json11::Json to_json() const { return json11::Json::array { lat, lon }; }
-};
 
 struct Location{
     float lon;
@@ -116,19 +109,22 @@ json11::Json get_location_path(arlib::Path<Graph> const &path, Vertex s, Vertex 
             index = get(vertex_index, g);
     auto v_it = s;
     auto v_end = t;
-    vector<Coordinate> location_path;
-    auto l = Coordinate( g[index[v_it]].lat, g[index[v_it]].lon );
-    location_path.push_back(l);
+    // Each array is a coordinate in the lat,lng format
+    vector<Json::array> json_arr;
+    auto start_path = chrono::steady_clock::now();
+    auto l = Json::array {g[index[v_it]].lat, g[index[v_it]].lon};
+    json_arr.push_back(l);
     //cout << v_it;
     while (v_it != v_end) {
         auto[curr_edge, final_edge] = out_edges(v_it, path);
         v_it = target(*curr_edge, path);
         //cout << " to " << v_it;
-        l = Coordinate(g[index[v_it]].lat, g[index[v_it]].lon);
-        location_path.push_back(l);
+        json_arr.push_back(Json::array {g[index[v_it]].lat, g[index[v_it]].lon});
     }
     //cout << endl << endl;
-    return location_path;
+    auto end_path = chrono::steady_clock::now();
+    logElapsedMillis("Got single path in", start_path, end_path);
+    return json_arr;
 }
 
 template<typename Graph, typename Vertex>
@@ -158,6 +154,7 @@ json11::Json get_alternative_routes(Graph const &g, Vertex s,
     logElapsedMillis("Applied penalty", start, end);
     start = chrono::steady_clock::now();
     auto paths = to_paths(g, predecessors, weight, s, t);
+    end = chrono::steady_clock::now();
     logElapsedMillis("Generated paths arlib", start, end);
     for (auto const &path : paths) {
         auto location_path = get_location_path(path, s, t, g);

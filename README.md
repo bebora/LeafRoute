@@ -21,10 +21,11 @@ The default zones in the simulation page are from [Comune di Milano](https://geo
 The backend can be run in three ways: 
 - Compiled and run directly from source
 - Built and run with Docker
-- Compiled into a zip file that can be uploaded to AWS Lambda
+- Compiled into a zip file that can be uploaded to AWS Lambda 
+ 
 The instructions can be found in routing/README.md
 
-The Docker version can also be downloaded from [Docker Hub](https://cloud.docker.com/repository/docker/bebora/leafroute).  
+The Docker version can also be downloaded from [Docker Hub](https://hub.docker.com/r/bebora/leafroute).  
 Libraries used for the backend:
 - [ARLib](https://github.com/leonardoarcari/arlib)
 - [aws-lambda-cpp](https://github.com/awslabs/aws-lambda-cpp)
