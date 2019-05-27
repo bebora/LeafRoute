@@ -59,12 +59,12 @@ make aws-lambda-package-lambda
 ```
 `weights` and `ids` **must be manually added** to the root of the generated zip file or the executable will load an empty map.  
 # Testing
-Run cmake-build-debug/main or the Docker image and test with curl:
+Run build/main or the Docker image and test with curl:
 ```
 curl http://localhost:1337/getroutes?&s_lat=45.4667971&s_lon=9.1904984&e_lat=45.4783918&e_lon=9.224554764332705&reroute=false
  ```
 # Status
-- [x] cmake-build-debug method working  
+- [x] standard build method working  
 - [x] docker standard method working  
 - [x] lambda method working
 

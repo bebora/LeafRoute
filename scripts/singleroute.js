@@ -63,6 +63,13 @@ $('#address-src').typeahead(null, {
     displayKey: 'description'
 });
 
+var endpoint = 'http://localhost:1337/getroutes';
+$('#endpoint').val(endpoint);
+var updateEndpoint = function() {
+    endpoint = $('#endpoint').val();
+    console.log('Endpoint set to '+endpoint);
+}
+
 var engine1 = new PhotonAddressEngine({'lang': 'it'});
 engine1.bindDefaultTypeaheadEvent($('#address-dest'));
 $(engine1).bind('addresspicker:selected', setDestination);
@@ -101,8 +108,9 @@ var onSelectRoute = function(e){
         markers,
         true,
         50,
-        300,
-        polyline);
+        8000,
+        polyline,
+        endpoint);
     markers.push(marker);
     marker.addTo(map);
 }
@@ -164,6 +172,6 @@ $('#search').click(function(e){
             }
         }).fail(function(response) {
             alert(response.responseText);
-            console.log("Request Failed: " + response.responseText + ", " + response.status);
+            console.log('Request Failed: ' + response.responseText + ', ' + response.status);
         });
 })

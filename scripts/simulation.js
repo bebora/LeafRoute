@@ -79,7 +79,7 @@ var startSimulation = async function() {
     if (isNaN(timer)) timer = 10000;
     var routePoints = generateRoutePoints();
     for (i = 0; i < routePoints.length; i++) {
-        let marker = new L.Marker.MovingMarker.ARLibMarker(routePoints[i][0], routePoints[i][1], markers, false, speed, timer);
+        let marker = new L.Marker.MovingMarker.ARLibMarker(routePoints[i][0], routePoints[i][1], markers, false, speed, timer, null, endpoint);
         markers.push(marker);
     }
     for (i = 0; i < markers.length; i++) {

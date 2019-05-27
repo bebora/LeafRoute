@@ -43,4 +43,3 @@ Backend must be running at the endpoint in the settings (default: localhost).
 - Join some custom css files
 - Dynamically create sliders with any GeoJSON containing zones
 - Add function to redraw slider background after any value change
-- Improve memory footprint. After every request the total memory used by the executable grows. This affects both Docker Alpine builds and regular builds (tested on Manjaro)
