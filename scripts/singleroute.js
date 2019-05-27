@@ -70,14 +70,7 @@ $('#address-dest').typeahead(null, {
     source: engine1.ttAdapter(),
     displayKey: 'description'
 });
-
-var endpoint = 'http://localhost:1337/getroutes';
-$('#endpoint').val(endpoint);
-var updateEndpoint = function() {
-    endpoint = $('#endpoint').val();
-    console.log('Endpoint set to '+endpoint);
-}
-
+var endpoint = 'http://localhost:1337/getroutes?';
 var possibleRoutes = [];
 var possibleRoutesPolyline = [];
 var selectedRoute = null;
@@ -108,9 +101,8 @@ var onSelectRoute = function(e){
         markers,
         true,
         50,
-        8000,
-        polyline,
-        endpoint);
+        300,
+        polyline);
     markers.push(marker);
     marker.addTo(map);
 }
@@ -172,6 +164,6 @@ $('#search').click(function(e){
             }
         }).fail(function(response) {
             alert(response.responseText);
-            console.log('Request Failed: ' + response.textStatus + ', ' + response.status);
+            console.log("Request Failed: " + response.responseText + ", " + response.status);
         });
 })

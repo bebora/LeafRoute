@@ -34,7 +34,7 @@ class RoutesDealer
 {
 public:
     RoutesDealer() {}
-    RoutesDealer(utility::string_t url, Graph g);
+    RoutesDealer(utility::string_t url, Graph &g);
 
     pplx::task<void> open() { return m_listener.open(); }
     pplx::task<void> close() { return m_listener.close(); }
@@ -46,7 +46,7 @@ private:
 };
 
 
-RoutesDealer::RoutesDealer(utility::string_t url, Graph g) : m_listener(url)
+RoutesDealer::RoutesDealer(utility::string_t url, Graph &g) : m_listener(url)
 {
 
     m_listener.support(methods::GET, std::bind(&RoutesDealer::handle_get, this, std::placeholders::_1));

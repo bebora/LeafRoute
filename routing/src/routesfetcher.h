@@ -83,7 +83,7 @@ void location_graph_from_string(std::string weight_file, std::string location_fi
 
 template<typename Graph, typename Vertex>
 void get_vertex(float lat1, float long1,
-                  Graph g, Vertex &v) {
+                  Graph &g, Vertex &v) {
     auto vs = boost::vertices(g);
     float min = FLT_MAX;
     for (auto vit = vs.first; vit != vs.second; vit++) {
@@ -97,11 +97,12 @@ void get_vertex(float lat1, float long1,
             min = curr;
         }
     }
+
 }
 
 template<typename Graph, typename Vertex>
-json11::Json get_location_path(arlib::Path<Graph> const &path, Vertex s, Vertex t,
-                                   Graph const g) {
+json11::Json get_location_path(arlib::Path<Graph> const &path, Vertex &s, Vertex &t,
+                                   Graph const &g) {
     using namespace json11;
     using namespace boost;
     using namespace std;
@@ -128,8 +129,8 @@ json11::Json get_location_path(arlib::Path<Graph> const &path, Vertex s, Vertex 
 }
 
 template<typename Graph, typename Vertex>
-json11::Json get_alternative_routes(Graph const &g, Vertex s,
-                                                Vertex t, int k, float theta, bool reroute,
+json11::Json get_alternative_routes(Graph const &g, Vertex &s,
+                                                Vertex &t, int k, float theta, bool reroute,
                                                 int max_nb_updates = 10, int max_nb_steps = 100000) {
     using namespace std;
     using namespace boost;
