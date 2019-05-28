@@ -48,7 +48,6 @@ private:
 
 RoutesDealer::RoutesDealer(utility::string_t url, Graph &g) : m_listener(url)
 {
-
     m_listener.support(methods::GET, std::bind(&RoutesDealer::handle_get, this, std::placeholders::_1));
     this->g = g;
 }
@@ -88,7 +87,7 @@ void RoutesDealer::handle_get(http_request request)
         if (keyMap.find("n_routes") != keyMap.end()) {
             num_routes = std::stoi(keyMap["n_routes"]);
         }
-        else num_routes = 2;
+        else num_routes = 1;
         Vertex end;
         get_vertex(lat, lon, g, end);
         auto end_get_vertices = chrono::steady_clock::now();

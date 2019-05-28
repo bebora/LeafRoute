@@ -84,20 +84,18 @@ void location_graph_from_string(std::string weight_file, std::string location_fi
 template<typename Graph, typename Vertex>
 void get_vertex(float lat1, float long1,
                   Graph &g, Vertex &v) {
-    auto vs = boost::vertices(g);
     float min = FLT_MAX;
-    for (auto vit = vs.first; vit != vs.second; vit++) {
-        float curr = distance(lat1, long1, g[*vit].lat, g[*vit].lon);
+    for (auto [v_it, v_end] = vertices(g); v_it != v_end; ++v_it) {
+        float curr = distance(lat1, long1, g[*v_it].lat, g[*v_it].lon);
         if (curr == 0) {
-            v = *vit;
+            v = *v_it;
             break;
         }
         else if (curr < min) {
-            v = *vit;
+            v = *v_it;
             min = curr;
         }
     }
-
 }
 
 template<typename Graph, typename Vertex>

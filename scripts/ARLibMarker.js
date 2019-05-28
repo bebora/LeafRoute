@@ -3,9 +3,12 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
      * Construct an ARLibMarker, a wrapper of a MovingMarker, given the waypoints and set it ready when it's ready to be added to the LeafLet map
      * @param {Array} startPoint array with latitude and longitude of the starting point
      * @param {*} destination array with the latitude and longitude of destination point
-     * @param {*} option optional parameters defining the speed, the timing of rerouting and the endpoint used as a routing machine
-     */
-    initialize: function (startPoint, destination, markers, rerouting = true, speed =100, timer = 1000, polyline = null, endpoint = 'http://localhost:1337/getroutes') {
+     * @param {boolean} rerouting whether fetch better routes periodically (milliseconds defined by timer
+     * @param {int} speed average km/s used run across the route
+     * @param {L.polyline} polyline line to update when marker is moving
+     * @param {string} endpoint url of the routing machine
+	*/
+    initialize: function (startPoint, destination, rerouting = true, speed =100, timer = 1000, polyline = null, endpoint = 'http://localhost:1337/getroutes') {
         this.polyline = polyline;
         this.markers = markers;
         this.icon = L.icon({iconUrl: 'icons/circlemarker.svg', iconSize: [21, 21]});
@@ -13,12 +16,9 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
         this.timer = timer;
         this.rerouting = rerouting;
         this.endpoint = endpoint;
-        this.reroute = false;
         this.current_index = 1;
         this.ready = false;
         this.failed = true;
-        var that = this;
-        this.marker;
         if (!Array.isArray(startPoint[0])){
             $.getJSON( this.endpoint,
                 {
@@ -26,7 +26,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
                     s_lon: startPoint[1],
                     e_lat: destination[0],
                     e_lon: destination[1],
-                    reroute: this.reroute,
+                    reroute: this.rerouting,
                     n_routes: 1
                 })
             .done(function( json ) {
@@ -58,7 +58,6 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
             that.currentLatlngs = latlngs.slice(0,4);
             that.tempQueueLatlngs = that.QueueLatlngs;
             that.current_index = 0;
-            that.reroute = true;
             for (var j=0; j < 3; j++) {
                 var length = L.latLng(that.currentLatlngs[j]).distanceTo(L.latLng(that.currentLatlngs[j+1]));
                 var time_seconds = (length / (that.speed / 3.6));
@@ -74,19 +73,17 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
         }
         else {
             that.rerouting = false;
-            that.reroute = false;
         }
     },
 
     /**
      * Util function for rerouting machine, fetching the endpoint for different paths from original
-     * @param {} that original scope
      */
     _fetchroute: function() { 
         console.log("fetching");
         var that = this;
         var current_index = that.current_index;
-        if (that.reroute && that.rerouting && that.QueueLatlngs.length > 1 && that.currentLatlngs.length > current_index + 2) {
+        if (that.rerouting && that.QueueLatlngs.length > 1 && that.currentLatlngs.length > current_index + 2) {
             var startPoint = that.currentLatlngs[that.current_index + 2];
             $.getJSON( that.endpoint,
                 {
@@ -168,7 +165,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
     },
     /**
      * Add the marker in the map, autostarting the route
-     * @param {L.map} map map used to visualize the MovingMarker
+     * @param {L.map} map used to visualize the MovingMarker
      */
     addTo: function(map) {
         var that = this;

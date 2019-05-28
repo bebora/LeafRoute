@@ -75,7 +75,7 @@ invocation_response my_handler(invocation_request const& request) {
         num_routes = stoi(num_routes_str);
     }
     catch (invalid_argument &) {
-        num_routes = 2;
+        num_routes = 1;
     }
     Vertex start;
     auto start_get_vertices = chrono::steady_clock::now();
