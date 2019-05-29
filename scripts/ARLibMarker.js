@@ -10,7 +10,6 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
 	*/
     initialize: function (startPoint, destination, rerouting = true, speed =100, timer = 1000, polyline = null, endpoint = 'http://localhost:1337/getroutes') {
         this.polyline = polyline;
-        this.markers = markers;
         this.icon = L.icon({iconUrl: 'icons/circlemarker.svg', iconSize: [21, 21]});
         this.speed = speed;
         this.timer = timer;
@@ -19,6 +18,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
         this.current_index = 1;
         this.ready = false;
         this.failed = true;
+        var that = this;
         if (!Array.isArray(startPoint[0])){
             $.getJSON( this.endpoint,
                 {

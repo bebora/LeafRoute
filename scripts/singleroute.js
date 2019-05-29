@@ -105,7 +105,6 @@ var onSelectRoute = function(e){
     let marker = new L.Marker.MovingMarker.ARLibMarker(
         selectedRoute,
         selectedRoute[selectedRoute-1],
-        markers,
         true,
         50,
         8000,
