@@ -111,14 +111,15 @@ json11::Json get_location_path(arlib::Path<Graph> const &path, Vertex &s, Vertex
     // Each array is a coordinate in the lat,lng format
     vector<Json::array> json_arr;
     auto start_path = chrono::steady_clock::now();
-    auto l = Json::array {g[index[v_it]].lat, g[index[v_it]].lon};
+    auto l = Json::array {g[index[v_it]].lat, g[index[v_it]].lon,0};
     json_arr.push_back(l);
     //cout << v_it;
     while (v_it != v_end) {
         auto[curr_edge, final_edge] = out_edges(v_it, path);
         v_it = target(*curr_edge, path);
+        auto weight = get(boost::edge_weight_t(), g, *curr_edge);
         //cout << " to " << v_it;
-        json_arr.push_back(Json::array {g[index[v_it]].lat, g[index[v_it]].lon});
+        json_arr.push_back(Json::array {g[index[v_it]].lat, g[index[v_it]].lon, weight});
     }
     //cout << endl << endl;
     auto end_path = chrono::steady_clock::now();
