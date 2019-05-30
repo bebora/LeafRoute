@@ -8,7 +8,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
      * @param {L.polyline} polyline line to update when marker is moving
      * @param {string} endpoint url of the routing machine
 	*/
-    initialize: function (startPoint, destination, rerouting = true, speed =100, timer = 1000, polyline = null, endpoint = 'http://localhost:1337/getroutes') {
+    initialize: function (startPoint, destination, rerouting = true, speed = 1, timer = 1000, polyline = null, endpoint = 'http://localhost:1337/getroutes') {
         this.polyline = polyline;
         this.icon = L.icon({iconUrl: 'icons/circlemarker.svg', iconSize: [21, 21]});
         this.speed = speed;
@@ -59,15 +59,11 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
             that.tempQueueLatlngs = that.QueueLatlngs;
             that.current_index = 0;
             for (var j=0; j < 3; j++) {
-                var length = L.latLng(that.currentLatlngs[j]).distanceTo(L.latLng(that.currentLatlngs[j+1]));
-                var time_seconds = (length / (that.speed / 3.6));
-                L.Marker.MovingMarker.prototype.addLatLng.call(that, that.currentLatlngs[j+1], time_seconds*1000);
+                L.Marker.MovingMarker.prototype.addLatLng.call(that, that.currentLatlngs[j+1], that.currentLatlngs[j+1][2]*1000 / that.speed);
             }            
         } else if (latlngs.length >= 2) {
             for (var j=0; j < latlngs.length; j++) {
-                var length = L.latLng(latlngs[j]).distanceTo(L.latLng(latlngs[j+1]));
-                var time_seconds = (length / (that.speed / 3.6));
-                L.Marker.MovingMarker.prototype.addLatLng.call(that, latlngs[j+1], time_seconds*1000);
+                L.Marker.MovingMarker.prototype.addLatLng.call(that, latlngs[j+1], latlngs[j+1][2]*1000 / that.speed);
             }
             that.rerouting = false;
         }
@@ -125,8 +121,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
             that.currentLatlngs.push(that.QueueLatlngs[0]);
             var oldlast = L.latLng(that.currentLatlngs[that.currentLatlngs.length-2]);
             var newlast = L.latLng(that.currentLatlngs[that.currentLatlngs.length-1]);
-            var duration = oldlast.distanceTo(newlast) / (that.speed / 3.6);
-            L.Marker.MovingMarker.prototype.addLatLng.call(that,that.QueueLatlngs[0], duration * 1000);   
+            L.Marker.MovingMarker.prototype.addLatLng.call(that,that.QueueLatlngs[0], that.QueueLatlngs[0][2]*1000 / that.speed);   
         }
         that.current_index = that.current_index + 1; 
     },

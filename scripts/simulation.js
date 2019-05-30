@@ -75,7 +75,7 @@ var startSimulation = async function() {
     var speed = parseFloat($('#speed').val());
     var timer = parseFloat($('#timer').val());
     //speed or timer may be ""
-    if (isNaN(speed)) speed = 50;
+    if (isNaN(speed)) speed = 1;
     if (isNaN(timer)) timer = 10000;
     var routePoints = generateRoutePoints();
     for (i = 0; i < routePoints.length; i++) {
