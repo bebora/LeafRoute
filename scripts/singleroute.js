@@ -41,8 +41,8 @@ function setSource(event, selected) {
         lng = selected[1];
     }
     else {
-        lat = selected.geometry.coordinates[1],
-        lng = selected.geometry.coordinates[0]
+        lat = selected.geometry.coordinates[1];
+        lng = selected.geometry.coordinates[0];
     }
     sourceMarker = L.marker([
         lat,
@@ -62,8 +62,8 @@ function setDestination(event, selected) {
         lng = selected[1];
     }
     else {
-        lat = selected.geometry.coordinates[1],
-        lng = selected.geometry.coordinates[0]
+        lat = selected.geometry.coordinates[1];
+        lng = selected.geometry.coordinates[0];
     }
     destinationMarker = L.marker([
         lat,
@@ -113,12 +113,12 @@ map.on('click', function(e){
             if (clickPosition == 1) {
                 clickPosition = 0;
                 $('#address-dest').val(json.display_name);
-                setDestination(null, [parseFloat(json.lat), parseFloat(json.lon)])
+                setDestination(null, [e.latlng.lat, e.latlng.lng])
             }
             else if (clickPosition == 0) {
                 clickPosition = 1;
                 $('#address-src').val(json.display_name);
-                setSource(null, [parseFloat(json.lat), parseFloat(json.lon)])
+                setSource(null, [e.latlng.lat, e.latlng.lng])
             }
     });
 });
