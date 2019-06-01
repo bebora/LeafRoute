@@ -8,8 +8,6 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
 var sidebar = L.control.sidebar({ container: 'sidebar' })
 .addTo(map)
 .open('home');
-
-
 var routeColors = [
     {'innerColor': '#0090ff', 'outerColor': '#0050b9'},
     {'innerColor': '#999', 'outerColor': '#444'}
@@ -36,22 +34,42 @@ function setSource(event, selected) {
     if (sourceMarker != null)
         map.removeLayer(sourceMarker);
     sourceMarker = null;
+    let lat;
+    let lng;
+    if (Array.isArray(selected)) {
+        lat = selected[0];
+        lng = selected[1];
+    }
+    else {
+        lat = selected.geometry.coordinates[1],
+        lng = selected.geometry.coordinates[0]
+    }
     sourceMarker = L.marker([
-        selected.geometry.coordinates[1],
-        selected.geometry.coordinates[0]
+        lat,
+        lng
     ]).addTo(map);
-    sourcePlace = selected;
+    sourcePlace = [lat, lng];
 }
 function setDestination(event, selected) {
     $('#start').css('display', 'none');
     if (destinationMarker != null)
         map.removeLayer(destinationMarker);
     destinationMarker = null;
+    let lat;
+    let lng;
+    if (Array.isArray(selected)) {
+        lat = selected[0];
+        lng = selected[1];
+    }
+    else {
+        lat = selected.geometry.coordinates[1],
+        lng = selected.geometry.coordinates[0]
+    }
     destinationMarker = L.marker([
-        selected.geometry.coordinates[1],
-        selected.geometry.coordinates[0]
+        lat,
+        lng
     ]).addTo(map);
-    destinationPlace = selected;
+    destinationPlace = [lat, lng];
 }
 
 
@@ -82,8 +100,32 @@ var possibleRoutes = [];
 var possibleRoutesPolyline = [];
 var selectedRoute = null;
 var selectedRoutePolyline = null;
+var clickPosition = 0;
+
+map.on('click', function(e){
+    $.getJSON('https://nominatim.openstreetmap.org/reverse?', {
+        lat : e.latlng.lat,
+        lon : e.latlng.lng,
+        format : 'json'} )
+        .done(function( json ) {
+            console.log(json);
+            var addressSrc= $('#address-src').val();
+            if (clickPosition == 1) {
+                clickPosition = 0;
+                $('#address-dest').val(json.display_name);
+                setDestination(null, [parseFloat(json.lat), parseFloat(json.lon)])
+            }
+            else if (clickPosition == 0) {
+                clickPosition = 1;
+                $('#address-src').val(json.display_name);
+                setSource(null, [parseFloat(json.lat), parseFloat(json.lon)])
+            }
+    });
+});
+
 
 var onSelectRoute = function(e){
+    L.DomEvent.stopPropagation(e);
     selectedId = this.options.groupId;
     //Remove options polylines and redraw selected
     for (i in possibleRoutesPolyline) {
@@ -140,10 +182,10 @@ $('#search').click(function(e){
     $('#start').css('display', 'inline-block');
     
     $.getJSON( endpoint, {
-        s_lat: sourcePlace.geometry.coordinates[1],
-        s_lon: sourcePlace.geometry.coordinates[0],
-        e_lat: destinationPlace.geometry.coordinates[1],
-        e_lon: destinationPlace.geometry.coordinates[0],
+        s_lat: sourcePlace[0],
+        s_lon: sourcePlace[1],
+        e_lat: destinationPlace[0],
+        e_lon: destinationPlace[1],
         n_routes: 3,
         reroute: false} )
         .done(function( json ) {
