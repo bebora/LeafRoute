@@ -131,6 +131,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
      */
     _stop: function() {
         console.log("stopping...");
+        L.Marker.MovingMarker.prototype.stop.call(this);
         var that = this;
         if (that.map != null) 
             that.map.removeLayer(that);

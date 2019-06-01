@@ -65,9 +65,14 @@ function waitForReady(marker) {
   });
 }
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 
 var startSimulation = async function() {
-    markers.forEach(function(marker) {
+    markers.forEach(async function(marker) {
+        await waitForReady(marker);
         marker._stop();
     });
     markers = [];
@@ -76,18 +81,25 @@ var startSimulation = async function() {
     var timer = parseFloat($('#timer').val());
     //speed or timer may be ""
     if (isNaN(speed)) speed = 1;
-    if (isNaN(timer)) timer = 10000;
+    if (isNaN(timer)) timer = 5000;
     var routePoints = generateRoutePoints();
     for (i = 0; i < routePoints.length; i++) {
-        let marker = new L.Marker.MovingMarker.ARLibMarker(routePoints[i][0], routePoints[i][1], false, speed, timer, null, endpoint);
+        let marker = new L.Marker.MovingMarker.ARLibMarker(routePoints[i][0], routePoints[i][1], true, speed, timer, null, endpoint);
+        if (timer != 0) {
+            let random = Math.random()*200
+            await sleep(random)
+            marker.addTo(map)
+        }
         markers.push(marker);
     }
-    for (i = 0; i < markers.length; i++) {
-        await waitForReady(markers[i]);
+    if (timer == 0){
+        for (i = 0; i < markers.length; i++) {
+            await waitForReady(markers[i]);
+        }
+        markers.forEach(function(marker) {
+            marker.addTo(map);
+        });
     }
-    markers.forEach(function(marker) {
-        marker.addTo(map);
-    });
 }
 
 $('#start-sim').click(startSimulation);
