@@ -77,7 +77,7 @@ $('#address-dest').typeahead(null, {
     source: engine1.ttAdapter(),
     displayKey: 'description'
 });
-var endpoint = 'http://localhost:1337/getroutes?';
+
 var possibleRoutes = [];
 var possibleRoutesPolyline = [];
 var selectedRoute = null;
@@ -103,10 +103,10 @@ var onSelectRoute = function(e){
     possibleRoutes = [];
     possibleRoutesPolyline = [];
     let marker = new L.Marker.MovingMarker.ARLibMarker(
-        selectedRoute,
+        this.options.originalResponse,
         selectedRoute[selectedRoute-1],
         true,
-        50,
+        1,
         8000,
         polyline,
         endpoint);

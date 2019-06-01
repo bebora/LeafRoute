@@ -9,17 +9,20 @@ var strokePolyline = function(latlngs, options={}) {
     }
     options = {...defaultOptions, ...options};
     ret = new L.featureGroup();
+    originalResponse = latlngs;
     ret.addLayer(new L.Polyline(latlngs,
         {
             weight: options.outerWeight,
             color: options.outerColor,
-            groupId: options.groupId
+            groupId: options.groupId,
+            originalResponse: originalResponse
         }).on('click', options.onClick));
     ret.addLayer(new L.Polyline(latlngs,
         {
             weight: options.innerWeight,
             color: options.innerColor,
-            groupId: options.groupId
+            groupId: options.groupId,
+            originalResponse: originalResponse
         }).on('click', options.onClick));
     return ret;
 }
