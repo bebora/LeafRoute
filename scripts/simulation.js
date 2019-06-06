@@ -37,15 +37,15 @@ var updateEndpoint = function() {
 var generateRoutePoints = function() {
     var totalMarkers = $('#totalmarkers').val();
     var routePoints = [];
-    var relatedPercentage = [];
-    var uniformPercentage = [];
+    var relatedSrcPercentage = [];
+    var relatedDestPercentage = [];
     //Create percentage using sliders for startpoints and uniform percentage for endpoints
     for (var i = 1; i <= zones.getLayers().length; i++) {
-        relatedPercentage.push($('#opt'+i).val() / 10.0);
-        uniformPercentage.push(100.0/zones.getLayers().length);
+        relatedSrcPercentage.push($('#opt-src'+i).val() / 10.0);
+        relatedDestPercentage.push($('#opt-dest'+i).val() / 10.0);
     }    
-    let startPoints = generateNPointsinLeafletLayer(totalMarkers, relatedPercentage);
-    let endPoints = generateNPointsinLeafletLayer(totalMarkers, uniformPercentage);
+    let startPoints = generateNPointsinLeafletLayer(totalMarkers, relatedSrcPercentage);
+    let endPoints = generateNPointsinLeafletLayer(totalMarkers, relatedDestPercentage);
     for (var j = 0; j < endPoints.length; j++) {
         routePoints.push([startPoints[j],endPoints[j]]);
     }
