@@ -140,16 +140,18 @@
                     </div>
                 </div>
                 <div class="mt-3">
-                    <label class="row" for="selectedGeoJson" style="font-size: 14pt; margin-top: 3;">GeoJson to use</label>
-                    <select class="selectpicker row" id="selectedGeoJson">
-                        <option>Milan 9 zones</option>
-                        <option>Milan NIL</option>
-                        <option>Custom</option>
+                    <label class="row" for="selectedGeoJson" style="font-size: 14pt;">GeoJson to use</label>
+                    <select class="custom-select row" id="selectedGeoJson">
+                        <option value="0">Milan 9 zones</option>
+                        <option value="1">Milan NIL</option>
+                        <option value="2" l>Custom</option>
                     </select>
                     <div class="custom-file row mt-1">
-                        <input type="file" class="custom-file-input" id="geojsonfile">
+                        <input type="file" class="custom-file-input" id="geojsonfile" accept=".json,.geojson">
                         <label class="custom-file-label" for="geojsonfile">GeoJson custom file</label>
                     </div>
+                    <br>
+                    <button type="button" class="btn btn-primary row mt-1" onclick="updateGeoJSON()">Apply</button>
                 </div>
             </div>
 

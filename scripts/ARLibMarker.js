@@ -18,7 +18,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
         this.current_index = 1;
         this.ready = false;
         this.failed = true;
-        var that = this;
+        let that = this;
         if (!Array.isArray(startPoint[0])){
             $.getJSON( this.endpoint,
                 {
@@ -34,7 +34,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
                 that.ready = true;
                 that.failed = false;
         }).fail(function(textStatus, error) {
-                console.log("Request Failed: " + textStatus + ", " + error);
+                console.log('Request Failed: ' + textStatus + ', ' + error);
                 that.failed = true;
                 that.ready = true;
             });
@@ -76,9 +76,9 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
      * Util function for rerouting machine, fetching the endpoint for different paths from original
      */
     _fetchroute: function() { 
-        console.log("fetching");
-        var that = this;
-        var current_index = that.current_index;
+        //console.log('fetching');
+        let that = this;
+        let current_index = that.current_index;
         if (that.rerouting && that.QueueLatlngs.length > 1 && that.currentLatlngs.length > current_index + 2) {
             var startPoint = that.currentLatlngs[that.current_index + 2];
             $.getJSON( that.endpoint,
@@ -94,17 +94,17 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
                 that.fetching = true;
                 if (json != null && Array.isArray(json) && json.length && that.current_index == current_index) {
                     that.tempQueueLatlngs = json[0].slice(1);
-                    console.log("rerouting!");
+                    //console.log('rerouting!');
                 } else {
-                    console.log("Late response -> no rerouting!");
+                    //console.log('Late response -> no rerouting!');
                 }
                 that.fetching = false;
         }).fail(function(textStatus, error) {
-                console.log("Request Failed: " + textStatus + ", " + error);
+                console.log('Request Failed: ' + textStatus + ', ' + error);
             });
         }
         else {
-            console.log("No rerouting!");
+            //console.log('No rerouting!');
         }
     },
 
@@ -112,16 +112,17 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
      * Update at checkpoint the MovingMarker with new coordinates to assure a non-blocking movement
      */
     _update: function() {
-        console.log("updating...");
-        var that = this;
-        console.log(that.current_index);
+        //console.log('updating...');
+        let that = this;
+        //console.log(that.current_index);
         if (that.QueueLatlngs.length > 1) {
             that.QueueLatlngs = that.tempQueueLatlngs.slice(1);
             that.tempQueueLatlngs = that.QueueLatlngs;
             that.currentLatlngs.push(that.QueueLatlngs[0]);
-            var oldlast = L.latLng(that.currentLatlngs[that.currentLatlngs.length-2]);
-            var newlast = L.latLng(that.currentLatlngs[that.currentLatlngs.length-1]);
-            L.Marker.MovingMarker.prototype.addLatLng.call(that,that.QueueLatlngs[0], that.QueueLatlngs[0][2]*1000 / that.speed);   
+            //TODO following two statements are useless, remove if unnecessary
+            //let oldlast = L.latLng(that.currentLatlngs[that.currentLatlngs.length-2]);
+            //let newlast = L.latLng(that.currentLatlngs[that.currentLatlngs.length-1]);
+            L.Marker.MovingMarker.prototype.addLatLng.call(that, that.QueueLatlngs[0], that.QueueLatlngs[0][2]*1000 / that.speed);
         }
         that.current_index = that.current_index + 1; 
     },
@@ -130,9 +131,9 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
      * Remove the marker from the map and stop fetching routes.
      */
     _stop: function() {
-        console.log("stopping...");
+        //console.log('stopping...');
         L.Marker.MovingMarker.prototype.stop.call(this);
-        var that = this;
+        let that = this;
         if (that.map != null) 
             that.map.removeLayer(that);
         if (that.interval != null) 
@@ -152,7 +153,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
      * Restart the marker after resume
      */
     resume: function() {
-        var that = this;
+        let that = this;
         L.Marker.MovingMarker.prototype.resume.call(this);
         if (!that.interval)
             that.interval = that.interval = window.setInterval(function() {
@@ -164,7 +165,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
      * @param {L.map} map used to visualize the MovingMarker
      */
     addTo: function(map) {
-        var that = this;
+        let that = this;
         if (!this.ready) {
             setTimeout(function(){that.addTo(map)},100);
         } else {
@@ -179,7 +180,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
 
     _update_polyline: function() {
         let tempQueue = this.QueueLatlngs.slice(1);
-        var full_line = (this.currentLatlngs.concat(tempQueue));
+        let full_line = (this.currentLatlngs.concat(tempQueue));
         full_line = full_line.slice(this.current_index+1);
         full_line.unshift(L.Marker.prototype.getLatLng.call(this));
         if (Array.isArray(this.polyline)){
@@ -195,7 +196,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
      * Set up events triggered function and start the marker
      */
     _startRoute: function() {
-        var that = this;
+        let that = this;
         if (this.polyline != null) {
             that.on('move', function() {
                 that._update_polyline();

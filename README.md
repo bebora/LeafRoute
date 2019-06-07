@@ -15,7 +15,7 @@ Other scripts and libraries used:
 - [Turf.js](https://turfjs.org/)
 - Sliders with constant sum inspired from [constant-sum-sliders](https://github.com/jacobsolomon15/constant-sum-sliders).  
 
-The GeoJsons in the simulation page are from Comune di Milano [zones](https://geoportale.comune.milano.it/ATOM/SIT/Municipi/Municipi_Dataset_1.xml), [NILs](https://geoportale.comune.milano.it/ATOM/SIT/NIL/NIL_Service.xml).
+The GeoJsons in the simulation page are from Comune di Milano ([zones](https://geoportale.comune.milano.it/ATOM/SIT/Municipi/Municipi_Dataset_1.xml), [NILs](https://geoportale.comune.milano.it/ATOM/SIT/NIL/NIL_Service.xml)), converted to GeoJSON with [MyGeodata Converter](https://mygeodata.cloud/converter/).
 
 ## Backend
 The backend can be run in three ways: 
@@ -39,7 +39,5 @@ Backend must be running at the endpoint in the settings (default: localhost).
 
 
 # TODO
-- Speed up creation of geocoordinate path from Arlib::path
 - Join some custom css files
-- Dynamically create sliders with any GeoJSON containing zones
 - Add function to redraw slider background after any value change
