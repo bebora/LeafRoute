@@ -15,7 +15,7 @@ Other scripts and libraries used:
 - [Turf.js](https://turfjs.org/)
 - Sliders with constant sum inspired from [constant-sum-sliders](https://github.com/jacobsolomon15/constant-sum-sliders).  
 
-The default zones in the simulation page are from [Comune di Milano](https://geoportale.comune.milano.it/ATOM/SIT/Municipi/Municipi_Dataset_1.xml).
+The GeoJsons in the simulation page are from Comune di Milano [zones](https://geoportale.comune.milano.it/ATOM/SIT/Municipi/Municipi_Dataset_1.xml), [NILs](https://geoportale.comune.milano.it/ATOM/SIT/NIL/NIL_Service.xml).
 
 ## Backend
 The backend can be run in three ways: 

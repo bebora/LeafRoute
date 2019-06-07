@@ -50,7 +50,13 @@
                     <a href="#home" role="tab"><i class="fa fa-bars active"></i></a>
                 </li>
                 <li>
+                    <a href="#csv-mode" role="tab"><i class="fas fa-file-csv"></i></a>
+                </li>
+                <li>
                     <a href="#settings" role="tab" title="Settings"><i class="fas fa-cog"></i></a>
+                </li>
+                <li>
+                    <a href="#info" role="tab" title="Info"><i class="fas fa-info"></i></a>
                 </li>
             </ul>
 
@@ -83,9 +89,9 @@
                         <output id="totalmarkerstext">400</output>
                     </div>
                     <div class="row" style="margin-bottom: 10px">
-                        <input type="text" class="form-control" id="speed" placeholder="Speed multiplier" style="width: 30%">
+                        <input type="text" class="form-control" id="speed" placeholder="Speed multiplier" style="width: 37%">
                         <input type="text" class="form-control" id="timer" placeholder="Timer[ms]" style="width: 30%">
-                        <button type="button" id="start-sim" class="btn btn-primary" style="width: 40%">Start simulation</button>
+                        <button type="button" id="start-sim" class="btn btn-primary" style="width: 33%">Start simulation</button>
                     </div>
                     <div class="row">
                         <ul id="sliders_auto_reallocate">
@@ -106,13 +112,24 @@
                 </div>
             </div>
 
+            <div class="leaflet-sidebar-pane" id="csv-mode">
+                <h1 class="leaflet-sidebar-header">
+                    CSV Simulation
+                    <span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>
+                </h1>
+                <div class="custom-file row mt-3">
+                    <input type="file" class="custom-file-input" id="csvfile">
+                    <label class="custom-file-label" for="csvfile">Choose CSV file for simulation</label>
+                </div>
+            </div>
+
             <div class="leaflet-sidebar-pane" id="settings">
                 <h1 class="leaflet-sidebar-header">
                     LeafRoute settings
                     <span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>
                 </h1>
                 <div class="row">
-                    <label for="endpoint" style="font-size: 14pt; margin-top: .5rem;">Endpoint</label>
+                    <label for="endpoint" style="font-size: 14pt; margin-top: .5rem;">Backend endpoint</label>
                     <div style="width:90%;">
                         <input type="text" id="endpoint" class="form-control" placeholder="Endpoint" aria-label="Endpoint">
                     </div>
@@ -122,6 +139,44 @@
                         </button>
                     </div>
                 </div>
+                <div class="mt-3">
+                    <label class="row" for="selectedGeoJson" style="font-size: 14pt; margin-top: 3;">GeoJson to use</label>
+                    <select class="selectpicker row" id="selectedGeoJson">
+                        <option>Milan 9 zones</option>
+                        <option>Milan NIL</option>
+                        <option>Custom</option>
+                    </select>
+                    <div class="custom-file row mt-1">
+                        <input type="file" class="custom-file-input" id="geojsonfile">
+                        <label class="custom-file-label" for="geojsonfile">GeoJson custom file</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="leaflet-sidebar-pane" id="info">
+                <h1 class="leaflet-sidebar-header">
+                    Info
+                    <span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>
+                </h1>
+                <p class="mt-3">
+                    CSV file must be an NxN matrix, where N is the number of zones in the selected geojson.
+                    <br>
+                    Each i-th line contains the N probabilities of a marker that start from the i-th zone and goes to other zones.
+                    <br>
+                    The sum of all values should be 1.
+                    <br>
+                    Example with two zones:
+                    <br>
+                    <code>
+                    0.10,0.30
+                    <br>
+                    0.45,0.15
+                    </code>
+                    <br>
+                    10% of markers will go from zone 0 to zone 0
+                    <br>
+                    30% of markers will go from zone 0 to zone 1
+                </p>
             </div>
         </div>
     </div>
