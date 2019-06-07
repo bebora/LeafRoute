@@ -59,62 +59,65 @@ function validate(sliders, availableTotal) {
     })
     logSum(sliders, 'New sum is ')
 }
-$('.slider-auto-reallocate-input').each(function() {
-    $(this).on('input', function () {
-        $(this).trigger('change'); // A workaround to make the slider update with each move, before the cursor is released
-    })
-    var slidersGroup = this.attributes.class.nodeValue.split(" ").pop();
-    $(this).on('change', function () {
-        var $this = $(this);
-        var val = $this.val();
-        var val_pct = (val - $this.attr('min')) / ($this.attr('max') - $this.attr('min')) * 100;
-        
-        if (val_pct < 0) {
-            val_pct = 0;
-        }
-        // Adjust the css so the bar looks like it grows and shrinks
-        var st = 'linear-gradient(to right, rgb(35, 175, 0) ' + val_pct + '%, white ' + val_pct + '%)';
-        $this.css('background', st);
-        var total = slidersSum('.slider-auto-reallocate-input.'+slidersGroup);
-        
-        var availableTotal = 1000;
-        
-        var delta = availableTotal - total;
-        var slidersToFix = $('.slider-auto-reallocate-input.'+slidersGroup).not($this);
-        if (delta < 0) {
-            slidersToFix = slidersToFix.
-            filter(function () {
-                return $(this).val() > parseInt($(this).attr('min'));
-            })
-        }
+var addEventListeners = function () {
+    $('.slider-auto-reallocate-input').each(function() {
+        $(this).on('input', function () {
+            $(this).trigger('change'); // A workaround to make the slider update with each move, before the cursor is released
+        })
+        var slidersGroup = this.attributes.class.nodeValue.split(" ").pop();
+        $(this).on('change', function () {
+            var $this = $(this);
+            var val = $this.val();
+            var val_pct = (val - $this.attr('min')) / ($this.attr('max') - $this.attr('min')) * 100;
 
-        var total_sliders = slidersToFix.length;
-        var effectiveUnitChange = parseInt(delta/total_sliders);
-        var effectiveChange = effectiveUnitChange*total_sliders;
-        //How much should be distrubuted again to fix total sum issues
-        var smallFix = delta - effectiveChange;
-        slidersToFix.each(function () {
-            var value = parseInt($(this).val());
-            var new_val = value + effectiveUnitChange;
-        
-            var val_pct = (new_val - $this.attr('min')) / ($this.attr('max') - $this.attr('min')) * 100;
-           
             if (val_pct < 0) {
                 val_pct = 0;
             }
+            // Adjust the css so the bar looks like it grows and shrinks
             var st = 'linear-gradient(to right, rgb(35, 175, 0) ' + val_pct + '%, white ' + val_pct + '%)';
-            $(this).css('background', st);
+            $this.css('background', st);
+            var total = slidersSum('.slider-auto-reallocate-input.'+slidersGroup);
 
-            if (new_val < 0 || $this.val() == availableTotal) {
-                new_val = 0;
+            var availableTotal = 1000;
+
+            var delta = availableTotal - total;
+            var slidersToFix = $('.slider-auto-reallocate-input.'+slidersGroup).not($this);
+            if (delta < 0) {
+                slidersToFix = slidersToFix.
+                filter(function () {
+                    return $(this).val() > parseInt($(this).attr('min'));
+                })
             }
-            else if (new_val > availableTotal) {
-                new_val = availableTotal;
-            }
-            $(this).val(new_val);
+
+            var total_sliders = slidersToFix.length;
+            var effectiveUnitChange = parseInt(delta/total_sliders);
+            var effectiveChange = effectiveUnitChange*total_sliders;
+            //How much should be distrubuted again to fix total sum issues
+            var smallFix = delta - effectiveChange;
+            slidersToFix.each(function () {
+                var value = parseInt($(this).val());
+                var new_val = value + effectiveUnitChange;
+
+                var val_pct = (new_val - $this.attr('min')) / ($this.attr('max') - $this.attr('min')) * 100;
+
+                if (val_pct < 0) {
+                    val_pct = 0;
+                }
+                var st = 'linear-gradient(to right, rgb(35, 175, 0) ' + val_pct + '%, white ' + val_pct + '%)';
+                $(this).css('background', st);
+
+                if (new_val < 0 || $this.val() == availableTotal) {
+                    new_val = 0;
+                }
+                else if (new_val > availableTotal) {
+                    new_val = availableTotal;
+                }
+                $(this).val(new_val);
+            });
         });
     });
-});
+}
+
 
 function equalizeOptions(options) {
     var availableTotal = 1000;
@@ -131,13 +134,17 @@ function equalizeOptions(options) {
 }
 
 function equalize(group) {
-    var options = $(group).parent().find('.option-source');
-    equalizeOptions(options);
-    options = $(group).parent().find('.option-destination');
-    equalizeOptions(options);
     var availableTotal = 1000;
-    validate($('.slider-auto-reallocate-input.option-source'), availableTotal);
-    validate($('.slider-auto-reallocate-input.option-destination'), availableTotal);
+    var options = $(group).parent().find('.option-source');
+    if (options.length > 0) {
+        equalizeOptions(options);
+        validate($('.slider-auto-reallocate-input.option-source'), availableTotal);
+    }
+    options = $(group).parent().find('.option-destination');
+    if (options.length > 0) {
+        equalizeOptions(options);
+        validate($('.slider-auto-reallocate-input.option-destination'), availableTotal);
+    }
 }
 //equalize on start to prevent visual issues on refresh
 equalize($('#reset'));

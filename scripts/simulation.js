@@ -21,9 +21,35 @@ var boundingBoxMilanCoords = [
 var boundingBoxMilan = L.polyline(boundingBoxMilanCoords).addTo(map);
 var zones;
 var features;
+
+var slidersGenerator = function(features) {
+    ret = '';
+    var zonename = ''
+    var zoneindex = 0;
+    for (i in features) {
+        ret += "<li><p class=\"slider-description\">";
+        zonename = features[i].properties.name;
+        if (zonename === undefined) zonename = 'Zone '+zoneindex;
+        ret += zonename;
+        ret += '</p><input class="slider-auto-reallocate-input pretty-slider option-source" id="opt-src'+zoneindex+'" type="range" min="0" max="1000" style="background:rgba(0,0,0,0)">';
+        ret += '<input class="slider-auto-reallocate-input pretty-slider option-destination" id="opt-dest'+zoneindex+'" type="range" min="0" max="1000" style="background:rgba(0,0,0,0)">';
+        ret += '</li>';
+        zoneindex++;
+    }
+    return ret;
+}
+
 $.getJSON('https://www.leafroute.tk/zone.min.json', function(data) {
     zones = L.geoJson(data).addTo(map);
     features = data['features'];
+    $("#sliders").html(slidersGenerator(features));
+    try {
+        addEventListeners();
+        equalize($("#sliders"));
+    }
+    catch(err) {
+        console.log("autosliders.js seems to be missing")
+    }
 });
 var markers = []
 
@@ -40,7 +66,7 @@ var generateRoutePoints = function() {
     var relatedSrcPercentage = [];
     var relatedDestPercentage = [];
     //Create percentage using sliders for startpoints and uniform percentage for endpoints
-    for (var i = 1; i <= zones.getLayers().length; i++) {
+    for (var i = 0; i < zones.getLayers().length; i++) {
         relatedSrcPercentage.push($('#opt-src'+i).val() / 10.0);
         relatedDestPercentage.push($('#opt-dest'+i).val() / 10.0);
     }    
