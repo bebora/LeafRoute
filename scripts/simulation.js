@@ -53,17 +53,19 @@ function handleFiles(files, string) {
     let allTextLines = csv.split(/\r\n|\n/);
     let lines = [];
     for (var i=0; i<allTextLines.length; i++) {
-        var data = allTextLines[i].split(';');
+        var data = allTextLines[i].split(',');
+        if (data[0] != "") {
             var tarr = [];
             for (var j=0; j<data.length; j++) {
-                tarr.push(data[j]);
+                tarr.push(parseFloat(data[j]));
             }
             lines.push(tarr);
+        }
     }
     let total = 0;
     for (let i = 0; i < lines.length; i++) {
         let temp = 0;
-        if (lines[i] != lines.lenght) {
+        if (lines[i].length != lines.length) {
             alert("CSV is not a regular matrix!");
             return;
         }
@@ -73,7 +75,7 @@ function handleFiles(files, string) {
         }
         relatedSrc.push(temp);
     }
-    if (total != 100) {
+    if (Math.abs(total - 1) > 0.01) {
         alert("The sum of all values should be 1!");
         return;
     }
@@ -269,8 +271,9 @@ var randomLayer = function(distribution) {
     let point = Math.random()*(distribution[distribution.length-1]);
     for (let x in distribution) {
         if (point <= distribution[x]) 
-            return currentGeoJSONOnMap.getLayers()[x];
+            return [currentGeoJSONOnMap.getLayers()[x], x];
     }
+    
 };
 
 var generateNPointsinLeafletLayer = function(number, distribution) {
@@ -278,7 +281,7 @@ var generateNPointsinLeafletLayer = function(number, distribution) {
     let i = 0;
     //Create distribution using given percentages
     while (i < number) {
-        let layer = randomLayer(distribution);
+        let layer = randomLayer(distribution)[0];
         let point = randomPointInLeafletPolygon(layer);        
         points.push(point);
         i++;
@@ -288,18 +291,19 @@ var generateNPointsinLeafletLayer = function(number, distribution) {
 
 var normalize = function(percentage) {
     let normalized = [];
-    let total = sum(percentage);
-    for (let x = 0; x <= percentage.length; x++) {
-        normalized.push(percentage/total * 100);
+    let total = percentage.reduce((a, b) => a + b, 0);
+    for (let x = 0; x < percentage.length; x++) {
+        normalized.push(percentage[x]/total * 100);
     }
+    return normalized;
 }
 var distributionFromPercentage = function(percentage) {
     let distribution = [];
     for (let x = 1; x <= percentage.length; x++) {
-        let sum = percentage
+        let total = percentage
         .slice(0,x) 
         .reduce((a,b) => a + b);
-        distribution.push(sum);
+        distribution.push(total);
     }
     return distribution;
 }
@@ -309,18 +313,12 @@ var generateSourceDestinationPoints = function(number) {
     let i = 0;
     //Create distribution using given percentage
     var sourceDistribution = distributionFromPercentage(relatedSrc);
-    var destionationsDistribution = destionations.map(normalize(line)).map(distributionFromPercentage(line));
-    for (let x = 1; x <= percentage.length; x++) {
-        let sum = percentage
-        .slice(0,x) 
-        .reduce((a,b) => a + b);
-        distribution.push(sum);
-    }
+    var destionationsDistribution = uploadedCsv.map(normalize).map(distributionFromPercentage);
     while (i < number) {
         let layer = randomLayer(sourceDistribution);
-        let sourcePoint = randomPointInLeafletPolygon(layer);
-        let destDistribution = destionationsDistribution[layer];
-        layer = randomLayer(destDistribution);
+        let sourcePoint = randomPointInLeafletPolygon(layer[0]);
+        let destDistribution = destionationsDistribution[layer[1]];
+        layer = randomLayer(destDistribution)[0];
         let destinationPoint = randomPointInLeafletPolygon(layer);
         points.push([sourcePoint,destinationPoint]);
         i++;
