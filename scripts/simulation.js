@@ -8,7 +8,8 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
 var sidebar = L.control.sidebar({ container: 'sidebar' })
 .addTo(map)
 .open('home');
-var uploadedCsv;
+var uploadedCsv = null;
+var relatedSrc = [];
 var boundingBoxMilanCoords = [
     [45.535946, 9.040613],
     [45.535946, 9.277997],
@@ -43,6 +44,7 @@ function handleFiles(files) {
     processData(csv);
   }
 
+  
   function processCsv(csv) {
     let allTextLines = csv.split(/\r\n|\n/);
     let lines = [];
@@ -53,6 +55,23 @@ function handleFiles(files) {
                 tarr.push(data[j]);
             }
             lines.push(tarr);
+    }
+    let total = 0;
+    for (let i = 0; i < lines.length; i++) {
+        let temp = 0;
+        if (lines[i] != lines.lenght) {
+            alert("CSV is not a regular matrix!");
+            return;
+        }
+        for (let j = 0; j < lines[i].length; j++) {
+            temp += lines[i][j];
+            total += lines[i][j];
+        }
+        relatedSrc.push(temp);
+    }
+    if (total != 100) {
+        alert("The sum of all values should be 1!");
+        return;
     }
     uploadedCsv = lines;    
   }
@@ -124,6 +143,18 @@ var updateEndpoint = function() {
     console.log('Endpoint set to '+endpoint);
 };
 
+var generateCsvRoutePoints = function() {
+    if (uploadedCsv == null || uploadedCsv.length != currentGeoJSONOnMap.getLayers().length) {
+        alert("Upload a correct CSV first!");
+    }
+    else {
+        let totalMarkers = $('#totalmarkers').val();
+        let routePoints = generateSourceDestinationPoints(totalMarkers);
+        startSimulation(routePoints);        
+    }
+}
+
+
 var generateSliderRoutePoints = function() {
     let totalMarkers = $('#totalmarkers').val();
     let routePoints = [];
@@ -133,9 +164,11 @@ var generateSliderRoutePoints = function() {
     for (let i = 0; i < currentGeoJSONOnMap.getLayers().length; i++) {
         relatedSrcPercentage.push($('#opt-src'+i).val() / 10.0);
         relatedDestPercentage.push($('#opt-dest'+i).val() / 10.0);
-    }    
-    let startPoints = generateNPointsinLeafletLayer(totalMarkers, relatedSrcPercentage);
-    let endPoints = generateNPointsinLeafletLayer(totalMarkers, relatedDestPercentage);
+    }
+    let srcDistribution = distributionFromPercentage(relatedDestPercentage);
+    let destDistribution = distributionFromPercentage(relatedDestPercentage);    
+    let startPoints = generateNPointsinLeafletLayer(totalMarkers, srcDistribution);
+    let endPoints = generateNPointsinLeafletLayer(totalMarkers, destDistribution);
     for (let j = 0; j < endPoints.length; j++) {
         routePoints.push([startPoints[j],endPoints[j]]);
     }
@@ -207,8 +240,6 @@ var generatePointInsidePolygon = function(bboxArray, polygonGeoJSON){
         if (turf.booleanPointInPolygon(pointCoords, polygonGeoJSON)) {
             return pointCoords;
             //return a coordinate in [lon, lat] format
-        } else {
-            return null;
         }
     }
 };
@@ -230,10 +261,27 @@ var randomLayer = function(distribution) {
     }
 };
 
-var generateNPointsinLeafletLayer = function(number, percentage) {
+var generateNPointsinLeafletLayer = function(number, distribution) {
     let points = [];
     let i = 0;
     //Create distribution using given percentages
+    while (i < number) {
+        let layer = randomLayer(distribution);
+        let point = randomPointInLeafletPolygon(layer);        
+        points.push(point);
+        i++;
+    }
+    return points;
+};
+
+var normalize = function(percentage) {
+    let normalized = [];
+    let total = sum(percentage);
+    for (let x = 0; x <= percentage.length; x++) {
+        normalized.push(percentage/total * 100);
+    }
+}
+var distributionFromPercentage = function(percentage) {
     let distribution = [];
     for (let x = 1; x <= percentage.length; x++) {
         let sum = percentage
@@ -241,14 +289,30 @@ var generateNPointsinLeafletLayer = function(number, percentage) {
         .reduce((a,b) => a + b);
         distribution.push(sum);
     }
+    return distribution;
+}
+
+var generateSourceDestinationPoints = function(number) {
+    let points = [];
+    let i = 0;
+    //Create distribution using given percentage
+    var sourceDistribution = distributionFromPercentage(relatedSrc);
+    var destionationsDistribution = destionations.map(normalize(line)).map(distributionFromPercentage(line));
+    for (let x = 1; x <= percentage.length; x++) {
+        let sum = percentage
+        .slice(0,x) 
+        .reduce((a,b) => a + b);
+        distribution.push(sum);
+    }
     while (i < number) {
-        let layer = randomLayer(distribution);
-        let point = randomPointInLeafletPolygon(layer);
-        while (point == null) {
-            point = randomPointInLeafletPolygon(layer);
-        }
-        points.push(point);
+        let layer = randomLayer(sourceDistribution);
+        let sourcePoint = randomPointInLeafletPolygon(layer);
+        let destDistribution = destionationsDistribution[layer];
+        layer = randomLayer(destDistribution);
+        let destinationPoint = randomPointInLeafletPolygon(layer);
+        points.push([sourcePoint,destinationPoint]);
         i++;
     }
     return points;
-};
+
+}
