@@ -91,7 +91,7 @@
                     <div class="row" style="margin-bottom: 10px">
                         <input type="text" class="form-control" id="speed" placeholder="Speed multiplier" style="width: 37%">
                         <input type="text" class="form-control" id="timer" placeholder="Timer[ms]" style="width: 30%">
-                        <button type="button" id="start-sim" class="btn btn-primary" style="width: 33%">Start simulation</button>
+                        <button type="button" id="slider-sim" class="btn btn-primary" style="width: 33%">Start simulation</button>
                     </div>
                     <div class="row">
                         <ul id="sliders_auto_reallocate">
@@ -118,7 +118,8 @@
                     <span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>
                 </h1>
                 <div class="custom-file row mt-3">
-                    <input type="file" class="custom-file-input" id="csvfile">
+                    <input type="file" class="custom-file-input" id="csvFileInput" onchange="handleFiles(this.files)"
+            accept=".csv">
                     <label class="custom-file-label" for="csvfile">Choose CSV file for simulation</label>
                 </div>
             </div>

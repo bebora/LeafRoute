@@ -8,8 +8,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
 var sidebar = L.control.sidebar({ container: 'sidebar' })
 .addTo(map)
 .open('home');
-
-
+var uploadedCsv;
 var boundingBoxMilanCoords = [
     [45.535946, 9.040613],
     [45.535946, 9.277997],
@@ -20,7 +19,49 @@ var boundingBoxMilanCoords = [
 
 var boundingBoxMilan = L.polyline(boundingBoxMilanCoords).addTo(map);
 var features;
+function handleFiles(files) {
+    // Check for the various File API support.
+    if (window.FileReader) {
+        // FileReader are supported.
+        getAsText(files[0]);
+    } else {
+        alert('FileReader are not supported in this browser.');
+    }
+  }
 
+  function getAsText(fileToRead) {
+    var reader = new FileReader();
+    // Read file into memory as UTF-8      
+    reader.readAsText(fileToRead);
+    // Handle errors load
+    reader.onload = loadCsv;
+    reader.onerror = errorHandler;
+  }
+
+  function loadCsv(event) {
+    var csv = event.target.result;
+    processData(csv);
+  }
+
+  function processCsv(csv) {
+    let allTextLines = csv.split(/\r\n|\n/);
+    let lines = [];
+    for (var i=0; i<allTextLines.length; i++) {
+        var data = allTextLines[i].split(';');
+            var tarr = [];
+            for (var j=0; j<data.length; j++) {
+                tarr.push(data[j]);
+            }
+            lines.push(tarr);
+    }
+    uploadedCsv = lines;    
+  }
+
+  function errorHandler(evt) {
+    if(evt.target.error.name == "NotReadableError") {
+        alert("Canno't read file !");
+    }
+  }
 var slidersGenerator = function(features) {
     let ret = '';
     let zonename = ''
@@ -83,7 +124,7 @@ var updateEndpoint = function() {
     console.log('Endpoint set to '+endpoint);
 };
 
-var generateRoutePoints = function() {
+var generateSliderRoutePoints = function() {
     let totalMarkers = $('#totalmarkers').val();
     let routePoints = [];
     let relatedSrcPercentage = [];
@@ -100,6 +141,7 @@ var generateRoutePoints = function() {
     }
     return routePoints;
 };
+
 
 function waitForReady(marker) {
   return new Promise(resolve => {
@@ -119,7 +161,12 @@ function sleep(ms) {
 }
 
 
-var startSimulation = async function() {
+var startSliderSimulation = async function () {
+    let routePoints = generateSliderRoutePoints();
+    startSimulation(routePoints);
+}
+
+var startSimulation = async function(routePoints) {
     markers.forEach(async function(marker) {
         await waitForReady(marker);
         marker._stop();
@@ -133,7 +180,6 @@ var startSimulation = async function() {
     //speed or timer may be ""
     if (isNaN(speed)) speed = 1;
     if (isNaN(timer)) timer = 12000;
-    let routePoints = generateRoutePoints();
     for (let i = 0; i < routePoints.length; i++) {
         let marker = new L.Marker.MovingMarker.ARLibMarker(routePoints[i][0], routePoints[i][1], true, speed, timer, null, endpoint);
         if (timer !== 0) {
@@ -153,7 +199,7 @@ var startSimulation = async function() {
     }
 };
 
-$('#start-sim').click(startSimulation);
+$('#slider-sim').click(startSliderSimulation);
 
 var generatePointInsidePolygon = function(bboxArray, polygonGeoJSON){
     while (true) {
