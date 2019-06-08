@@ -41,7 +41,7 @@ function handleFiles(files) {
 
   function loadCsv(event) {
     var csv = event.target.result;
-    processData(csv);
+    processCsv(csv);
   }
 
   
@@ -233,6 +233,7 @@ var startSimulation = async function(routePoints) {
 };
 
 $('#slider-sim').click(startSliderSimulation);
+$('#csv-sim').click(generateCsvRoutePoints);
 
 var generatePointInsidePolygon = function(bboxArray, polygonGeoJSON){
     while (true) {
