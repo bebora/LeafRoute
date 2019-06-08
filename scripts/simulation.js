@@ -17,35 +17,39 @@ var boundingBoxMilanCoords = [
     [45.386724, 9.040613],
     [45.535946, 9.040613]
 ];
-
+var defaultmaps = ['data/zones.min.json', 'data/nil.min.json', null];
 var boundingBoxMilan = L.polyline(boundingBoxMilanCoords).addTo(map);
 var features;
-function handleFiles(files) {
+
+
+function handleFiles(files, string) {
     // Check for the various File API support.
     if (window.FileReader) {
         // FileReader are supported.
-        getAsText(files[0]);
+        if (string == 'csv')
+            getAsFiles(files[0], loadCsv);
+        else
+            getAsFiles(files[0], loadJson);
     } else {
         alert('FileReader are not supported in this browser.');
     }
   }
 
-  function getAsText(fileToRead) {
+  function getAsFiles(fileToRead, funct) {
     var reader = new FileReader();
     // Read file into memory as UTF-8      
     reader.readAsText(fileToRead);
     // Handle errors load
-    reader.onload = loadCsv;
+    reader.onload = funct;
     reader.onerror = errorHandler;
+  }
+
+  function loadJson(event) {
+    defaultmaps[2] = JSON.parse(event.target.result);
   }
 
   function loadCsv(event) {
     var csv = event.target.result;
-    processCsv(csv);
-  }
-
-  
-  function processCsv(csv) {
     let allTextLines = csv.split(/\r\n|\n/);
     let lines = [];
     for (var i=0; i<allTextLines.length; i++) {
@@ -73,7 +77,7 @@ function handleFiles(files) {
         alert("The sum of all values should be 1!");
         return;
     }
-    uploadedCsv = lines;    
+    uploadedCsv = lines; 
   }
 
   function errorHandler(evt) {
@@ -103,38 +107,45 @@ var markers = [];
 var currentGeoJSONIndex;
 var currentGeoJSONOnMap;
 var updateGeoJSON = function() {
-    let defaultmaps = ['data/zones.min.json', 'data/nil.min.json'];
     let selectedIndex = parseInt($("#selectedGeoJson").val());
-    if (selectedIndex !== 2) {
-        if (selectedIndex !== currentGeoJSONIndex) {
-            currentGeoJSONIndex = selectedIndex;
-            if (currentGeoJSONOnMap != null)
-                map.removeLayer(currentGeoJSONOnMap);
+    if (selectedIndex !== currentGeoJSONIndex) {
+        currentGeoJSONIndex = selectedIndex;
+        if (currentGeoJSONOnMap != null)
+            map.removeLayer(currentGeoJSONOnMap);
+        if (selectedIndex !== 2) {
             $.ajax({
-                dataType: 'json',
-                url: defaultmaps[selectedIndex],
-                mimeType: 'application/json',
-                success: function(data){
-                    currentGeoJSONOnMap = L.geoJson(data).addTo(map);
-                    features = data['features'];
-                    $("#sliders").html(slidersGenerator(features));
-                    try {
-                        addEventListeners();
-                        equalize($('#sliders'));
-                    }
-                    catch(err) {
-                        console.log('autosliders.js seems to be missing');
-                    }
-                }
-            });
+            dataType: 'json',
+            url: defaultmaps[selectedIndex],
+            mimeType: 'application/json',
+            success: applyGeoJson
+        });
         }
-    }
-    else {
-        //TODO read geojson from file and handle the situation when the file has not been chosen yet
+        else if (defaultmaps[selectedIndex] != null) {
+            applyGeoJson(defaultmaps[2]);
+        }
+        else{
+            alert("Insert GeoJson file first!");
+        }
     }
 };
 
-updateGeoJSON()
+var applyGeoJson = function (data) {
+    currentGeoJSONOnMap = L.geoJson(data).addTo(map);
+    features = data['features'];
+    $("#sliders").html(slidersGenerator(features));
+    try {
+        addEventListeners();
+        equalize($('#sliders'));
+    }
+    catch(err) {
+        console.log('autosliders.js seems to be missing');
+    }
+}
+
+
+updateGeoJSON();
+
+
 
 var endpoint = 'http://localhost:1337/getroutes';
 $('#endpoint').val(endpoint);

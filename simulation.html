@@ -109,7 +109,7 @@
                     <span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>
                 </h1>
                 <div class="custom-file row mt-3">
-                    <input type="file" class="custom-file-input" id="csvFileInput" onchange="handleFiles(this.files)"
+                    <input type="file" class="custom-file-input" id="csvFileInput" onchange="handleFiles(this.files, 'csv')"
             accept=".csv">
                     <label class="custom-file-label" for="csvfile">Choose CSV file for simulation</label>
                     <button type="button" id="csv-sim" class="btn btn-primary" style="position: absolute; right: 0; margin-top: 10px;">Start simulation</button>
@@ -138,7 +138,7 @@
                         <option value="2" l>Custom</option>
                     </select>
                     <div class="custom-file row mt-1">
-                        <input type="file" class="custom-file-input" id="geojsonfile" accept=".json,.geojson">
+                        <input type="file" class="custom-file-input" id="geojsonfile" accept=".json,.geojson" onchange="handleFiles(this.files, 'json')">
                         <label class="custom-file-label" for="geojsonfile">GeoJson custom file</label>
                     </div>
                     <br>
