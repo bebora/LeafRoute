@@ -123,10 +123,7 @@ map.on('click', function(e){
     });
 });
 
-
-var onSelectRoute = function(e){
-    L.DomEvent.stopPropagation(e);
-    selectedId = this.options.groupId;
+var choosePolyLine = function(selectedId) {
     //Remove options polylines and redraw selected
     for (i in possibleRoutesPolyline) {
         map.removeLayer(possibleRoutesPolyline[i]);
@@ -142,13 +139,24 @@ var onSelectRoute = function(e){
     for (j in selectedRoutePolyline.getLayers()){
         polyline.push(selectedRoutePolyline.getLayers()[j]);
     }
+}
+
+
+var onSelectRoute = function(e){
+    $('#start').css('display', 'none');
+    L.DomEvent.stopPropagation(e);
+    selectedId = this.options.groupId;
+    choosePolyLine(selectedId);
     possibleRoutes = [];
     possibleRoutesPolyline = [];
     let speed = parseFloat($('#speed').val());
     let timer = parseFloat($('#timer').val());
+    //speed or timer may be ""
+    if (isNaN(speed)) speed = 1;
+    if (isNaN(timer)) timer = 12000;
     let marker = new L.Marker.MovingMarker.ARLibMarker(
         this.options.originalResponse,
-        selectedRoute[selectedRoute-1],
+        null,
         true,
         speed,
         timer,
@@ -156,6 +164,27 @@ var onSelectRoute = function(e){
         endpoint);
     markers.push(marker);
     marker.addTo(map);
+}
+
+
+var current_position = null;
+$('#start').click(function(e){
+    setInterval(locate, 3000);
+});
+function locate() {
+    map.locate(map.locate({setView: true, maxZoom: 16}));
+}
+map.on('locationfound', onLocationFound);
+
+function onLocationFound(e) {
+    if (current_position == null) {
+        current_position = L.marker(e.latlng).addTo(map);
+    }else {
+        current_position.setLatLng(e.latlng);
+    }
+    choosePolyLine(0);
+    var fg = L.featureGroup([current_position, selectedRoutePolyline]).addTo(map);
+    map.fitBounds(fg.getBounds());
 }
 
 $('#swap').click(function(e){
