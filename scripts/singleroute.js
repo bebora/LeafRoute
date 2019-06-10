@@ -144,12 +144,14 @@ var onSelectRoute = function(e){
     }
     possibleRoutes = [];
     possibleRoutesPolyline = [];
+    let speed = parseFloat($('#speed').val());
+    let timer = parseFloat($('#timer').val());
     let marker = new L.Marker.MovingMarker.ARLibMarker(
         this.options.originalResponse,
         selectedRoute[selectedRoute-1],
         true,
-        1,
-        8000,
+        speed,
+        timer,
         polyline,
         endpoint);
     markers.push(marker);
