@@ -1,4 +1,4 @@
-var map = L.map('map').setView([45.4626, 9.2013], 12);
+var map = L.map('map').setView([45.46133, 9.15930], 12);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
     maxZoom: 19,
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -8,12 +8,12 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
 var sidebar = L.control.sidebar({ container: 'sidebar' })
 .addTo(map)
 .open('home');
-var routeColors = [
+let routeColors = [
     {'innerColor': '#0090ff', 'outerColor': '#0050b9'},
     {'innerColor': '#999', 'outerColor': '#444'}
 ];
 
-var boundingBoxMilanCoords = [
+let boundingBoxMilanCoords = [
     [45.535946, 9.040613],
     [45.535946, 9.277997],
     [45.386724, 9.277997],
@@ -21,16 +21,15 @@ var boundingBoxMilanCoords = [
     [45.535946, 9.040613]
 ];
 
-var boundingBoxMilan = L.polyline(boundingBoxMilanCoords).addTo(map);
-var points_added = [];
-var markers = [];
+let boundingBoxMilan = L.polyline(boundingBoxMilanCoords).addTo(map);
+let markers = [];
 //TODO find a way to remove this code duplication, passing a input form reference when selecting the place from suggested ones
-var sourceMarker;
-var destinationMarker;
-var sourcePlace;
-var destinationPlace;
+let sourceMarker;
+let destinationMarker;
+let sourcePlace;
+let destinationPlace;
 function setSource(event, selected) {
-    $('#start').css('display', 'none');
+    $('#follow').css('display', 'none');
     if (sourceMarker != null)
         map.removeLayer(sourceMarker);
     sourceMarker = null;
@@ -51,7 +50,7 @@ function setSource(event, selected) {
     sourcePlace = [lat, lng];
 }
 function setDestination(event, selected) {
-    $('#start').css('display', 'none');
+    $('#follow').css('display', 'none');
     if (destinationMarker != null)
         map.removeLayer(destinationMarker);
     destinationMarker = null;
@@ -73,7 +72,7 @@ function setDestination(event, selected) {
 }
 
 
-var engine = new PhotonAddressEngine({'lang': 'it'});
+let engine = new PhotonAddressEngine({'lang': 'it'});
 engine.bindDefaultTypeaheadEvent($('#address-src'));
 $(engine).bind('addresspicker:selected', setSource);
 $('#address-src').typeahead(null, {
@@ -81,14 +80,14 @@ $('#address-src').typeahead(null, {
     displayKey: 'description'
 });
 
-var endpoint = 'http://localhost:1337/getroutes';
+let endpoint = 'http://localhost:1337/getroutes';
 $('#endpoint').val(endpoint);
 var updateEndpoint = function() {
     endpoint = $('#endpoint').val();
     console.log('Endpoint set to '+endpoint);
 }
 
-var engine1 = new PhotonAddressEngine({'lang': 'it'});
+let engine1 = new PhotonAddressEngine({'lang': 'it'});
 engine1.bindDefaultTypeaheadEvent($('#address-dest'));
 $(engine1).bind('addresspicker:selected', setDestination);
 $('#address-dest').typeahead(null, {
@@ -96,11 +95,11 @@ $('#address-dest').typeahead(null, {
     displayKey: 'description'
 });
 
-var possibleRoutes = [];
-var possibleRoutesPolyline = [];
-var selectedRoute = null;
-var selectedRoutePolyline = null;
-var clickPosition = 0;
+let possibleRoutes = [];
+let possibleRoutesPolyline = [];
+let selectedRoute = null;
+let selectedRoutePolyline = null;
+let clickPosition = 0;
 
 map.on('click', function(e){
     $.getJSON('https://nominatim.openstreetmap.org/reverse?', {
@@ -109,7 +108,7 @@ map.on('click', function(e){
         format : 'json'} )
         .done(function( json ) {
             console.log(json);
-            var addressSrc= $('#address-src').val();
+            let addressSrc= $('#address-src').val();
             if (clickPosition == 1) {
                 clickPosition = 0;
                 $('#address-dest').val(json.display_name);
@@ -139,13 +138,23 @@ var choosePolyLine = function(selectedId) {
     for (j in selectedRoutePolyline.getLayers()){
         polyline.push(selectedRoutePolyline.getLayers()[j]);
     }
-}
+};
 
 
 var onSelectRoute = function(e){
-    $('#start').css('display', 'none');
-    L.DomEvent.stopPropagation(e);
-    selectedId = this.options.groupId;
+    $('#follow').css('display', 'none');
+    $('#options-panel').html('');
+    let selectedId;
+    try {
+        selectedId = this.options.groupId;
+        // Route on map has been clicked
+        L.DomEvent.stopPropagation(e);
+    }
+    catch (exception) {
+        // Info panel has been clicked
+        selectedId = e.attributes.routeindex.value;
+    }
+    let associatedPath = possibleRoutes[selectedId];
     choosePolyLine(selectedId);
     possibleRoutes = [];
     possibleRoutesPolyline = [];
@@ -154,8 +163,9 @@ var onSelectRoute = function(e){
     //speed or timer may be ""
     if (isNaN(speed)) speed = 1;
     if (isNaN(timer)) timer = 12000;
+    //this.options.originalResponse
     let marker = new L.Marker.MovingMarker.ARLibMarker(
-        this.options.originalResponse,
+        associatedPath,
         null,
         true,
         speed,
@@ -164,13 +174,14 @@ var onSelectRoute = function(e){
         endpoint);
     markers.push(marker);
     marker.addTo(map);
-}
+};
 
 
 var current_position = null;
-$('#start').click(function(e){
+$('#follow').click(function(e){
     setInterval(locate, 3000);
 });
+
 function locate() {
     map.locate(map.locate({setView: true, maxZoom: 16}));
 }
@@ -183,7 +194,8 @@ function onLocationFound(e) {
         current_position.setLatLng(e.latlng);
     }
     choosePolyLine(0);
-    var fg = L.featureGroup([current_position, selectedRoutePolyline]).addTo(map);
+    $('#options-panel').html('');
+    let fg = L.featureGroup([current_position, selectedRoutePolyline]).addTo(map);
     map.fitBounds(fg.getBounds());
 }
 
@@ -199,6 +211,36 @@ $('#swap').click(function(e){
     $('#address-dest').val(temp);
 });
 
+let timeToString = function(totalTime) {
+    let timeToDisplay;
+    if (totalTime < 60) {
+        timeToDisplay = Math.floor(totalTime)+' seconds';
+    }
+    else if (totalTime < 3600) {
+        timeToDisplay = Math.floor(totalTime/60)+' min';
+    }
+    else {
+        timeToDisplay = Math.floor(totalTime/3600) + ' h '+ Math.floor((totalTime % 3600)/60)+' min';
+    }
+    return timeToDisplay
+};
+
+let addRouteInfoPanel = function(path, index) {
+    let totalTime = 0;
+    for (let j in path) {
+        totalTime += path[j][2];
+    }
+    let timeToDisplay = timeToString(totalTime);
+    let childDiv = '<div class="flex-container-info ';
+    if(index === 0) childDiv += 'main-option';
+    else childDiv += 'secondary-option';
+    childDiv +='" routeindex="'+index+'" onclick="onSelectRoute(this)">' +
+        '<p style="margin-top: 15px">' + (index === 0 ? 'Best route' : 'Alternative route #'+index) + '</p>' +
+        '<p style="margin-top: 15px">Estimated time: ' + timeToDisplay +
+        '</p></div>';
+    $('#options-panel').prepend(childDiv);
+};
+
 $('#search').click(function(e){
     //Reset previous routes
     possibleRoutes = [];
@@ -210,8 +252,8 @@ $('#search').click(function(e){
         console.log('Select both source and destination');
         return;
     }
-    $('#start').css('display', 'inline-block');
-    
+    $('#follow').css('display', 'inline-block');
+    $('#options-panel').html('');
     $.getJSON( endpoint, {
         s_lat: sourcePlace[0],
         s_lon: sourcePlace[1],
@@ -223,15 +265,17 @@ $('#search').click(function(e){
             possibleRoutes = json;
             console.log('Response lenght: ' + json.length);
             for (let i = json.length-1; i >= 0; i--){
+                path = json[i];
                 fancyPolyline = strokePolyline(
-                    json[i],
+                    path,
                     {
-                        ...routeColors[i==0 ? 0 : 1],
+                        ...routeColors[i===0 ? 0 : 1],
                         groupId: i,
                         onClick: onSelectRoute
                     });
                 possibleRoutesPolyline.push(fancyPolyline);
                 fancyPolyline.addTo(map);
+                addRouteInfoPanel(path, i);
             }
             if (possibleRoutesPolyline.length > 0) {
                 //Zoom to received paths
@@ -246,4 +290,4 @@ $('#search').click(function(e){
             alert(response.responseText);
             console.log('Request Failed: ' + response.responseText + ', ' + response.status);
         });
-})
+});
