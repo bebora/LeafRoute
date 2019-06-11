@@ -34,6 +34,10 @@
         integrity="sha256-YcmHZHyXpKYagiKb3z5qKGALna6dDVK4NP+4GTOzh6k="
         crossorigin="anonymous"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"
+            integrity="sha256-FPJJt8nA+xL4RU6/gsriA8p8xAeLGatoyTjldvQKGdE="
+            crossorigin="anonymous"></script>
+
     <link rel="stylesheet" href="style/leaflet-sidebar.css" />
     <link rel="stylesheet" href="style/autoslider.css"/>
     <link rel="stylesheet" href="style/simulation.css"/>
@@ -111,7 +115,7 @@
                 <div class="custom-file row mt-3">
                     <input type="file" class="custom-file-input" id="csvFileInput" onchange="handleFiles(this.files, 'csv')"
             accept=".csv">
-                    <label class="custom-file-label" for="csvfile">Choose CSV file for simulation</label>
+                    <label class="custom-file-label" for="csvFileInput">Choose CSV file for simulation</label>
                     <button type="button" id="csv-sim" class="btn btn-primary" style="position: absolute; right: 0; margin-top: 10px;">Start simulation</button>
                 </div>
             </div>
@@ -142,7 +146,7 @@
                         <label class="custom-file-label" for="geojsonfile">GeoJson custom file</label>
                     </div>
                     <br>
-                    <button type="button" class="btn btn-primary row mt-1" onclick="updateGeoJSON()">Apply</button>
+                    <button type="button" class="btn btn-outline-primary row mt-1" onclick="updateGeoJSON()">Apply</button>
                 </div>
                 <div class="row">
                     <label for="endpoint" style="font-size: 14pt; margin-top: .5rem;">Backend endpoint</label>
@@ -154,6 +158,12 @@
                             <i class="fas fa-check"></i>
                         </button>
                     </div>
+                </div>
+                <label class="row" style="font-size: 14pt; margin-top: .5rem;">Extra</label>
+                <div class="row">
+                    <button type="button" class="btn btn-outline-primary" id="dumpStats">
+                        Dump stats
+                    </button>
                 </div>
             </div>
 

@@ -8,7 +8,7 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
      * @param {L.polyline} polyline line to update when marker is moving
      * @param {string} endpoint url of the routing machine
 	*/
-    initialize: function (startPoint, destination, rerouting = true, speed = 1, timer = 1000, polyline = null, endpoint = 'http://localhost:1337/getroutes') {
+    initialize: function (startPoint, destination, rerouting = true, speed = 1, timer = 1000, polyline = null, endpoint = 'http://localhost:1337/getroutes', stats=null) {
         this.polyline = polyline;
         this.icon = L.icon({iconUrl: 'icons/circlemarker.svg', iconSize: [21, 21]});
         this.speed = speed;
@@ -18,8 +18,10 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
         this.current_index = 1;
         this.ready = false;
         this.failed = true;
+        this.stats = stats;
         let that = this;
         if (!Array.isArray(startPoint[0])){
+            let startTime = new Date().getTime();
             $.getJSON( this.endpoint,
                 {
                     s_lat: startPoint[0],
@@ -30,11 +32,29 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
                     n_routes: 1
                 })
             .done(function( json ) {
+                let endTime = new Date().getTime();
+                stats.times.push({
+                    s_lat: startPoint[0],
+                    s_lon: startPoint[1],
+                    e_lat: destination[0],
+                    e_lon: destination[1],
+                    requestTime: endTime - startTime
+                });
                 that._buildPath(that,json[0]);
                 that.ready = true;
                 that.failed = false;
         }).fail(function(textStatus, error) {
-                console.log('Request Failed: ' + textStatus + ', ' + error);
+                let stringError = textStatus.status + ' ' + textStatus.statusText + ': ' + textStatus.responseText;
+                let endTime = new Date().getTime();
+                console.log('Request failed | ' + stringError);
+                that.stats.errors.push({
+                    s_lat: startPoint[0],
+                    s_lon: startPoint[1],
+                    e_lat: destination[0],
+                    e_lon: destination[1],
+                    requestTime: endTime - startTime,
+                    errorMessage: stringError
+                });
                 that.failed = true;
                 that.ready = true;
             });
@@ -58,11 +78,11 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
             that.currentLatlngs = latlngs.slice(0,4);
             that.tempQueueLatlngs = that.QueueLatlngs;
             that.current_index = 0;
-            for (var j=0; j < 3; j++) {
+            for (let j=0; j < 3; j++) {
                 L.Marker.MovingMarker.prototype.addLatLng.call(that, that.currentLatlngs[j+1], that.currentLatlngs[j+1][2]*1000 / that.speed);
             }            
         } else if (latlngs.length >= 2) {
-            for (var j=0; j < latlngs.length; j++) {
+            for (let j=0; j < latlngs.length; j++) {
                 L.Marker.MovingMarker.prototype.addLatLng.call(that, latlngs[j+1], latlngs[j+1][2]*1000 / that.speed);
             }
             that.rerouting = false;
@@ -80,7 +100,8 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
         let that = this;
         let current_index = that.current_index;
         if (that.rerouting && that.QueueLatlngs.length > 1 && that.currentLatlngs.length > current_index + 2) {
-            var startPoint = that.currentLatlngs[that.current_index + 2];
+            let startPoint = that.currentLatlngs[that.current_index + 2];
+            let startTime = new Date().getTime();
             $.getJSON( that.endpoint,
                 {
                     s_lat: startPoint[0],
@@ -91,16 +112,35 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
                     n_routes: 1
                 } )
             .done(function( json ) {
+                let endTime = new Date().getTime();
+                that.stats.times.push({
+                    s_lat: startPoint[0],
+                    s_lon: startPoint[1],
+                    e_lat: that.destination[0],
+                    e_lon: that.destination[1],
+                    requestTime: endTime - startTime
+                });
                 that.fetching = true;
-                if (json != null && Array.isArray(json) && json.length && that.current_index == current_index) {
+                if (json != null && Array.isArray(json) && json.length && that.current_index === current_index) {
                     that.tempQueueLatlngs = json[0].slice(1);
                     //console.log('rerouting!');
                 } else {
                     //console.log('Late response -> no rerouting!');
                 }
                 that.fetching = false;
-        }).fail(function(textStatus, error) {
-                console.log('Request Failed: ' + textStatus + ', ' + error);
+            }).fail(function(textStatus, error) {
+                console.log(error);
+                let stringError = textStatus.status + ' ' + textStatus.statusText + ': ' + textStatus.responseText;
+                console.log('Request failed | ' +  stringError);
+                let endTime = new Date().getTime();
+                that.stats.errors.push({
+                    s_lat: startPoint[0],
+                    s_lon: startPoint[1],
+                    e_lat: that.destination[0],
+                    e_lon: that.destination[1],
+                    requestTime: endTime - startTime,
+                    errorMessage: stringError
+                });
             });
         }
         else {

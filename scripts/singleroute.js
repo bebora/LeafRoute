@@ -263,7 +263,7 @@ $('#search').click(function(e){
         reroute: false} )
         .done(function( json ) {
             possibleRoutes = json;
-            console.log('Response lenght: ' + json.length);
+            console.log('Response length: ' + json.length);
             for (let i = json.length-1; i >= 0; i--){
                 path = json[i];
                 fancyPolyline = strokePolyline(

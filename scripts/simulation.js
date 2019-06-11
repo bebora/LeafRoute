@@ -8,8 +8,8 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
 var sidebar = L.control.sidebar({ container: 'sidebar' })
 .addTo(map)
 .open('home');
-var uploadedCsv = null;
-var relatedSrc = [];
+let uploadedCsv = null;
+let relatedSrc = [];
 var boundingBoxMilanCoords = [
     [45.535946, 9.040613],
     [45.535946, 9.277997],
@@ -17,7 +17,7 @@ var boundingBoxMilanCoords = [
     [45.386724, 9.040613],
     [45.535946, 9.040613]
 ];
-var defaultmaps = ['data/zones.min.json', 'data/nil.min.json', null];
+let defaultmaps = ['data/zones.min.json', 'data/nil.min.json', null];
 var boundingBoxMilan = L.polyline(boundingBoxMilanCoords).addTo(map);
 var features;
 
@@ -37,7 +37,7 @@ function handleFiles(files, string) {
 
   function getAsFiles(fileToRead, funct) {
     var reader = new FileReader();
-    // Read file into memory as UTF-8      
+    // Read file into memory as UTF-8
     reader.readAsText(fileToRead);
     // Handle errors load
     reader.onload = funct;
@@ -65,7 +65,7 @@ function handleFiles(files, string) {
     let total = 0;
     for (let i = 0; i < lines.length; i++) {
         let temp = 0;
-        if (lines[i].length != lines.length) {
+        if (lines[i].length !== lines.length) {
             alert("CSV is not a regular matrix!");
             return;
         }
@@ -79,12 +79,12 @@ function handleFiles(files, string) {
         alert("The sum of all values should be 1!");
         return;
     }
-    uploadedCsv = lines; 
+    uploadedCsv = lines;
   }
 
   function errorHandler(evt) {
-    if(evt.target.error.name == "NotReadableError") {
-        alert("Canno't read file !");
+    if(evt.target.error.name === "NotReadableError") {
+        alert("Cannot read file !");
     }
   }
 var slidersGenerator = function(features) {
@@ -163,9 +163,9 @@ var generateCsvRoutePoints = function() {
     else {
         let totalMarkers = $('#totalmarkers').val();
         let routePoints = generateSourceDestinationPoints(totalMarkers);
-        startSimulation(routePoints);        
+        startSimulation(routePoints);
     }
-}
+};
 
 
 var generateSliderRoutePoints = function() {
@@ -179,7 +179,7 @@ var generateSliderRoutePoints = function() {
         relatedDestPercentage.push($('#opt-dest'+i).val() / 10.0);
     }
     let srcDistribution = distributionFromPercentage(relatedDestPercentage);
-    let destDistribution = distributionFromPercentage(relatedDestPercentage);    
+    let destDistribution = distributionFromPercentage(relatedDestPercentage);
     let startPoints = generateNPointsinLeafletLayer(totalMarkers, srcDistribution);
     let endPoints = generateNPointsinLeafletLayer(totalMarkers, destDistribution);
     for (let j = 0; j < endPoints.length; j++) {
@@ -195,7 +195,7 @@ function waitForReady(marker) {
       if (marker.ready === true) {
         resolve();
       } else {
-        window.setTimeout(checkReady, 100); 
+        window.setTimeout(checkReady, 100);
       }
     }
     checkReady();
@@ -210,7 +210,12 @@ function sleep(ms) {
 var startSliderSimulation = async function () {
     let routePoints = generateSliderRoutePoints();
     startSimulation(routePoints);
-}
+};
+
+var stats = {
+    times: [],
+    errors: []
+};
 
 var startSimulation = async function(routePoints) {
     markers.forEach(async function(marker) {
@@ -227,7 +232,7 @@ var startSimulation = async function(routePoints) {
     if (isNaN(speed)) speed = 1;
     if (isNaN(timer)) timer = 12000;
     for (let i = 0; i < routePoints.length; i++) {
-        let marker = new L.Marker.MovingMarker.ARLibMarker(routePoints[i][0], routePoints[i][1], true, speed, timer, null, endpoint);
+        let marker = new L.Marker.MovingMarker.ARLibMarker(routePoints[i][0], routePoints[i][1], true, speed, timer, null, endpoint, stats);
         if (timer !== 0) {
             let random = Math.random()*200;
             await sleep(random);
@@ -270,10 +275,10 @@ var randomPointInLeafletPolygon = function(layer) {
 var randomLayer = function(distribution) {
     let point = Math.random()*(distribution[distribution.length-1]);
     for (let x in distribution) {
-        if (point <= distribution[x]) 
+        if (point <= distribution[x])
             return [currentGeoJSONOnMap.getLayers()[x], x];
     }
-    
+
 };
 
 var generateNPointsinLeafletLayer = function(number, distribution) {
@@ -282,7 +287,7 @@ var generateNPointsinLeafletLayer = function(number, distribution) {
     //Create distribution using given percentages
     while (i < number) {
         let layer = randomLayer(distribution)[0];
-        let point = randomPointInLeafletPolygon(layer);        
+        let point = randomPointInLeafletPolygon(layer);
         points.push(point);
         i++;
     }
@@ -296,17 +301,18 @@ var normalize = function(percentage) {
         normalized.push(percentage[x]/total * 100);
     }
     return normalized;
-}
+};
+
 var distributionFromPercentage = function(percentage) {
     let distribution = [];
     for (let x = 1; x <= percentage.length; x++) {
         let total = percentage
-        .slice(0,x) 
+        .slice(0,x)
         .reduce((a,b) => a + b);
         distribution.push(total);
     }
     return distribution;
-}
+};
 
 var generateSourceDestinationPoints = function(number) {
     let points = [];
@@ -325,4 +331,35 @@ var generateSourceDestinationPoints = function(number) {
     }
     return points;
 
-}
+};
+
+var dumpStats = function () {
+    let totalTime = 0;
+    let bestTime = Infinity;
+    let worstTime = {requestTime: 0};
+    let timesLength = stats.times.length;
+    let errorsLength = stats.errors.length;
+    for (let i=0; i < timesLength; i++) {
+        let time = stats.times[i].requestTime;
+        totalTime += time;
+        if (time < bestTime) bestTime = time;
+        if (time > worstTime.requestTime) worstTime = stats.times[i];
+    }
+    let result = 'Average request time: '+Math.round(totalTime/timesLength)+'ms\n'+
+        'Best request time: '+bestTime+'ms\n'+
+        'Worst request time: '+worstTime.requestTime+'ms (from: ' + worstTime.s_lat + ',' + worstTime.s_lon + '; to: ' + worstTime.e_lat + ',' + worstTime.e_lon + ')\n'+
+        'Total requests: '+timesLength + '\n';
+    let errors = 'Errors count: '+stats.errors.length + ' (' + Math.round(100*errorsLength/(errorsLength+timesLength)) + '%)\n';
+    for (let i=0; i < errorsLength; i++) {
+        let error = stats.errors[i];
+        errors += error.errorMessage + '(from: ' + error.s_lat + ',' + error.s_lon + '; to: ' + error.e_lat + ',' + error.e_lon + '; request time: ' + error.requestTime + 'ms)\n';
+    }
+    result += errors;
+    console.log(result);
+    let filename = 'stats.txt';
+    let blob = new Blob([result], {type: 'text/plain;charset=utf-8'});
+    saveAs(blob, filename);
+};
+
+$('#dumpStats').click(dumpStats);
+
