@@ -51,7 +51,8 @@ Graph g;
   */
 invocation_response my_handler(invocation_request const& request) {
     auto start_read_files = chrono::steady_clock::now();
-    location_graph_from_string("weights", "ids", g);
+    if (boost::num_vertices(g) == 0)
+        location_graph_from_string("weights", "ids", g, false);
     auto end_read_files = chrono::steady_clock::now();
     logElapsedMillis("Loaded coordinates and weights", start_read_files, end_read_files);
     string err;

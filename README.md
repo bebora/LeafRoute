@@ -32,6 +32,7 @@ Libraries used for the backend:
 - [Boost](https://www.boost.org/)
 - [cpprestsdk](https://github.com/microsoft/cpprestsdk)
 - [json11](https://github.com/dropbox/json11)
+- [kd-tree](https://github.com/junjiedong/KDTree)
 
 # Demo   
 Demo [here](https://bebora.github.io/LeafRoute/singleroute.html).  

@@ -22,6 +22,7 @@
 #include <chrono>
 #include "utils.hpp"
 #include <filesystem>
+#include "../external/kdtree/KDTree.h"
 
 
 struct Location{
@@ -34,8 +35,9 @@ float distance(float lat1, float long1,
                      float lat2, float long2);
 
 template <typename Graph>
-void location_graph_from_string(std::string weight_file, std::string location_file, Graph &g) {
+std::vector<std::pair<Point<2>, int>> location_graph_from_string(std::string weight_file, std::string location_file, Graph &g, bool kdtree) {
     auto fsize = filesystem::file_size(weight_file);
+    std::vector<std::pair<Point<2>,int>> data;
     std::cout << "Weights size: " << float(fsize) / 1000000 << " MB"<< std::endl;
     fsize = filesystem::file_size(location_file);
     std::cout << "Ids size: " << float(fsize) / 1000000 << " MB"<< std::endl;
@@ -60,6 +62,7 @@ void location_graph_from_string(std::string weight_file, std::string location_fi
     }
 
     rfile.open(location_file);
+    int i = 0;
     if (rfile.is_open()) {
         while (getline(rfile, line)) {
             Location l;
@@ -70,6 +73,11 @@ void location_graph_from_string(std::string weight_file, std::string location_fi
             l.lat = lat;
             l.lon = lon;
             locations.push_back(l);
+            if (kdtree) {
+                std::pair<Point<2>,int> temp(Point<2>(lat,lon),i);
+                data.push_back(temp);
+            }
+            i++;
         }
         rfile.close();
     }
@@ -79,6 +87,7 @@ void location_graph_from_string(std::string weight_file, std::string location_fi
     std::for_each(vertices(g).first, vertices(g).second,
                   [&g, locations, index](auto const &v) {g[v].lon = locations[index[v]].lon;
                       g[v].lat = locations[index[v]].lat; });
+    return data;
 }
 
 template<typename Graph, typename Vertex>
@@ -97,6 +106,15 @@ void get_vertex(float lat1, float long1,
         }
     }
 }
+
+template<typename Vertex>
+void get_vertex(float lat1, float long1,
+        KDTree<2, int> &tree, Vertex &v) {
+    Point<2> key(lat1,long1);
+    v = tree.kNNValue(key, 1);
+    
+}
+
 
 template<typename Graph, typename Vertex>
 json11::Json get_location_path(arlib::Path<Graph> const &path, Vertex &s, Vertex &t,
