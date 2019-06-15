@@ -1,5 +1,5 @@
 # Installing required libraries
-[cpprestsdk](https://github.com/microsoft/cpprestsdk) and [aws-lambda-cpp](https://github.com/awslabs/aws-lambda-cpp) are require to compile.  
+[cpprestsdk](https://github.com/microsoft/cpprestsdk) and [aws-lambda-cpp](https://github.com/awslabs/aws-lambda-cpp) are required to compile.  
 cpprestsdk can be installed from many package managers or from source. To build from source make sure you have [all dependencies](https://github.com/Microsoft/cpprestsdk/wiki/How-to-build-for-Linux) installed and then run these commands:
 ```
 git clone https://github.com/microsoft/cpprestsdk /tmp/cpprestsdk
