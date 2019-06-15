@@ -3,6 +3,7 @@
 #include "utils.hpp"
 #include <aws/lambda-runtime/runtime.h>
 #include <boost/graph/adjacency_list.hpp>
+#include <boost/archive/text_iarchive.hpp>
 #include <chrono>
 #include <iostream>
 #include <string>
@@ -51,8 +52,13 @@ Graph g;
   */
 invocation_response my_handler(invocation_request const& request) {
     auto start_read_files = chrono::steady_clock::now();
-    if (boost::num_vertices(g) == 0)
-        location_graph_from_string("weights", "ids", g, false);
+    if (boost::num_vertices(g) == 0) {
+        std::ifstream in("data.btl");
+        {
+            boost::archive::text_iarchive ia(in);
+            ia >> g;
+        }
+    }
     auto end_read_files = chrono::steady_clock::now();
     logElapsedMillis("Loaded coordinates and weights", start_read_files, end_read_files);
     string err;

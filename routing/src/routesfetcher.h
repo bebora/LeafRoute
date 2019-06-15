@@ -28,6 +28,13 @@
 struct Location{
     float lon;
     float lat;
+
+    template<class Ar>
+    void serialize(Ar& ar, const unsigned int) {
+        ar & lon;
+        ar & lat;
+        //
+    }
 };
 
 float toRadians(const float degree);

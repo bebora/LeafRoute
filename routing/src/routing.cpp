@@ -14,6 +14,11 @@
 #include "routesfetcher.h"
 #include "../external/json11/json11.hpp"
 #include "utils.hpp"
+#include <boost/graph/adj_list_serialize.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <iostream>
+#include <sstream>
+#include <boost/archive/text_iarchive.hpp>
 
 using namespace utility;
 using namespace web;
@@ -27,7 +32,7 @@ using namespace std;
 
 
 using Graph = boost::adjacency_list<boost::vecS, boost::vecS,
-        boost::bidirectionalS, Point<2>,
+        boost::bidirectionalS, Location,
         boost::property<boost::edge_weight_t, float>>;
 using Vertex = typename boost::graph_traits<Graph>::vertex_descriptor;
 using Edge = typename boost::graph_traits<Graph>::edge_descriptor;
@@ -139,8 +144,8 @@ int main(int argc, char* argv[]) {
     dataset data = location_graph_from_string("weights", "ids", g, true);
     auto end = chrono::steady_clock::now();
     logElapsedMillis("Loaded coordinates and weights", start, end);
-    utility::string_t address = U(endpoint);
     KDTree<2, int> kd(data);
+    utility::string_t address = U(endpoint);
     RoutesDealer listener(address, g, kd);
     listener.open().wait();
 
