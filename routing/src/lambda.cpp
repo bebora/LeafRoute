@@ -55,7 +55,8 @@ invocation_response my_handler(invocation_request const& request) {
     int status_code;
     auto start_read_files = chrono::steady_clock::now();
     if (boost::num_vertices(g) == 0) {
-        status_code = 200; //HTTP 200 status code: OK (graph already in memory)
+        status_code = 201; //HTTP 201 status code: Created (the graph from file)
+        cout << "Graph must be loaded" << endl;
         std::ifstream in("data.btl");
         {
             boost::archive::text_iarchive ia(in);
@@ -63,7 +64,8 @@ invocation_response my_handler(invocation_request const& request) {
         }
     }
     else {
-        status_code = 201; //HTTP 201 status code: Created (the graph from file)
+        cout << "Graph already in memory" << endl;
+        status_code = 200; //HTTP 200 status code: OK (graph already in memory)
     }
     auto end_read_files = chrono::steady_clock::now();
     logElapsedMillis("Loaded coordinates and weights", start_read_files, end_read_files);

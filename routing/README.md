@@ -57,7 +57,7 @@ cmake ..
 make lambda
 make aws-lambda-package-lambda
 ```
-`weights` and `ids` **must be manually added** to the root of the generated zip file or the executable will load an empty map.  
+`data.btl` **must be manually added** to the root of the generated zip file or the executable will load an empty map.  
 # Testing
 Run build/main or the Docker image and test with curl:
 ```

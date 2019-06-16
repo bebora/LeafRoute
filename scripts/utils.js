@@ -14,7 +14,7 @@ var dumpStats = function () {
         'Best request time: '+bestTime+'ms\n'+
         'Worst request time: '+worstTime.requestTime+'ms (from: ' + worstTime.s_lat + ',' + worstTime.s_lon + '; to: ' + worstTime.e_lat + ',' + worstTime.e_lon + ')\n'+
         'Total requests: '+timesLength + '\n';
-    let errors = 'Errors count: '+stats.errors.length + ' (' + Math.round(100*errorsLength/(errorsLength+timesLength)) + '%)\n';
+    let errors = 'Errors count: '+stats.errors.length + ' (' + +(100*errorsLength/(errorsLength+timesLength)).toFixed(2) + '%)\n';
     for (let i=0; i < errorsLength; i++) {
         let error = stats.errors[i];
         errors += error.errorMessage + '(from: ' + error.s_lat + ',' + error.s_lon + '; to: ' + error.e_lat + ',' + error.e_lon + '; request time: ' + error.requestTime + 'ms)\n';
