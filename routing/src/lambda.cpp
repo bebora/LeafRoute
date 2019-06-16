@@ -52,13 +52,18 @@ Graph g;
   * }
   */
 invocation_response my_handler(invocation_request const& request) {
+    int status_code;
     auto start_read_files = chrono::steady_clock::now();
     if (boost::num_vertices(g) == 0) {
+        status_code = 200; //HTTP 200 status code: OK (graph already in memory)
         std::ifstream in("data.btl");
         {
             boost::archive::text_iarchive ia(in);
             ia >> g;
         }
+    }
+    else {
+        status_code = 201; //HTTP 201 status code: Created (the graph from file)
     }
     auto end_read_files = chrono::steady_clock::now();
     logElapsedMillis("Loaded coordinates and weights", start_read_files, end_read_files);
@@ -92,16 +97,22 @@ invocation_response my_handler(invocation_request const& request) {
     get_vertex(e_lat, e_lon, g, end);
     auto end_get_vertices = chrono::steady_clock::now();
     logElapsedMillis("Found vertices", start_get_vertices, end_get_vertices);
-    auto paths = get_alternative_routes(g, start, end, num_routes, 0.9, reroute);
-    auto headers = Json::object {{"Access-Control-Allow-Origin", "*"}};
-    Json response = Json::object{
-        {"isBase64Encoded", false},
-        {"statusCode", 200},
-        {"headers", headers},
-        {"body", paths.dump()}
-    };
-    cout << response.dump() << std::endl;
-    return invocation_response::success(response.dump(), "application/json");
+    try {
+        auto paths = get_alternative_routes(g, start, end, num_routes, 0.9, reroute);
+        auto headers = Json::object {{"Access-Control-Allow-Origin", "*"}};
+        Json response = Json::object{
+                {"isBase64Encoded", false},
+                {"statusCode", status_code},
+                {"headers", headers},
+                {"body", paths.dump()}
+        };
+        cout << response.dump() << std::endl;
+        return invocation_response::success(response.dump(), "application/json");
+    }
+    catch (const std::invalid_argument& e) {
+        return invocation_response::failure(e.what(), "ElaborationError");
+    }
+
 }
 
 

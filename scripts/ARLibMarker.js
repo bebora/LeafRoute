@@ -86,8 +86,8 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
                 L.Marker.MovingMarker.prototype.addLatLng.call(that, that.currentLatlngs[j+1], that.currentLatlngs[j+1][2]*1000 / that.speed);
             }            
         } else if (latlngs.length >= 2) {
-            for (let j=0; j < latlngs.length; j++) {
-                L.Marker.MovingMarker.prototype.addLatLng.call(that, latlngs[j+1], latlngs[j+1][2]*1000 / that.speed);
+            for (let j=1; j < latlngs.length; j++) {
+                L.Marker.MovingMarker.prototype.addLatLng.call(that, latlngs[j], latlngs[j][2]*1000 / that.speed);
             }
             that.rerouting = false;
         }
