@@ -4,6 +4,7 @@
 #include <aws/lambda-runtime/runtime.h>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/archive/text_iarchive.hpp>
+#include <boost/graph/adj_list_serialize.hpp>
 #include <chrono>
 #include <iostream>
 #include <string>

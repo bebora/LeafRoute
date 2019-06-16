@@ -26,10 +26,12 @@ function handleFiles(files, string) {
     // Check for the various File API support.
     if (window.FileReader) {
         // FileReader are supported.
-        if (string == 'csv')
+        if (string === 'csv')
             getAsFiles(files[0], loadCsv);
-        else
+        else {
+            $('#geojsonfilelabel').html(files[0].name);
             getAsFiles(files[0], loadJson);
+        }
     } else {
         alert('FileReader are not supported in this browser.');
     }
@@ -54,7 +56,7 @@ function handleFiles(files, string) {
     let lines = [];
     for (var i=0; i<allTextLines.length; i++) {
         var data = allTextLines[i].split(',');
-        if (data[0] != "") {
+        if (data[0] !== "") {
             var tarr = [];
             for (var j=0; j<data.length; j++) {
                 tarr.push(parseFloat(data[j]));
@@ -110,10 +112,10 @@ var currentGeoJSONIndex;
 var currentGeoJSONOnMap;
 var updateGeoJSON = function() {
     let selectedIndex = parseInt($("#selectedGeoJson").val());
-    if (selectedIndex !== currentGeoJSONIndex) {
-        currentGeoJSONIndex = selectedIndex;
+    if (selectedIndex !== currentGeoJSONIndex || selectedIndex === 2) {
         if (currentGeoJSONOnMap != null)
             map.removeLayer(currentGeoJSONOnMap);
+        currentGeoJSONIndex = selectedIndex;
         if (selectedIndex !== 2) {
             $.ajax({
             dataType: 'json',
@@ -133,6 +135,7 @@ var updateGeoJSON = function() {
 
 var applyGeoJson = function (data) {
     currentGeoJSONOnMap = L.geoJson(data).addTo(map);
+    map.fitBounds(currentGeoJSONOnMap.getBounds())
     features = data['features'];
     $("#sliders").html(slidersGenerator(features));
     try {
@@ -142,7 +145,7 @@ var applyGeoJson = function (data) {
     catch(err) {
         console.log('autosliders.js seems to be missing');
     }
-}
+};
 
 
 updateGeoJSON();
@@ -157,7 +160,7 @@ var updateEndpoint = function() {
 };
 
 var generateCsvRoutePoints = function() {
-    if (uploadedCsv == null || uploadedCsv.length != currentGeoJSONOnMap.getLayers().length) {
+    if (uploadedCsv == null || uploadedCsv.length !== currentGeoJSONOnMap.getLayers().length) {
         alert("Upload a correct CSV first!");
     }
     else {
@@ -178,7 +181,7 @@ var generateSliderRoutePoints = function() {
         relatedSrcPercentage.push($('#opt-src'+i).val() / 10.0);
         relatedDestPercentage.push($('#opt-dest'+i).val() / 10.0);
     }
-    let srcDistribution = distributionFromPercentage(relatedDestPercentage);
+    let srcDistribution = distributionFromPercentage(relatedSrcPercentage);
     let destDistribution = distributionFromPercentage(relatedDestPercentage);
     let startPoints = generateNPointsinLeafletLayer(totalMarkers, srcDistribution);
     let endPoints = generateNPointsinLeafletLayer(totalMarkers, destDistribution);
@@ -333,33 +336,6 @@ var generateSourceDestinationPoints = function(number) {
 
 };
 
-var dumpStats = function () {
-    let totalTime = 0;
-    let bestTime = Infinity;
-    let worstTime = {requestTime: 0};
-    let timesLength = stats.times.length;
-    let errorsLength = stats.errors.length;
-    for (let i=0; i < timesLength; i++) {
-        let time = stats.times[i].requestTime;
-        totalTime += time;
-        if (time < bestTime) bestTime = time;
-        if (time > worstTime.requestTime) worstTime = stats.times[i];
-    }
-    let result = 'Average request time: '+Math.round(totalTime/timesLength)+'ms\n'+
-        'Best request time: '+bestTime+'ms\n'+
-        'Worst request time: '+worstTime.requestTime+'ms (from: ' + worstTime.s_lat + ',' + worstTime.s_lon + '; to: ' + worstTime.e_lat + ',' + worstTime.e_lon + ')\n'+
-        'Total requests: '+timesLength + '\n';
-    let errors = 'Errors count: '+stats.errors.length + ' (' + Math.round(100*errorsLength/(errorsLength+timesLength)) + '%)\n';
-    for (let i=0; i < errorsLength; i++) {
-        let error = stats.errors[i];
-        errors += error.errorMessage + '(from: ' + error.s_lat + ',' + error.s_lon + '; to: ' + error.e_lat + ',' + error.e_lon + '; request time: ' + error.requestTime + 'ms)\n';
-    }
-    result += errors;
-    console.log(result);
-    let filename = 'stats.txt';
-    let blob = new Blob([result], {type: 'text/plain;charset=utf-8'});
-    saveAs(blob, filename);
-};
 
 $('#dumpStats').click(dumpStats);
 

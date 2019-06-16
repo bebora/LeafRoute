@@ -85,7 +85,7 @@ $('#endpoint').val(endpoint);
 var updateEndpoint = function() {
     endpoint = $('#endpoint').val();
     console.log('Endpoint set to '+endpoint);
-}
+};
 
 let engine1 = new PhotonAddressEngine({'lang': 'it'});
 engine1.bindDefaultTypeaheadEvent($('#address-dest'));
@@ -140,6 +140,11 @@ var choosePolyLine = function(selectedId) {
     }
 };
 
+var stats = {
+    times: [],
+    errors: []
+};
+
 
 var onSelectRoute = function(e){
     $('#follow').css('display', 'none');
@@ -171,7 +176,8 @@ var onSelectRoute = function(e){
         speed,
         timer,
         polyline,
-        endpoint);
+        endpoint,
+        stats);
     markers.push(marker);
     marker.addTo(map);
 };
@@ -254,6 +260,7 @@ $('#search').click(function(e){
     }
     $('#follow').css('display', 'inline-block');
     $('#options-panel').html('');
+    let startTime = new Date().getTime();
     $.getJSON( endpoint, {
         s_lat: sourcePlace[0],
         s_lon: sourcePlace[1],
@@ -262,6 +269,16 @@ $('#search').click(function(e){
         n_routes: 3,
         reroute: false} )
         .done(function( json ) {
+            let endTime = new Date().getTime();
+            stats.times.push({
+                s_lat: sourcePlace[0],
+                s_lon: sourcePlace[1],
+                e_lat: destinationPlace[0],
+                e_lon: destinationPlace[1],
+                requestTime: endTime - startTime,
+                failed: false,
+                timestamp: Date.now()
+            });
             possibleRoutes = json;
             console.log('Response length: ' + json.length);
             for (let i = json.length-1; i >= 0; i--){
@@ -286,8 +303,21 @@ $('#search').click(function(e){
                 //Slightly extend box
                 map.fitBounds(viewBox.pad(0.10));
             }
-        }).fail(function(response) {
-            alert(response.responseText);
-            console.log('Request Failed: ' + response.responseText + ', ' + response.status);
+        }).fail(function(textStatus, error) {
+            let stringError = textStatus.status + ' ' + textStatus.statusText + ': ' + textStatus.responseText;
+            let endTime = new Date().getTime();
+            console.log('Request failed | ' + stringError);
+            stats.errors.push({
+                s_lat: sourcePlace[0],
+                s_lon: sourcePlace[1],
+                e_lat: destinationPlace[0],
+                e_lon: destinationPlace[1],
+                requestTime: endTime - startTime,
+                errorMessage: stringError
+            });
+            alert(textStatus.responseText);
+            console.log('Request Failed: ' + textStatus.responseText + ', ' + textStatus.status);
         });
 });
+
+$('#dumpStats').click(dumpStats);

@@ -30,6 +30,11 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"
+            integrity="sha256-FPJJt8nA+xL4RU6/gsriA8p8xAeLGatoyTjldvQKGdE="
+            crossorigin="anonymous"></script>
+
     <link rel="stylesheet" href="style/typeaheadjs.css">
     <link rel="stylesheet" href="style/leaflet-sidebar.css" />
     <link rel="stylesheet" href="style/singleroute.css"/>
@@ -108,6 +113,12 @@
                         </button>
                     </div>
                 </div>
+                <label class="row" style="font-size: 14pt; margin-top: .5rem;">Extra</label>
+                <div class="row">
+                    <button type="button" class="btn btn-outline-primary" id="dumpStats">
+                        Dump stats
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -120,6 +131,7 @@
     <script src="scripts/typeahead.bundle.js"></script>
     <script src="scripts/typeahead-address-photon.js"></script>
     <script src="scripts/leaflet-sidebar.js"></script>
+    <script src="scripts/utils.js"></script>
     <script src="scripts/MovingMarker.js"></script>
     <script src="scripts/ARLibMarker.js"></script>
     <script src="scripts/StrokePolyline.js"></script>

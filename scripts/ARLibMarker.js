@@ -38,12 +38,14 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
                     s_lon: startPoint[1],
                     e_lat: destination[0],
                     e_lon: destination[1],
-                    requestTime: endTime - startTime
+                    requestTime: endTime - startTime,
+                    failed: false,
+                    timestamp: Date.now()
                 });
                 that._buildPath(that,json[0]);
                 that.ready = true;
                 that.failed = false;
-        }).fail(function(textStatus, error) {
+            }).fail(function(textStatus, error) {
                 let stringError = textStatus.status + ' ' + textStatus.statusText + ': ' + textStatus.responseText;
                 let endTime = new Date().getTime();
                 console.log('Request failed | ' + stringError);
@@ -53,7 +55,9 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
                     e_lat: destination[0],
                     e_lon: destination[1],
                     requestTime: endTime - startTime,
-                    errorMessage: stringError
+                    errorMessage: stringError,
+                    failed: true,
+                    timestamp: Date.now()
                 });
                 that.failed = true;
                 that.ready = true;
@@ -118,7 +122,9 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
                     s_lon: startPoint[1],
                     e_lat: that.destination[0],
                     e_lon: that.destination[1],
-                    requestTime: endTime - startTime
+                    requestTime: endTime - startTime,
+                    failed: false,
+                    timestamp: Date.now()
                 });
                 that.fetching = true;
                 if (json != null && Array.isArray(json) && json.length && that.current_index === current_index) {
@@ -139,7 +145,9 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
                     e_lat: that.destination[0],
                     e_lon: that.destination[1],
                     requestTime: endTime - startTime,
-                    errorMessage: stringError
+                    errorMessage: stringError,
+                    failed: true,
+                    timestamp: Date.now()
                 });
             });
         }

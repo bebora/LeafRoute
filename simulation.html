@@ -100,7 +100,7 @@
                                 </div>
                             </li>
                             <div id="sliders">
-                                <p>Loading zones...</p>
+                                <p>Loading zones from GeoJSON...</p>
                             </div>
                         </ul>
                     </div>
@@ -143,7 +143,7 @@
                     </select>
                     <div class="custom-file row mt-1">
                         <input type="file" class="custom-file-input" id="geojsonfile" accept=".json,.geojson" onchange="handleFiles(this.files, 'json')">
-                        <label class="custom-file-label" for="geojsonfile">GeoJson custom file</label>
+                        <label class="custom-file-label" for="geojsonfile" id="geojsonfilelabel">GeoJson custom file</label>
                     </div>
                     <br>
                     <button type="button" class="btn btn-outline-primary row mt-1" onclick="updateGeoJSON()">Apply</button>
@@ -201,6 +201,7 @@
         integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
         crossorigin=""></script>
     <script src="scripts/leaflet-sidebar.js"></script>
+    <script src="scripts/utils.js"></script>
     <script src="scripts/simulation.js"></script>
     <script src="scripts/autosliders.js"></script>
     <script src="scripts/MovingMarker.js"></script>
