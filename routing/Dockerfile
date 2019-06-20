@@ -1,6 +1,6 @@
-FROM alpine:3.9 AS build-stage
+# https://docs.docker.com/develop/develop-images/dockerfile_best-practices/
 
-COPY . /leafrouting
+FROM alpine:3.9 AS build-stage
 
 RUN apk update && \
     apk add --no-cache \
@@ -14,8 +14,9 @@ RUN apk update && \
         ninja \
         openssl-dev \
         websocket++ \
-        zlib-dev && \
-    git clone https://github.com/Microsoft/cpprestsdk.git && \
+        zlib-dev
+        
+RUN git clone https://github.com/Microsoft/cpprestsdk.git && \
     cd cpprestsdk && \
     mkdir build-cpprestsdk && \
     cd build-cpprestsdk && \
@@ -35,8 +36,11 @@ RUN apk update && \
     cmake .. \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX=/usr && \
-    make && make install && \
-    cd /leafrouting/external && \
+    make && make install
+    
+COPY . /leafrouting
+
+RUN cd /leafrouting/external && \
     if [ "$(ls -A arlib)" ]; \
         then echo "Arlib found"; \
         else echo "Arlib missing, cloning" && git clone https://github.com/leonardoarcari/arlib ; \
