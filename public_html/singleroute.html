@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LeafRoute single route</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <script
+        src="https://code.jquery.com/jquery-3.4.0.min.js"
+        integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg="
+        crossorigin="anonymous"></script>
+
+    <script
+        defer src="https://use.fontawesome.com/releases/v5.8.2/js/all.js"
+        integrity="sha384-DJ25uNYET2XCl5ZF++U8eNxPWqcKohUUBUpKGlNLMchM7q4Wjg2CUpjHLaL8yYPH"
+        crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
+        integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+        crossorigin=""/>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+        crossorigin="anonymous">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"
+            integrity="sha256-FPJJt8nA+xL4RU6/gsriA8p8xAeLGatoyTjldvQKGdE="
+            crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="style/typeaheadjs.css">
+    <link rel="stylesheet" href="style/leaflet-sidebar.css" />
+    <link rel="stylesheet" href="style/singleroute.css"/>
+</head>
+<body>
+    <!-- optionally define the sidebar content via HTML markup -->
+    <div id="sidebar" class="leaflet-sidebar collapsed">
+
+        <!-- nav tabs -->
+        <div class="leaflet-sidebar-tabs">
+            <!-- top aligned tabs -->
+            <ul role="tablist">
+                <li>
+                    <a href="#home" role="tab"><i class="fa fa-bars active"></i></a>
+                </li>
+                <li>
+                    <a href="#settings" role="tab" title="Settings"><i class="fas fa-cog"></i></a>
+                </li>
+            </ul>
+
+            <!-- bottom aligned tabs -->
+            <ul role="tablist">
+                <li>
+                    <a href="simulation.html" title="Simulation mode">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="https://github.com/bebora/LeafRoute" title="LeafRoute repo">
+                        <i class="fab fa-github"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- panel content -->
+        <div class="leaflet-sidebar-content">
+            <div class="leaflet-sidebar-pane" id="home">
+                <h1 class="leaflet-sidebar-header">
+                    LeafRoute single route
+                    <span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>
+                </h1>
+                <div class="input-group input-group mb-3 mt-3">
+                    <div style="width: 90%">
+                        <input type="text" id="address-src" class="form-control photon-search" placeholder="Source address" aria-label="Source address">
+                        <input type="text" id="address-dest" class="form-control photon-search" placeholder="Destination address" aria-label="Destination address">
+                    </div>
+                    <div style="height: 100%; width: 10%">
+                        <button type="button" class="btn btn-outline-primary" id="swap">
+                            <i class="fas fa-exchange-alt" style="font-size:20px;" data-fa-transform="rotate-90"></i>
+                        </button>
+                    </div>
+                    <button type="button" class="btn btn-primary button-search mr-2" id="search" >Search route</button>
+                    <button type="button" class="btn btn-primary button-search" id="follow" style="display: none">Follow</button>
+                </div>
+                <!-- Do not remove, will be filled from JS -->
+                <div id="options-panel"></div>
+            </div>
+            <div class="leaflet-sidebar-pane" id="settings">
+                <h1 class="leaflet-sidebar-header">
+                    LeafRoute settings
+                    <span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>
+                </h1>
+                <div class="row" style="padding-top: 5px;">
+                        <input type="text" class="form-control" id="speed" placeholder="Speed multiplier" style="width: 50%">
+                        <input type="text" class="form-control" id="timer" placeholder="Timer[ms]" style="width: 50%">
+                </div>
+                <div class="row">
+                    <label for="endpoint" style="font-size: 14pt; margin-top: .5rem;">Endpoint</label>
+                    <div style="width:90%;">
+                        <input type="text" id="endpoint" class="form-control" placeholder="Endpoint" aria-label="Endpoint">
+                    </div>
+                    <div style="width:10%;">
+                        <button type="button" class="btn btn-outline-primary" id="setEndpoint" onclick="updateEndpoint()">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+                </div>
+                <label class="row" style="font-size: 14pt; margin-top: .5rem;">Extra</label>
+                <div class="row">
+                    <button type="button" class="btn btn-outline-primary" id="dumpStats">
+                        Dump stats
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
+        integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+        crossorigin=""></script>
+    <script src="scripts/typeahead.bundle.js"></script>
+    <script src="scripts/typeahead-address-photon.js"></script>
+    <script src="scripts/leaflet-sidebar.js"></script>
+    <script src="scripts/utils.js"></script>
+    <script src="scripts/MovingMarker.js"></script>
+    <script src="scripts/ARLibMarker.js"></script>
+    <script src="scripts/StrokePolyline.js"></script>
+
+    <script src="scripts/singleroute.js"></script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+#map {
+    display: block;
+    width: 100%;
+    height: 100%;
+    position:absolute;
+    bottom:0;
+    right:0;
+    z-index:-1;
+}
+
+.mapbox .overlay {
+    position: absolute;
+    top: 0;
+    left: 4%;
+    width: 100%;
+    pointer-events: none;
+}
+
+.input {
+    pointer-events: initial;
+}
+
+.text-search {
+    width: 30%;
+    height: 30px;
+    font-size: 20px;
+    pointer-events: initial;
+    position: relative;
+    z-index: 1000;
+}
+
+.button-search {
+    width: 10%;
+    height: 30px;
+    font-size: 16px;
+    pointer-events: initial;
+    z-index: 1000;
+    position: relative;
+    top: 0;
+    padding: 0%;
+}
+
+.text-speed {
+    width: 10%;
+    height: 30px;
+    font-size: 20px;
+    pointer-events: initial;
+    position:relative;
+    z-index: 1000;
+}
+
+.button-go {
+    width: 8%;
+    height: 30px;
+    font-size: 16px;
+    pointer-events: initial;
+    z-index: 1000;
+    position:relative;
+    top: 0;
+    padding: 0%;
+}
+
+html {
+    overflow: hidden;
+}

@@ -35,7 +35,7 @@ Libraries used for the backend:
 - [kd-tree](https://github.com/junjiedong/KDTree)
 
 # Demo   
-Demo [here](https://bebora.github.io/LeafRoute/singleroute.html).  
+Demo [here](https://bebora.github.io/LeafRoute/public_html/singleroute.html).  
 Backend must be running at the endpoint in the settings (default: localhost).  
 
 
