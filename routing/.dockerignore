@@ -1,5 +1,7 @@
 **
 !CMakeLists.txt
-!src
+!routesfetcher
+!cpprestsdk
 !external
+!lambda
 

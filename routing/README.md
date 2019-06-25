@@ -35,8 +35,9 @@ git submodule update
 mkdir -p build
 cd build
 cmake ..
-make main
+make cppserver
 ```  
+Executable will be in `cpprestsdk` folder  
 `weights` and `ids` **must be manually added** or the executable will load an empty map.  
 
 ## Standard Docker image
@@ -57,9 +58,10 @@ cmake ..
 make lambda
 make aws-lambda-package-lambda
 ```
+zip file will be in `lambda` folder
 `data.btl` **must be manually added** to the root of the generated zip file or the executable will load an empty map.  
 # Testing
-Run build/main or the Docker image and test with curl:
+Run build/cppserver or the Docker image and test with curl:
 ```
 curl http://localhost:1337/getroutes?&s_lat=45.4667971&s_lon=9.1904984&e_lat=45.4783918&e_lon=9.224554764332705&reroute=false
  ```

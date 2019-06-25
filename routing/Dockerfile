@@ -40,7 +40,7 @@ RUN git clone https://github.com/Microsoft/cpprestsdk.git && \
     
 COPY . /leafrouting
 
-RUN cd /leafrouting/external && \
+RUN cd /leafrouting/routesfetcher/external && \
     if [ "$(ls -A arlib)" ]; \
         then echo "Arlib found"; \
         else echo "Arlib missing, cloning" && git clone https://github.com/leonardoarcari/arlib ; \
@@ -49,12 +49,12 @@ RUN cd /leafrouting/external && \
             then echo "json11 found"; \
             else echo "json11 missing, cloning" && git clone https://github.com/dropbox/json11 ; \
     fi && \
-    cd .. && \
+    cd ../.. && \
     mkdir build-main && \
     cd build-main && \
     cmake .. && \
-    make main && \
-    mv /leafrouting/build-main/main /build/main && \
+    make cppserver && \
+    mv /leafrouting/build-main/cpprestsdk/cppserver /build/cppserver && \
     rm -rf /leafrouting && \
     cd /build && \
     curl https://leafroute.tk/ids -o ids && \
@@ -75,4 +75,4 @@ EXPOSE 1337
 
 WORKDIR /leafroute-built
 
-CMD ["./main"]
+CMD ["./cppserver"]
