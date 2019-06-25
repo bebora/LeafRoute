@@ -1,6 +1,6 @@
 [submodule "routing/external/arlib"]
-	path = routing/external/arlib
+	path = routing/routesfetcher/external/arlib
 	url = https://github.com/leonardoarcari/arlib
 [submodule "routing/external/json11"]
-	path = routing/external/json11
+	path = routing/routesfetcher/external/json11
 	url = https://github.com/dropbox/json11
