@@ -3,4 +3,5 @@ project(toplevel)
 add_subdirectory(routesfetcher)
 add_subdirectory(lambda)
 add_subdirectory(cpprestsdk)
+add_subdirectory(lambda-map-generator)
 

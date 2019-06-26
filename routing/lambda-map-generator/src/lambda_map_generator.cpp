@@ -3,7 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <boost/archive/text_iarchive.hpp>
-#include "../routing/src/routesfetcher.h"
+#include <src/routesfetcher.h>
 
 using Graph = boost::adjacency_list<boost::vecS, boost::vecS,
         boost::bidirectionalS, Location,
