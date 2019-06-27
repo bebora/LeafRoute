@@ -60,6 +60,23 @@ make aws-lambda-package-lambda
 ```
 zip file will be in `lambda` folder
 `data.btl` **must be manually added** to the root of the generated zip file or the executable will load an empty map.  
+
+## lambda_map_generator
+Lambda executable uses a different method to load the graph
+Usage: 
+```
+mkdir build
+cd build
+cmake ..
+make lambda_map_generator 
+```
+Copy ids and weights (generated from osmprovider.py) in build folder and then
+```
+./lambda_map_generator
+```
+`data.btl` will be generated in current folder  
+Result: Boost serialized graph currently used in Lambda implementation
+
 # Testing
 Run build/cppserver or the Docker image and test with curl:
 ```
