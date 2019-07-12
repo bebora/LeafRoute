@@ -119,7 +119,6 @@ void get_vertex(float lat1, float long1,
         KDTree<2, int> &tree, Vertex &v) {
     Point<2> key(lat1,long1);
     v = tree.kNNValue(key, 1);
-    
 }
 
 

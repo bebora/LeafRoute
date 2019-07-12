@@ -1,3 +1,4 @@
+/* Shared CSS for map and sidebar */
 body {
     padding: 0;
     margin: 0;
@@ -16,6 +17,59 @@ html, body, #map {
     left: 0px;
 }
 
+/* Simulation CSS */
+
+#sliders_auto_reallocate {
+    padding-left: 0px;
+    width: 100%;
+}
+
+.slider-description {
+    margin-bottom: 1px;
+    margin-top: 2px;
+}
+
+#totalmarkers {
+    width: 85%;
+    margin-top: 10px;
+}
+
+#totalmarkerstext {
+    font-size: 20px;
+    margin-top: 7px;
+    text-align: right;
+    width: 15%;
+}
+.ttip {
+    position: relative;
+}
+
+/* Tooltip text */
+.ttip .ttiptext {
+    visibility: hidden;
+    opacity: 0;
+    width: auto;
+    background-color: #444;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+    bottom: 100%;
+    left: 75%;
+    -webkit-transition: visibility 0.3s linear,opacity 0.3s linear;
+    transition: visibility 0.3s linear,opacity 0.3s linear;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.ttip:hover .ttiptext {
+    opacity: 1;
+    visibility: visible;
+
+}
+
+/* Singleroute CSS */
 .photon-search {
     margin-bottom: 10px;
 }

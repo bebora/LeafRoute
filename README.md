@@ -38,7 +38,3 @@ Libraries used for the backend:
 Demo [here](https://bebora.github.io/LeafRoute/public_html/singleroute.html).  
 Backend must be running at the endpoint in the settings (default: localhost).  
 
-
-# TODO
-- Join some custom css files
-- Add function to redraw slider background after any value change

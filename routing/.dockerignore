@@ -4,4 +4,5 @@
 !cpprestsdk
 !external
 !lambda
+!lambda-map-generator
 
