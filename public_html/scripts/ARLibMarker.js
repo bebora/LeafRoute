@@ -163,14 +163,20 @@ L.Marker.MovingMarker.ARLibMarker = L.Marker.MovingMarker.extend({
         //console.log('updating...');
         let that = this;
         //console.log(that.current_index);
-        if (that.QueueLatlngs.length > 1) {
-            that.QueueLatlngs = that.tempQueueLatlngs.slice(1);
-            that.tempQueueLatlngs = that.QueueLatlngs;
-            that.currentLatlngs.push(that.QueueLatlngs[0]);
-            //TODO following two statements are useless, remove if unnecessary
-            //let oldlast = L.latLng(that.currentLatlngs[that.currentLatlngs.length-2]);
-            //let newlast = L.latLng(that.currentLatlngs[that.currentLatlngs.length-1]);
-            L.Marker.MovingMarker.prototype.addLatLng.call(that, that.QueueLatlngs[0], that.QueueLatlngs[0][2]*1000 / that.speed);
+        try {
+            if (that.QueueLatlngs.length > 1) {
+                that.QueueLatlngs = that.tempQueueLatlngs.slice(1);
+                that.tempQueueLatlngs = that.QueueLatlngs;
+                that.currentLatlngs.push(that.QueueLatlngs[0]);
+                //TODO following two statements are useless, remove if unnecessary
+                //let oldlast = L.latLng(that.currentLatlngs[that.currentLatlngs.length-2]);
+                //let newlast = L.latLng(that.currentLatlngs[that.currentLatlngs.length-1]);
+                L.Marker.MovingMarker.prototype.addLatLng.call(that, that.QueueLatlngs[0], that.QueueLatlngs[0][2]*1000 / that.speed);
+            }
+        }
+        catch(e) {
+            _stop();
+            return;
         }
         that.current_index = that.current_index + 1; 
     },
