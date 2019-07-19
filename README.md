@@ -1,6 +1,6 @@
 # LeafRoute
 LeafRoute is a routing service with a C++ back-end and an HTML/JavaScript frontend.  
-Its main purpose is to use and stress the Alternative Routing Library for Boost.Graph [ARLib](https://github.com/leonardoarcari/arlib).
+Its main purpose is to create an environment to simulate traffic in Smart Cities.
 ## Frontend
 The frontend is built with [Leaflet](https://github.com/Leaflet/Leaflet).  
 LeafLet plugins used:
